@@ -62,7 +62,7 @@ func (client *LokiClient) AddStreamWithLabels(labels map[string]string, messages
 		Values: vals,
 	}
 	client.streams <- stream
-	println("add message to stream channel success")
+	// println("add message to stream channel success")
 }
 
 func (client *LokiClient) Query(queryString string) ([]Message, error) {
@@ -190,9 +190,9 @@ func (client *LokiClient) send() error {
 	if err != nil {
 		return err
 	} else if response != nil && response.StatusCode != 204 {
-		println("上传条数", length)
+		// println("上传条数", length)
 		return err
 	}
-	println("成功上传条数", length)
+	// println("成功上传条数", length)
 	return nil
 }

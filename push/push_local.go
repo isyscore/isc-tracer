@@ -20,7 +20,7 @@ func (client *LocalStore) AddStreamWithLabels(labels map[string]string, messages
 		val[1] = messages[i].Message
 		vals = append(vals, val)
 	}
-	println("add message to stream channel success")
+	// println("add message to stream channel success")
 }
 
 func (client *LocalStore) Query(queryString string) ([]Message, error) {

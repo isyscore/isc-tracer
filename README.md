@@ -38,7 +38,7 @@ func testReq(req *http.Request)  {
     println("服务端其他业务请求")
     
     for i := 0; i < 3; i++ {
-        println("作为客户端，向其他服务发起请求")
+        // println("作为客户端，向其他服务发起请求")
 		req1 := &http.Request{}
 		//clientTracer也支持仅有请求头的处理
         //clientTracer := serverTracer.NewClientWithHeader(header)
@@ -46,7 +46,7 @@ func testReq(req *http.Request)  {
         //clientTracer.AttrMap = []Parameter{}
 		//开启客户端跟踪
         clientTracer := serverTracer.NewClientTracer(req1)
-		println("req1请求处理以及其他业务处理")
+		// println("req1请求处理以及其他业务处理")
 		//结束当前客户端请求跟踪
         clientTracer.EndTrace(OK, "i am danger")
     }

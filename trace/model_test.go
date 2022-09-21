@@ -88,14 +88,14 @@ func TestTracer_EndTraceOk(t *testing.T) {
 			conf.Conf.Loki.MaxWaitTime = 1
 			serverTracer := NewServerTracer(tt.req)
 			//serverTracer1 := NewServerTracerWithoutReq()
-			println("服务端其他业务请求")
-			println("向客户端发起请求")
+			// println("服务端其他业务请求")
+			// println("向客户端发起请求")
 			for i := 0; i < 3; i++ {
 				//clientTracer := serverTracer.NewClientTracer(tt.req)
 				clientTracer := serverTracer.NewClientWithHeader(header)
 				clientTracer.TraceName = "自定义traceName，默认:<Method>uri"
 				clientTracer.AttrMap = []Parameter{}
-				println("真正的请求，dorequest")
+				// println("真正的请求，dorequest")
 				//请求结束后，调用Endtrace
 				clientTracer.EndTrace(OK, "i am danger")
 			}
