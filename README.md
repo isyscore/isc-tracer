@@ -11,6 +11,7 @@ go get github.com/kuchensheng/bintools/tracer
 ```
 ## Example
 
+```go
 //初始化配置信息
 var Conf = &ServiceConf{
 	//当前服务名
@@ -53,6 +54,7 @@ func testReq(req *http.Request)  {
 	//结束服务端跟踪
     serverTracer.EndTrace(OK, "i am not in danger")
 }
+```
 tracer模块也提供了http请求封装,这些请求都被serverTracer所包裹。
 分装包括了基本的GET|POST|PUT|DELETE请求
 示例如下
