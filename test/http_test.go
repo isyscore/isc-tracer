@@ -1,7 +1,8 @@
-package trace
+package test
 
 import (
 	"github.com/isyscore/isc-tracer/conf"
+	"github.com/isyscore/isc-tracer/trace"
 	"net/http"
 	"reflect"
 	"testing"
@@ -9,7 +10,7 @@ import (
 )
 
 type fields struct {
-	Tracer      *Tracer
+	Tracer      *trace.Tracer
 	clientRpcId string
 }
 
@@ -34,14 +35,14 @@ var caseDelete = []testCase{
 	{
 		name: "删除接口测试",
 		fields: fields{
-			&Tracer{
-				TraceId:     LocalIdCreate.GenerateTraceId(),
+			&trace.Tracer{
+				TraceId:     trace.LocalIdCreate.GenerateTraceId(),
 				sampled:     true,
 				ServiceName: conf.Conf.ServiceName,
 				startTime:   time.Now().UnixMilli(),
 				RpcId:       "0",
-				TraceType:   HTTP,
-				RemoteIp:    GetLocalIp(),
+				TraceType:   trace.HTTP,
+				RemoteIp:    trace.GetLocalIp(),
 				TraceName:   "<default>_server",
 			},
 			"",
@@ -65,7 +66,7 @@ var caseCall = []testCase{}
 func TestServerTracer_Delete(t *testing.T) {
 	for _, tt := range caseDelete {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -85,7 +86,7 @@ func TestServerTracer_Delete(t *testing.T) {
 func TestServerTracer_DeleteOfStandard(t *testing.T) {
 	for _, tt := range caseDelete {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -104,7 +105,7 @@ func TestServerTracer_DeleteOfStandard(t *testing.T) {
 func TestServerTracer_DeleteSimple(t *testing.T) {
 	for _, tt := range caseDelete {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -123,7 +124,7 @@ func TestServerTracer_DeleteSimple(t *testing.T) {
 func TestServerTracer_DeleteSimpleOfStandard(t *testing.T) {
 	for _, tt := range caseDelete {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -142,7 +143,7 @@ func TestServerTracer_DeleteSimpleOfStandard(t *testing.T) {
 func TestServerTracer_Get(t *testing.T) {
 	for _, tt := range caseGet {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -161,7 +162,7 @@ func TestServerTracer_Get(t *testing.T) {
 func TestServerTracer_GetOfStandard(t *testing.T) {
 	for _, tt := range caseGet {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -180,7 +181,7 @@ func TestServerTracer_GetOfStandard(t *testing.T) {
 func TestServerTracer_GetSimple(t *testing.T) {
 	for _, tt := range caseGet {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -199,7 +200,7 @@ func TestServerTracer_GetSimple(t *testing.T) {
 func TestServerTracer_GetSimpleOfStandard(t *testing.T) {
 	for _, tt := range caseGet {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -218,7 +219,7 @@ func TestServerTracer_GetSimpleOfStandard(t *testing.T) {
 func TestServerTracer_Head(t *testing.T) {
 	for _, tt := range caseHead {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -232,7 +233,7 @@ func TestServerTracer_Head(t *testing.T) {
 func TestServerTracer_HeadSimple(t *testing.T) {
 	for _, tt := range caseHead {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -246,7 +247,7 @@ func TestServerTracer_HeadSimple(t *testing.T) {
 func TestServerTracer_Patch(t *testing.T) {
 	for _, tt := range casePatch {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -265,7 +266,7 @@ func TestServerTracer_Patch(t *testing.T) {
 func TestServerTracer_PatchOfStandard(t *testing.T) {
 	for _, tt := range casePatch {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -284,7 +285,7 @@ func TestServerTracer_PatchOfStandard(t *testing.T) {
 func TestServerTracer_PatchSimple(t *testing.T) {
 	for _, tt := range casePatch {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -303,7 +304,7 @@ func TestServerTracer_PatchSimple(t *testing.T) {
 func TestServerTracer_PatchSimpleOfStandard(t *testing.T) {
 	for _, tt := range casePatch {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -322,7 +323,7 @@ func TestServerTracer_PatchSimpleOfStandard(t *testing.T) {
 func TestServerTracer_Post(t *testing.T) {
 	for _, tt := range casePost {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -341,7 +342,7 @@ func TestServerTracer_Post(t *testing.T) {
 func TestServerTracer_PostOfStandard(t *testing.T) {
 	for _, tt := range casePost {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -360,7 +361,7 @@ func TestServerTracer_PostOfStandard(t *testing.T) {
 func TestServerTracer_PostSimple(t *testing.T) {
 	for _, tt := range casePost {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -379,7 +380,7 @@ func TestServerTracer_PostSimple(t *testing.T) {
 func TestServerTracer_PostSimpleOfStandard(t *testing.T) {
 	for _, tt := range casePost {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -398,7 +399,7 @@ func TestServerTracer_PostSimpleOfStandard(t *testing.T) {
 func TestServerTracer_Put(t *testing.T) {
 	for _, tt := range casePut {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -417,7 +418,7 @@ func TestServerTracer_Put(t *testing.T) {
 func TestServerTracer_PutOfStandard(t *testing.T) {
 	for _, tt := range casePut {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -436,7 +437,7 @@ func TestServerTracer_PutOfStandard(t *testing.T) {
 func TestServerTracer_PutSimple(t *testing.T) {
 	for _, tt := range casePut {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -455,7 +456,7 @@ func TestServerTracer_PutSimple(t *testing.T) {
 func TestServerTracer_PutSimpleOfStandard(t *testing.T) {
 	for _, tt := range casePut {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -474,7 +475,7 @@ func TestServerTracer_PutSimpleOfStandard(t *testing.T) {
 func TestServerTracer_call(t *testing.T) {
 	for _, tt := range caseCall {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -493,7 +494,7 @@ func TestServerTracer_call(t *testing.T) {
 func TestServerTracer_callIgnoreReturn(t *testing.T) {
 	for _, tt := range caseCall {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}
@@ -507,7 +508,7 @@ func TestServerTracer_callIgnoreReturn(t *testing.T) {
 func TestServerTracer_callToStandard(t *testing.T) {
 	for _, tt := range caseCall {
 		t.Run(tt.name, func(t *testing.T) {
-			server := &ServerTracer{
+			server := &trace.ServerTracer{
 				Tracer:      tt.fields.Tracer,
 				ClientRpcId: tt.fields.clientRpcId,
 			}

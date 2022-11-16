@@ -1,9 +1,10 @@
-package trace
+package test
 
 import (
 	"encoding/json"
 	"errors"
 	"github.com/isyscore/isc-tracer/conf"
+	"github.com/isyscore/isc-tracer/trace"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -35,7 +36,7 @@ func TestNew(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *Tracer
+		want *trace.Tracer
 	}{
 
 		{
@@ -43,12 +44,12 @@ func TestNew(t *testing.T) {
 			args: struct{ req *http.Request }{
 				req: requestArgs,
 			},
-			want: New(requestArgs),
+			want: trace.New(requestArgs),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := New(tt.args.req); !reflect.DeepEqual(got, tt.want) {
+			if got := trace.New(tt.args.req); !reflect.DeepEqual(got, tt.want) {
 				data, _ := json.Marshal(got)
 				t.Logf("New() = %v, want %v", string(data), tt.want)
 			}
@@ -61,7 +62,7 @@ func TestTracer_EndTraceOk(t *testing.T) {
 		request := &http.Request{
 			Header: func() map[string][]string {
 				headers := make(map[string][]string)
-				headers[T_HEADER_RPCID] = []string{"1.1"}
+				headers[trace.T_HEADER_RPCID] = []string{"1.1"}
 				return headers
 			}(),
 		}
@@ -86,7 +87,7 @@ func TestTracer_EndTraceOk(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			conf.Conf.Loki.Host = "http://10.30.30.78:3100"
 			conf.Conf.Loki.MaxWaitTime = 1
-			serverTracer := NewServerTracer(tt.req)
+			serverTracer := trace.NewServerTracer(tt.req)
 			//serverTracer1 := NewServerTracerWithoutReq()
 			// println("服务端其他业务请求")
 			// println("向客户端发起请求")
@@ -94,15 +95,15 @@ func TestTracer_EndTraceOk(t *testing.T) {
 				//clientTracer := serverTracer.NewClientTracer(tt.req)
 				clientTracer := serverTracer.NewClientWithHeader(header)
 				clientTracer.TraceName = "自定义traceName，默认:<Method>uri"
-				clientTracer.AttrMap = []Parameter{}
+				clientTracer.AttrMap = []trace.Parameter{}
 				// println("真正的请求，dorequest")
 				//请求结束后，调用Endtrace
-				clientTracer.EndTrace(OK, "i am danger")
+				clientTracer.EndTrace(trace.OK, "i am danger")
 			}
 			//服务端请求结束后，调用EndTrace()
 			//serverTracer.EndTrace(OK, "i am not in danger")
 			err := errors.New("我打江南走过，大哥，我错了")
-			serverTracer.EndTrace(ERROR, err.Error())
+			serverTracer.EndTrace(trace.ERROR, err.Error())
 			time.Sleep(2 * time.Second)
 		})
 	}
