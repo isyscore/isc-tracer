@@ -29,7 +29,7 @@ var Conf = &ServiceConf{
         },
 }
 //create a server tracer
-"github.com/kuchensheng/bintools/tracer/conf"
+"github.com/kuchensheng/bintools/tracer/config"
 "github.com/kuchensheng/bintools/tracer/push"
 func testReq(req *http.Request)  {
 	//开启服务端跟踪

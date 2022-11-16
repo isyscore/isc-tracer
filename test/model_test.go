@@ -3,8 +3,8 @@ package test
 import (
 	"encoding/json"
 	"errors"
-	"github.com/isyscore/isc-tracer/conf"
-	"github.com/isyscore/isc-tracer/trace"
+	"github.com/isyscore/isc-tracer/config"
+	"github.com/isyscore/isc-tracer/internal/trace"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -85,8 +85,8 @@ func TestTracer_EndTraceOk(t *testing.T) {
 	header := &http.Header{}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			conf.Conf.Loki.Host = "http://10.30.30.78:3100"
-			conf.Conf.Loki.MaxWaitTime = 1
+			config.Conf.Loki.Host = "http://10.30.30.78:3100"
+			config.Conf.Loki.MaxWaitTime = 1
 			serverTracer := trace.NewServerTracer(tt.req)
 			//serverTracer1 := NewServerTracerWithoutReq()
 			// println("服务端其他业务请求")

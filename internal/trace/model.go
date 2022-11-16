@@ -2,14 +2,12 @@ package trace
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/isyscore/isc-tracer/conf"
-	"github.com/isyscore/isc-tracer/push"
+	"github.com/isyscore/isc-tracer/config"
+	"github.com/isyscore/isc-tracer/util"
 	"io/ioutil"
 	"log"
 	"mime/multipart"
-	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -104,11 +102,11 @@ type Tracer struct {
 	message string
 	// Size 响应体大小
 	Size int
-	// startTime 当前span开始时间
-	startTime int64
+	// StartTime 当前span开始时间
+	StartTime int64
 	// endTime 当前span结束时间
 	endTime int64
-	sampled bool
+	Sampled bool
 	// bizData 响应数据
 	bizData map[string]interface{}
 	Ended   bool
@@ -129,13 +127,13 @@ func NewServerTracer(req *http.Request) *ServerTracer {
 // NewServerTracerWithoutReq 开启服务端跟踪,此用于服务端定时任务类请求
 func NewServerTracerWithoutReq() *ServerTracer {
 	tracer := &Tracer{
-		TraceId:     LocalIdCreate.GenerateTraceId(),
-		sampled:     true,
-		ServiceName: conf.Conf.ServiceName,
-		startTime:   time.Now().UnixMilli(),
+		TraceId:     util.LocalIdCreate.GenerateTraceId(),
+		Sampled:     true,
+		ServiceName: config.ServerConfig.ServiceName,
+		StartTime:   time.Now().UnixMilli(),
 		RpcId:       "0",
 		TraceType:   HTTP,
-		RemoteIp:    GetLocalIp(),
+		RemoteIp:    util.GetLocalIp(),
 		TraceName:   "<default>_server",
 	}
 	return &ServerTracer{tracer, ""}
@@ -162,12 +160,12 @@ func (server *ServerTracer) NewClientWithHeader(header *http.Header) *ClientTrac
 	// fixme TraceName和Size 需要手动写入
 	clientTracer := &ClientTracer{&Tracer{
 		TraceId:     server.TraceId,
-		sampled:     true,
-		ServiceName: conf.Conf.ServiceName,
-		startTime:   time.Now().UnixMilli(),
+		Sampled:     true,
+		ServiceName: config.ServerConfig.ServiceName,
+		StartTime:   time.Now().UnixMilli(),
 		RpcId:       rpcId,
 		TraceType:   HTTP,
-		RemoteIp:    GetLocalIp(),
+		RemoteIp:    util.GetLocalIp(),
 		TraceName:   "<default>_default",
 	}}
 	header.Set(T_HEADER_TRACEID, server.TraceId)
@@ -225,9 +223,9 @@ func New(req *http.Request) *Tracer {
 	length, _ := strconv.Atoi(strLength)
 	return &Tracer{
 		TraceId:     getOrCreateTraceId(req),
-		sampled:     true,
-		ServiceName: conf.Conf.ServiceName,
-		startTime:   time.Now().UnixMilli(),
+		Sampled:     true,
+		ServiceName: config.ServerConfig.ServiceName,
+		StartTime:   time.Now().UnixMilli(),
 		RpcId:       getAndIncreaseRpcId(req),
 		TraceType:   HTTP,
 		RemoteIp:    req.RemoteAddr,
@@ -268,7 +266,7 @@ func (tracer *Tracer) EndTrace(status TraceStatusEnum, message string) {
 		log.Println("tracer's rpcId is nil,will be not append tracer info")
 		return
 	}
-	if !tracer.sampled {
+	if !tracer.Sampled {
 		log.Println("tracer's sampled is false,will be not append tracer info")
 		return
 	}
@@ -279,60 +277,28 @@ func (tracer *Tracer) EndTrace(status TraceStatusEnum, message string) {
 		tracer.message = message
 	}
 	// 记录本地文件或丢到loki的发送队列中
-	push.GetStrategy().AddStream([]push.Message{tracer.buildLog()})
+	//push.GetStrategy().AddStream([]push.Message{tracer.buildLog()})
 }
 
-func (tracer *Tracer) buildLog() push.Message {
-	var strItem []string
-	result := &push.Message{
-		Time: strconv.FormatInt(tracer.endTime, 10) + "000000",
-	}
-	strItem = append(strItem, "0", "default", strconv.FormatInt(tracer.startTime, 10), tracer.TraceId,
-		tracer.RpcId, strconv.Itoa(int(tracer.Endpoint)), strconv.Itoa(int(tracer.TraceType)), tracer.TraceName,
-		tracer.ServiceName, GetLocalIp(), tracer.RemoteIp, strconv.Itoa(int(tracer.status)), strconv.Itoa(tracer.Size),
-		strconv.FormatInt(tracer.endTime-tracer.startTime, 10), tracer.message)
-	if tracer.AttrMap != nil {
-		if data, err := json.Marshal(tracer.AttrMap); err != nil {
-			// do nothing
-		} else {
-			strItem = append(strItem, string(data))
-		}
-	}
-	result.Message = strings.Join(strItem, "|")
-	return *result
-}
-
-type localIp struct {
-	LocalIp string
-}
-
-var li *localIp
-
-func GetLocalIp() string {
-	if li != nil {
-		return li.LocalIp
-	}
-	li = &localIp{
-		LocalIp: "127.0.0.1",
-	}
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		log.Println("获取本地地址异常", err)
-		return li.LocalIp
-	}
-	for _, address := range addrs {
-		// 检查ip地址判断是否回环地址
-		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				ip := fmt.Sprintf(ipnet.IP.String())
-				li = &localIp{ip}
-				return li.LocalIp
-			}
-
-		}
-	}
-	return li.LocalIp
-}
+//func (tracer *Tracer) buildLog() push.Message {
+//	var strItem []string
+//	result := &push.Message{
+//		Time: strconv.FormatInt(tracer.endTime, 10) + "000000",
+//	}
+//	strItem = append(strItem, "0", "default", strconv.FormatInt(tracer.StartTime, 10), tracer.TraceId,
+//		tracer.RpcId, strconv.Itoa(int(tracer.Endpoint)), strconv.Itoa(int(tracer.TraceType)), tracer.TraceName,
+//		tracer.ServiceName, GetLocalIp(), tracer.RemoteIp, strconv.Itoa(int(tracer.status)), strconv.Itoa(tracer.Size),
+//		strconv.FormatInt(tracer.endTime-tracer.StartTime, 10), tracer.message)
+//	if tracer.AttrMap != nil {
+//		if data, err := json.Marshal(tracer.AttrMap); err != nil {
+//			// do nothing
+//		} else {
+//			strItem = append(strItem, string(data))
+//		}
+//	}
+//	result.Message = strings.Join(strItem, "|")
+//	return *result
+//}
 
 func parametersCollector(req *http.Request) []Parameter {
 	cloneRequest := req.Clone(context.TODO())
@@ -400,7 +366,7 @@ func parametersCollector(req *http.Request) []Parameter {
 func getOrCreateTraceId(req *http.Request) string {
 	traceId := req.Header.Get(T_HEADER_TRACEID)
 	if traceId == "" {
-		traceId = LocalIdCreate.GenerateTraceId()
+		traceId = util.LocalIdCreate.GenerateTraceId()
 		if req.Header != nil {
 			req.Header.Set(T_HEADER_TRACEID, traceId)
 		}
