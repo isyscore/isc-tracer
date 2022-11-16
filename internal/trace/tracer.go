@@ -72,15 +72,6 @@ type Parameter struct {
 	Value []string `json:"Value"`
 }
 
-type ServerTracer struct {
-	*Tracer
-	ClientRpcId string `json:"client_rpc_id"`
-}
-
-type ClientTracer struct {
-	*Tracer
-}
-
 type Tracer struct {
 	// TraceId 调用链ID,一旦初始化,不能修改
 	TraceId string
@@ -117,15 +108,14 @@ type Tracer struct {
 }
 
 // NewServerTracer 开启服务端跟踪
-func NewServerTracer(req *http.Request) *ServerTracer {
+func NewServerTracer(req *http.Request) *Tracer {
 	tracer := New(req)
-	serverTracer := &ServerTracer{tracer, ""}
-	serverTracer.Endpoint = SERVER
-	return serverTracer
+	tracer.Endpoint = SERVER
+	return tracer
 }
 
 // NewServerTracerWithoutReq 开启服务端跟踪,此用于服务端定时任务类请求
-func NewServerTracerWithoutReq() *ServerTracer {
+func NewServerTracerWithoutReq() *Tracer {
 	tracer := &Tracer{
 		TraceId:     util.LocalIdCreate.GenerateTraceId(),
 		Sampled:     true,
@@ -136,17 +126,17 @@ func NewServerTracerWithoutReq() *ServerTracer {
 		RemoteIp:    util.GetLocalIp(),
 		TraceName:   "<default>_server",
 	}
-	return &ServerTracer{tracer, ""}
+	return tracer
 }
 
 var clientTracerLock sync.Mutex
 
-func (server *ServerTracer) NewClientWithHeader(header *http.Header) *ClientTracer {
+func (tracer *Tracer) NewClientWithHeader(header *http.Header) *Tracer {
 	clientTracerLock.Lock()
 	defer clientTracerLock.Unlock()
-	rpcId := server.ClientRpcId
+	rpcId := tracer.RpcId
 	if rpcId == "" {
-		rpcId = server.RpcId
+		rpcId = tracer.RpcId
 		rpcId += ".1"
 	} else {
 		// 获取最后一位 +1
@@ -156,10 +146,10 @@ func (server *ServerTracer) NewClientWithHeader(header *http.Header) *ClientTrac
 		splits[len(splits)-1] = strconv.Itoa(lastOne)
 		rpcId = strings.Join(splits, ".")
 	}
-	server.ClientRpcId = rpcId
+	tracer.RpcId = rpcId
 	// fixme TraceName和Size 需要手动写入
-	clientTracer := &ClientTracer{&Tracer{
-		TraceId:     server.TraceId,
+	clientTracer := &Tracer{
+		TraceId:     tracer.TraceId,
 		Sampled:     true,
 		ServiceName: config.ServerConfig.ServiceName,
 		StartTime:   time.Now().UnixMilli(),
@@ -167,19 +157,19 @@ func (server *ServerTracer) NewClientWithHeader(header *http.Header) *ClientTrac
 		TraceType:   HTTP,
 		RemoteIp:    util.GetLocalIp(),
 		TraceName:   "<default>_default",
-	}}
-	header.Set(T_HEADER_TRACEID, server.TraceId)
+	}
+	header.Set(T_HEADER_TRACEID, tracer.TraceId)
 	header.Set(T_HEADER_RPCID, rpcId)
 	return clientTracer
 }
 
 // NewClientTracer 开启客户端跟踪
-func (server *ServerTracer) NewClientTracer(req *http.Request) *ClientTracer {
+func (tracer *Tracer) NewClientTracer(req *http.Request) *Tracer {
 	clientTracerLock.Lock()
 	defer clientTracerLock.Unlock()
-	rpcId := server.ClientRpcId
+	rpcId := tracer.RpcId
 	if rpcId == "" {
-		rpcId = server.RpcId
+		rpcId = tracer.RpcId
 		rpcId += ".1"
 	} else {
 		// 获取最后一位 +1
@@ -190,10 +180,10 @@ func (server *ServerTracer) NewClientTracer(req *http.Request) *ClientTracer {
 		rpcId = strings.Join(splits, ".")
 	}
 
-	clientTracer := &ClientTracer{NewWithRpcId(req, rpcId)}
-	clientTracer.TraceId = server.TraceId
+	clientTracer := NewWithRpcId(req, rpcId)
+	clientTracer.TraceId = tracer.TraceId
 	clientTracer.Endpoint = CLIENT
-	server.ClientRpcId = rpcId
+	tracer.RpcId = rpcId
 	return clientTracer
 }
 
@@ -235,11 +225,11 @@ func New(req *http.Request) *Tracer {
 	}
 }
 
-func (server *ServerTracer) EndServerTracer(status TraceStatusEnum, message string) {
-	server.EndTrace(status, message)
-}
+//func (server *ServerTracer) EndServerTracer(status TraceStatusEnum, message string) {
+//	server.EndTrace(status, message)
+//}
 
-func (tracer *ClientTracer) EndServerTracer(status TraceStatusEnum, message string) {
+func (tracer *Tracer) EndTracer(status TraceStatusEnum, message string) {
 	tracer.EndTrace(status, message)
 }
 
