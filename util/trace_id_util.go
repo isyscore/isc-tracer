@@ -1,29 +1,28 @@
 package util
 
 import (
-	"net"
-	"os"
 	"sync/atomic"
 	"time"
 )
 
-var LocalIdCreate TraceIdIntf = &LocalTraceIdCreator{}
-
-type TraceIdIntf interface {
-	// GenerateTraceId 生成或获取到唯一traceId值
-	GenerateTraceId() string
-}
-
-type LocalTraceIdCreator struct {
-	TraceIdIntf
-}
+//var LocalIdCreate TraceIdIntf = &LocalTraceIdCreator{}
+//
+//type TraceIdIntf interface {
+//	// GenerateTraceId 生成或获取到唯一traceId值
+//	GenerateTraceId() string
+//}
+//
+//type LocalTraceIdCreator struct {
+//	TraceIdIntf
+//}
 
 const max = 8000
 
 var seq uint64 = 0
 var digits = []uint8{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'}
 
-func (creator *LocalTraceIdCreator) GenerateTraceId() string {
+//(creator *LocalTraceIdCreator)
+func GenerateTraceId() string {
 	buffer := make([]byte, 16)
 
 	// 计算当前session的咋一序号
@@ -45,20 +44,9 @@ func (creator *LocalTraceIdCreator) GenerateTraceId() string {
 	putBuffer(&buffer, bt0, 2)
 
 	// 计算IP地址
-	addrs, _ := net.InterfaceAddrs()
-	for _, addr := range addrs {
-		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				ip := ipnet.IP.To4()
-				putBuffer(&buffer, ip, 10)
-				break
-			}
-		}
-	}
-
+	putBuffer(&buffer, []byte(GetLocalIp()), 10)
 	// 计算PID
-	pid := os.Getpid()
-	bp := shortToBytes(uint16(pid))
+	bp := shortToBytes(GetPid())
 	putBuffer(&buffer, bp, 14)
 
 	hex := encodeHex(buffer, digits)
