@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/isyscore/isc-tracer/config"
+	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/util"
 	"io/ioutil"
 	"log"
@@ -13,53 +14,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-)
-
-// TraceTypeEnum 标明链路跟踪类型
-type TraceTypeEnum int
-
-// EndpointEnum 表明当前节点类型
-type EndpointEnum int
-
-// TraceStatusEnum 标明当前trace的结果
-type TraceStatusEnum int
-
-const (
-	ROOT TraceTypeEnum = iota
-	HTTP
-	DUBBO
-	MYSQL
-	ROCKETMQ
-	REDIS
-	KAFKA
-	IDS
-	MQTT
-	ORACLE
-	ELASTIC
-	ZOOKEEPER
-	HBASE
-	HADOOP
-	FLINK
-	SPARK
-	KUDU
-	HIVE
-	STORM
-	CONFIG
-)
-const (
-	CLIENT EndpointEnum = iota
-	SERVER
-)
-const (
-	OK TraceStatusEnum = iota
-	ERROR
-	WARNING
-	TIMEOUT
-)
-
-const (
-	T_HEADER_TRACEID = "T-Head-TraceId"
-	T_HEADER_RPCID   = "T-Head-Rpcid"
 )
 
 // Parameter 请求入参
@@ -78,15 +32,15 @@ type Tracer struct {
 	// RpcId 调用顺序，依次为0 → 0.1 → 0.1.1,1 -> 1.1 -> 1.1.1 ...
 	RpcId string
 	// TraceType 链路跟踪类型
-	TraceType TraceTypeEnum
+	TraceType _const.TraceTypeEnum
 	// TraceName 链路跟踪名称
 	TraceName string
 	// Endpoint 跟踪类型
-	Endpoint EndpointEnum
+	Endpoint _const.EndpointEnum
 	// status 跟踪结果
-	status TraceStatusEnum
+	status _const.TraceStatusEnum
 	// RemoteStatus 远程调用结果
-	RemoteStatus TraceStatusEnum
+	RemoteStatus _const.TraceStatusEnum
 	// RemoteIp 远程调用IP
 	RemoteIp string
 	// message 调用返回或异常信息
@@ -110,7 +64,7 @@ type Tracer struct {
 // NewServerTracer 开启服务端跟踪
 func NewServerTracer(req *http.Request) *Tracer {
 	tracer := New(req)
-	tracer.Endpoint = SERVER
+	tracer.Endpoint = _const.SERVER
 	return tracer
 }
 
@@ -122,7 +76,7 @@ func NewServerTracerWithoutReq() *Tracer {
 		ServiceName: config.ServerConfig.ServiceName,
 		StartTime:   time.Now().UnixMilli(),
 		RpcId:       "0",
-		TraceType:   HTTP,
+		TraceType:   _const.HTTP,
 		RemoteIp:    util.GetLocalIp(),
 		TraceName:   "<default>_server",
 	}
@@ -154,12 +108,12 @@ func (tracer *Tracer) NewClientWithHeader(header *http.Header) *Tracer {
 		ServiceName: config.ServerConfig.ServiceName,
 		StartTime:   time.Now().UnixMilli(),
 		RpcId:       rpcId,
-		TraceType:   HTTP,
+		TraceType:   _const.HTTP,
 		RemoteIp:    util.GetLocalIp(),
 		TraceName:   "<default>_default",
 	}
-	header.Set(T_HEADER_TRACEID, tracer.TraceId)
-	header.Set(T_HEADER_RPCID, rpcId)
+	header.Set(_const.T_HEADER_TRACEID, tracer.TraceId)
+	header.Set(_const.T_HEADER_RPCID, rpcId)
 	return clientTracer
 }
 
@@ -182,7 +136,7 @@ func (tracer *Tracer) NewClientTracer(req *http.Request) *Tracer {
 
 	clientTracer := NewWithRpcId(req, rpcId)
 	clientTracer.TraceId = tracer.TraceId
-	clientTracer.Endpoint = CLIENT
+	clientTracer.Endpoint = _const.CLIENT
 	tracer.RpcId = rpcId
 	return clientTracer
 }
@@ -190,7 +144,7 @@ func (tracer *Tracer) NewClientTracer(req *http.Request) *Tracer {
 // NewWithRpcId 自定义rpcId
 func NewWithRpcId(req *http.Request, rpcId string) *Tracer {
 	tracer := New(req)
-	req.Header.Set(T_HEADER_RPCID, rpcId)
+	req.Header.Set(_const.T_HEADER_RPCID, rpcId)
 	tracer.RpcId = rpcId
 	return tracer
 }
@@ -217,7 +171,7 @@ func New(req *http.Request) *Tracer {
 		ServiceName: config.ServerConfig.ServiceName,
 		StartTime:   time.Now().UnixMilli(),
 		RpcId:       getAndIncreaseRpcId(req),
-		TraceType:   HTTP,
+		TraceType:   _const.HTTP,
 		RemoteIp:    req.RemoteAddr,
 		TraceName:   fmt.Sprintf("<%s>%s", method, uri),
 		AttrMap:     parametersCollector(req),
@@ -229,21 +183,21 @@ func New(req *http.Request) *Tracer {
 //	server.EndTrace(status, message)
 //}
 
-func (tracer *Tracer) EndTracer(status TraceStatusEnum, message string) {
+func (tracer *Tracer) EndTracer(status _const.TraceStatusEnum, message string) {
 	tracer.EndTrace(status, message)
 }
 
 // EndTraceOk 快速记录成功请求的链路信息
 func (tracer *Tracer) EndTraceOk() {
-	tracer.EndTrace(OK, "")
+	tracer.EndTrace(_const.OK, "")
 }
 
 // EndTraceError 快速记录失败请求的链路信息
 func (tracer *Tracer) EndTraceError(err error) {
-	tracer.EndTrace(ERROR, err.Error())
+	tracer.EndTrace(_const.ERROR, err.Error())
 }
 
-func (tracer *Tracer) EndTrace(status TraceStatusEnum, message string) {
+func (tracer *Tracer) EndTrace(status _const.TraceStatusEnum, message string) {
 	if tracer.Ended {
 		log.Default().Println("tracer is ended,will be not append tracer info")
 		return
@@ -354,23 +308,23 @@ func parametersCollector(req *http.Request) []Parameter {
 }
 
 func getOrCreateTraceId(req *http.Request) string {
-	traceId := req.Header.Get(T_HEADER_TRACEID)
+	traceId := req.Header.Get(_const.T_HEADER_TRACEID)
 	if traceId == "" {
 		traceId = util.LocalIdCreate.GenerateTraceId()
 		if req.Header != nil {
-			req.Header.Set(T_HEADER_TRACEID, traceId)
+			req.Header.Set(_const.T_HEADER_TRACEID, traceId)
 		}
 	}
 	return traceId
 }
 
 func getAndIncreaseRpcId(req *http.Request) string {
-	rpcId := req.Header.Get(T_HEADER_RPCID)
+	rpcId := req.Header.Get(_const.T_HEADER_RPCID)
 	if rpcId == "" {
 		rpcId = "0"
 	}
 	if req.Header != nil {
-		req.Header.Set(T_HEADER_RPCID, rpcId)
+		req.Header.Set(_const.T_HEADER_RPCID, rpcId)
 	}
 	return rpcId
 }
