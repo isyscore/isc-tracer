@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/go-redis/redis/v8"
 	"github.com/isyscore/isc-gobase/logger"
+	"github.com/isyscore/isc-tracer/pkg/tracing"
 	"github.com/opentracing/opentracing-go"
 	opentracinglog "github.com/opentracing/opentracing-go/log"
 	"github.com/uber/jaeger-client-go/zipkin"
@@ -23,7 +24,7 @@ var spanKeyRedis = "gobase-redis-span"
 func (GoBaseRedisHook) BeforeProcess(ctx context.Context, cmd redis.Cmder) (context.Context, error) {
 	// 这里是关键，通过 envoy 传过来的 header 解析出父 span，如果没有，则会创建新的根 span
 	zipkinPropagator := zipkin.NewZipkinB3HTTPHeaderPropagator()
-	spanCtx, err := zipkinPropagator.Extract(opentracing.HTTPHeadersCarrier(GetHeader()))
+	spanCtx, err := zipkinPropagator.Extract(opentracing.HTTPHeadersCarrier(tracing.GetHeader()))
 	if err != nil {
 		logger.Warn("span 解析失败, 错误原因: %v", err)
 		return ctx, err
@@ -55,7 +56,7 @@ func (GoBaseRedisHook) AfterProcess(ctx context.Context, cmd redis.Cmder) error 
 	span.LogFields(
 		opentracinglog.String("cmd", cmd.Name()),
 		opentracinglog.String("fullName", cmd.FullName()),
-		opentracinglog.String("parentId", GetHeaderWithKey("x-b3-spanid")),
+		opentracinglog.String("parentId", tracing.GetHeaderWithKey("x-b3-spanid")),
 		opentracinglog.String("parameters", string(args)),
 	)
 	return nil

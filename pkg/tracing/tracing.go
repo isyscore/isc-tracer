@@ -66,3 +66,10 @@ func (l *baseJaegerLogger) Infof(msg string, args ...interface{}) {
 func (l *baseJaegerLogger) Debugf(msg string, args ...interface{}) {
 	logger.Debug(fmt.Sprintf("DEBUG: %s", msg), args...)
 }
+
+func GetHeaderWithKey(s string) string {
+	return s
+}
+func GetHeader() opentracing.HTTPHeadersCarrier {
+	return nil
+}

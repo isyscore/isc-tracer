@@ -107,6 +107,7 @@ func (tracer *Tracer) EndTrace(status _const.TraceStatusEnum, message string) {
 	if message != "" {
 		tracer.message = message
 	}
+	SendTraceLog(tracer)
 
 	localStore.Del()
 }

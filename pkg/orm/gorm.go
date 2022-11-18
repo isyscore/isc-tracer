@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/isyscore/isc-gobase/logger"
+	"github.com/isyscore/isc-tracer/pkg/tracing"
 	"github.com/opentracing/opentracing-go"
 	opentracinglog "github.com/opentracing/opentracing-go/log"
 	"github.com/uber/jaeger-client-go/zipkin"
@@ -86,7 +87,7 @@ func _injectBefore(db *gorm.DB, op string) {
 
 	// 这里是关键，通过 envoy 传过来的 header 解析出父 span，如果没有，则会创建新的根 span
 	zipkinPropagator := zipkin.NewZipkinB3HTTPHeaderPropagator()
-	spanCtx, err := zipkinPropagator.Extract(opentracing.HTTPHeadersCarrier(GetHeader()))
+	spanCtx, err := zipkinPropagator.Extract(opentracing.HTTPHeadersCarrier(tracing.GetHeader()))
 	if err != nil {
 		logger.Error("jaeger span 解析失败, 错误原因: %v", err)
 		return
@@ -133,7 +134,7 @@ func after(db *gorm.DB) {
 		opentracinglog.String("sql", db.Dialector.Explain(db.Statement.SQL.String(), db.Statement.Vars...)),
 		opentracinglog.String("table", db.Statement.Table),
 		opentracinglog.String("query", db.Statement.SQL.String()),
-		opentracinglog.String("parentSpanId", GetHeaderWithKey("x-b3-spanid")),
+		opentracinglog.String("parentSpanId", tracing.GetHeaderWithKey("x-b3-spanid")),
 		opentracinglog.String("parameters", string(b)),
 	)
 }

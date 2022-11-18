@@ -5,6 +5,7 @@ import (
 	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/logger"
 	"github.com/isyscore/isc-gobase/server"
+	"github.com/isyscore/isc-tracer/pkg/tracing"
 	"github.com/opentracing/opentracing-go"
 	opentracinglog "github.com/opentracing/opentracing-go/log"
 	"github.com/uber/jaeger-client-go/zipkin"
@@ -51,7 +52,7 @@ func (pHook *GobaseEtcdHook) After(ctx context.Context, op etcdClientV3.Op, pRsp
 	span.LogFields(
 		opentracinglog.String("req", isc.ToJsonString(toRequestOp(op))),
 		opentracinglog.String("rsp", isc.ToJsonString(pRsp)),
-		opentracinglog.String("parentId", GetHeaderWithKey("x-b3-spanid")),
+		opentracinglog.String("parentId", tracing.GetHeaderWithKey("x-b3-spanid")),
 	)
 	return
 }

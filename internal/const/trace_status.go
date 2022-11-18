@@ -9,3 +9,10 @@ const (
 	WARNING
 	TIMEOUT
 )
+
+func ParseHttpStatus(status int) TraceStatusEnum {
+	if status >= 200 && status < 300 {
+		return OK
+	}
+	return ERROR
+}

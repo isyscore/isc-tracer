@@ -28,4 +28,6 @@ const (
 	 * 其他非链路关键字
 	 */
 	ISC_EXCEPT = "isc.except"
+
+	DEFAULT_PROFILES_ACTIVE = "default"
 )
