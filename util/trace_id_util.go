@@ -44,7 +44,7 @@ func GenerateTraceId() string {
 	putBuffer(&buffer, bt0, 2)
 
 	// 计算IP地址
-	putBuffer(&buffer, []byte(GetLocalIp()), 10)
+	putBuffer(&buffer, GetLocalIp4(), 10)
 	// 计算PID
 	bp := shortToBytes(GetPid())
 	putBuffer(&buffer, bp, 14)

@@ -27,7 +27,7 @@ var (
 	}
 )
 
-func filter(c *gin.Context) {
+func TraceFilter(c *gin.Context) {
 	//todo 接口记录
 	traceConfig := config.GetConfig()
 	if !traceConfig.Enable || isExclude(c) {

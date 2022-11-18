@@ -78,6 +78,7 @@ func StartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, tr
 		TraceId:   traceId,
 		RpcId:     rpcId,
 		TraceType: traceType,
+		Sampled:   true,
 	}
 	tracer.startTrace(traceName, _const.SERVER)
 	return tracer
@@ -99,7 +100,7 @@ func (tracer *Tracer) EndTrace(status _const.TraceStatusEnum, message string) {
 		return
 	}
 	tracer.Ended = true
-	if tracer.getStatus() == _const.OK || !tracer.Sampled {
+	if tracer.getStatus() == _const.OK && !tracer.Sampled {
 		return
 	}
 	tracer.endTime = time.Now().UnixMilli()
@@ -117,6 +118,7 @@ func createCurrentTracerIfAbsent() *Tracer {
 	if l == nil {
 		tracer := &Tracer{}
 		localStore.Set(tracer)
+		return tracer
 	}
 	return l.(*Tracer)
 }

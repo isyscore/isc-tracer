@@ -1,6 +1,7 @@
 package trace
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/isyscore/isc-tracer/config"
 	_const "github.com/isyscore/isc-tracer/internal/const"
@@ -24,7 +25,8 @@ func SendTraceLog(tracer *Tracer) {
 func init() {
 	go func() {
 		for tracer := range traceChannel {
-			fmt.Printf("%v", tracer)
+			b, _ := json.Marshal(tracer)
+			fmt.Printf(string(b))
 		}
 	}()
 
