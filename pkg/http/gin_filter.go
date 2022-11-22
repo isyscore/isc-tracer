@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/isyscore/isc-gobase/server"
 	"github.com/isyscore/isc-tracer/config"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
@@ -27,44 +28,50 @@ var (
 	}
 )
 
-func TraceFilter(c *gin.Context) {
-	//todo 接口记录
-	traceConfig := config.GetConfig()
-	if !traceConfig.Enable || isExclude(c) {
-		c.Next()
-		return
-	}
-	//start := time.Now()
+func init() {
+	server.AddGinHandlers(TraceFilter())
+}
 
-	tracerId := c.GetHeader(_const.TRACE_HEAD_ID)
-	frontIP := ""
-	if tracerId == "" {
-		tracerId = util.GenerateTraceId()
-		frontIP = getFrontIP(c.Request)
-	}
-	rpcId := c.GetHeader(_const.TRACE_HEAD_RPC_ID)
-	// 开始追踪
-	tracer := trace.StartTrace(tracerId, rpcId, _const.HTTP, c.Request.RequestURI)
-	if frontIP != "" {
-		tracer.RemoteIp = frontIP
-	}
-	// 往当前上下文添加远程端属性
-	putAttr(tracer, c.Request)
-
-	c.Writer.Header().Set(_const.TRACE_HEAD_ID, tracerId)
-
-	defer func() {
-		msg := ""
-		if err := recover(); err != nil {
-			msg = string(debug.Stack())
+func TraceFilter() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		//todo 接口记录
+		traceConfig := config.GetConfig()
+		if !traceConfig.Enable || isExclude(c) {
+			c.Next()
+			return
 		}
-		//todo 解析返回值,拿到code和msg
-		code := _const.ParseHttpStatus(c.Writer.Status())
-		//record(c, msg, start)
-		tracer.Size = int(c.Request.ContentLength) + c.Writer.Size()
-		tracer.EndTrace(code, msg)
-	}()
-	c.Next()
+		//start := time.Now()
+
+		tracerId := c.GetHeader(_const.TRACE_HEAD_ID)
+		frontIP := ""
+		if tracerId == "" {
+			tracerId = util.GenerateTraceId()
+			frontIP = getFrontIP(c.Request)
+		}
+		rpcId := c.GetHeader(_const.TRACE_HEAD_RPC_ID)
+		// 开始追踪
+		tracer := trace.StartTrace(tracerId, rpcId, _const.HTTP, c.Request.RequestURI)
+		if frontIP != "" {
+			tracer.RemoteIp = frontIP
+		}
+		// 往当前上下文添加远程端属性
+		putAttr(tracer, c.Request)
+
+		c.Writer.Header().Set(_const.TRACE_HEAD_ID, tracerId)
+
+		defer func() {
+			msg := ""
+			if err := recover(); err != nil {
+				msg = string(debug.Stack())
+			}
+			//todo 解析返回值,拿到code和msg
+			code := _const.ParseHttpStatus(c.Writer.Status())
+			//record(c, msg, start)
+			tracer.Size = int(c.Request.ContentLength) + c.Writer.Size()
+			tracer.EndTrace(code, msg)
+		}()
+		c.Next()
+	}
 }
 
 func record(c *gin.Context, msg string, start time.Time) {
