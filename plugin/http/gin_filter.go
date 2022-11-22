@@ -7,6 +7,7 @@ import (
 	"github.com/isyscore/isc-tracer/config"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
+	"github.com/isyscore/isc-tracer/plugin"
 	"github.com/isyscore/isc-tracer/util"
 	"net/http"
 	"runtime/debug"
@@ -40,35 +41,17 @@ func TraceFilter() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		//start := time.Now()
 
-		tracerId := c.GetHeader(_const.TRACE_HEAD_ID)
-		frontIP := ""
-		if tracerId == "" {
-			tracerId = util.GenerateTraceId()
-			frontIP = getFrontIP(c.Request)
-		}
-		rpcId := c.GetHeader(_const.TRACE_HEAD_RPC_ID)
 		// 开始追踪
-		tracer := trace.StartTrace(tracerId, rpcId, _const.HTTP, c.Request.RequestURI)
-		if frontIP != "" {
-			tracer.RemoteIp = frontIP
-		}
-		// 往当前上下文添加远程端属性
-		putAttr(tracer, c.Request)
-
-		c.Writer.Header().Set(_const.TRACE_HEAD_ID, tracerId)
+		tracer := plugin.ServerStartTrace(_const.HTTP, c.Request.RequestURI)
+		c.Writer.Header().Set(_const.TRACE_HEAD_ID, c.GetHeader(_const.TRACE_HEAD_ID))
 
 		defer func() {
 			msg := ""
 			if err := recover(); err != nil {
 				msg = string(debug.Stack())
 			}
-			//todo 解析返回值,拿到code和msg
-			code := _const.ParseHttpStatus(c.Writer.Status())
-			//record(c, msg, start)
-			tracer.Size = int(c.Request.ContentLength) + c.Writer.Size()
-			tracer.EndTrace(code, msg)
+			plugin.ServerEndTrace(tracer, int(c.Request.ContentLength)+c.Writer.Size(), _const.ParseHttpStatus(c.Writer.Status()), msg)
 		}()
 		c.Next()
 	}
@@ -95,12 +78,12 @@ func logExcept(name string, context string, msg string, rt float64) {
 
 }
 
-func putAttr(tracer *trace.Tracer, request *http.Request) {
+func putAttr(tracer *trace.Tracer, head http.Header) {
 	if tracer.AttrMap == nil {
 		tracer.AttrMap = make(map[string]string)
 	}
 	for key, copyKey := range copyAttrMap {
-		if v := request.Header.Get(key); v != "" {
+		if v := head.Get(key); v != "" {
 			tracer.AttrMap[copyKey] = v
 		}
 	}
@@ -117,18 +100,18 @@ func isExclude(context *gin.Context) bool {
 	return false
 }
 
-func getFrontIP(req *http.Request) string {
-	ip := req.Header.Get("X-Forwarded-For")
-	if ip != "" && strings.EqualFold(ip, "unKnown") {
-		//多次反向代理后会有多个ip值，第一个ip才是真实ip
-		if i := strings.Index(ip, ","); i != -1 {
-			return ip[:i]
-		}
-		return ip
-	}
-	ip = req.Header.Get("X-Real-IP")
-	if ip != "" && strings.EqualFold(ip, "unKnown") {
-		return ip
-	}
-	return req.RemoteAddr
-}
+//func getFrontIP(req *http.Request) string {
+//	ip := req.Header.Get("X-Forwarded-For")
+//	if ip != "" && strings.EqualFold(ip, "unKnown") {
+//		//多次反向代理后会有多个ip值，第一个ip才是真实ip
+//		if i := strings.Index(ip, ","); i != -1 {
+//			return ip[:i]
+//		}
+//		return ip
+//	}
+//	ip = req.Header.Get("X-Real-IP")
+//	if ip != "" && strings.EqualFold(ip, "unKnown") {
+//		return ip
+//	}
+//	return req.RemoteAddr
+//}

@@ -2,10 +2,14 @@ package etcd
 
 import (
 	"context"
+	"github.com/isyscore/isc-gobase/extend/etcd"
 	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/logger"
 	"github.com/isyscore/isc-gobase/server"
-	"github.com/isyscore/isc-tracer/pkg/tracing"
+	"github.com/isyscore/isc-gobase/tracing"
+	_const "github.com/isyscore/isc-tracer/internal/const"
+	"github.com/isyscore/isc-tracer/internal/trace"
+	"github.com/isyscore/isc-tracer/plugin"
 	"github.com/opentracing/opentracing-go"
 	opentracinglog "github.com/opentracing/opentracing-go/log"
 	"github.com/uber/jaeger-client-go/zipkin"
@@ -14,46 +18,40 @@ import (
 	"reflect"
 )
 
-var spanKeyEtcd = "gobase-redis-span"
+var etcdContextKey = "gobase-etcd-context-key"
 
-type GobaseEtcdHook struct {
+type TracerEtcdHook struct {
 }
 
-func (pHook *GobaseEtcdHook) Before(ctx context.Context, op etcdClientV3.Op) context.Context {
-	// 这里是关键，通过 envoy 传过来的 header 解析出父 span，如果没有，则会创建新的根 span
-	zipkinPropagator := zipkin.NewZipkinB3HTTPHeaderPropagator()
-	h := server.GetHeader()
-	if h == nil {
-		return ctx
-	}
-	spanCtx, err := zipkinPropagator.Extract(opentracing.HTTPHeadersCarrier(h))
-	if err != nil {
-		logger.Warn("span 解析失败, 错误原因: %v", err)
-		return ctx
-	}
+func init() {
+	etcd.AddEtcdHook(&TracerEtcdHook{})
+}
 
-	span, _ := opentracing.StartSpanFromContext(ctx, getCmd(op), opentracing.ChildOf(spanCtx))
-	ctx = context.WithValue(ctx, spanKeyEtcd, span)
+func (pHook *TracerEtcdHook) Before(ctx context.Context, op etcdClientV3.Op) context.Context {
+	tracer := plugin.ServerStartTrace(_const.ETCD, getCmd(op))
+	ctx = context.WithValue(ctx, etcdContextKey, tracer)
 	return ctx
 }
 
-func (pHook *GobaseEtcdHook) After(ctx context.Context, op etcdClientV3.Op, pRsp any, err error) {
-	span, ok := ctx.Value(spanKeyEtcd).(opentracing.Span)
-	if !ok || span == nil {
+func (pHook *TracerEtcdHook) After(ctx context.Context, op etcdClientV3.Op, pRsp any, err error) {
+	tracer, ok := ctx.Value(etcdContextKey).(*trace.Tracer)
+	if !ok || tracer == nil {
 		return
 	}
-	defer span.Finish()
 
+	resultMap := map[string]any{}
+	result := _const.OK
 	// 记录error
 	if err != nil {
-		span.LogFields(opentracinglog.Error(err))
+		resultMap["err"] = err.Error()
+		result = _const.ERROR
 	}
 
-	span.LogFields(
-		opentracinglog.String("req", isc.ToJsonString(toRequestOp(op))),
-		opentracinglog.String("rsp", isc.ToJsonString(pRsp)),
-		opentracinglog.String("parentId", tracing.GetHeaderWithKey("x-b3-spanid")),
-	)
+	resultMap["req"] = isc.ToJsonString(toRequestOp(op))
+	resultMap["rsp"] = isc.ToJsonString(pRsp)
+
+	// todo 返回值暂时未知，先不写
+	plugin.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
 	return
 }
 

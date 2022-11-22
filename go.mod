@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/isyscore/isc-gobase v1.4.4-0.20221122132842-96cfbd427554
+	github.com/isyscore/isc-gobase v1.4.4-0.20221122154319-da8047f9f2a6
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	go.etcd.io/etcd/api/v3 v3.5.5

@@ -3,11 +3,15 @@ package orm
 import (
 	"context"
 	"encoding/json"
-	"github.com/isyscore/isc-gobase/logger"
-	"github.com/isyscore/isc-tracer/pkg/tracing"
+	"github.com/isyscore/isc-gobase/extend/orm"
+	"github.com/isyscore/isc-gobase/isc"
+	"github.com/isyscore/isc-gobase/server"
+	"github.com/isyscore/isc-gobase/tracing"
+	_const "github.com/isyscore/isc-tracer/internal/const"
+	"github.com/isyscore/isc-tracer/internal/trace"
+	"github.com/isyscore/isc-tracer/plugin"
 	"github.com/opentracing/opentracing-go"
 	opentracinglog "github.com/opentracing/opentracing-go/log"
-	"github.com/uber/jaeger-client-go/zipkin"
 	"gorm.io/gorm"
 )
 
@@ -15,7 +19,7 @@ type GobaseGormHook struct {
 }
 
 const (
-	spanKeyGorm = "gobase-gorm-span"
+	traceContextKey = "gobase-gorm-trace-key"
 
 	// 自定义事件名称
 	_eventBeforeCreate = "gobase-gorm-collector-event:before_create"
@@ -40,9 +44,8 @@ const (
 	_opRaw    = "execute"
 )
 
-// 开箱即用，serviceName: 此项目的微服务名称，collectorEndpoint: 数据收集器的地址(如:http://isc-core-back-service:31300/api/core/back/v1/middle/spans)
-func NewGormPlugin() gorm.Plugin {
-	return &GobaseGormHook{}
+func init() {
+	orm.AddGormHook(&GobaseGormHook{})
 }
 
 // 实现 gorm 插件所需方法
@@ -85,15 +88,8 @@ func _injectBefore(db *gorm.DB, op string) {
 		return
 	}
 
-	// 这里是关键，通过 envoy 传过来的 header 解析出父 span，如果没有，则会创建新的根 span
-	zipkinPropagator := zipkin.NewZipkinB3HTTPHeaderPropagator()
-	spanCtx, err := zipkinPropagator.Extract(opentracing.HTTPHeadersCarrier(tracing.GetHeader()))
-	if err != nil {
-		logger.Error("jaeger span 解析失败, 错误原因: %v", err)
-		return
-	}
-	span, _ := opentracing.StartSpanFromContext(db.Statement.Context, op, opentracing.ChildOf(spanCtx))
-	db.InstanceSet(spanKeyGorm, span)
+	tracer := plugin.ServerStartTrace(_const.MYSQL, "gorm:"+op)
+	db.InstanceSet(traceContextKey, tracer)
 }
 
 // 注册后置事件时，对应的事件方法
@@ -107,36 +103,36 @@ func after(db *gorm.DB) {
 		return
 	}
 
-	_span, isExist := db.InstanceGet(spanKeyGorm)
-	if !isExist || _span == nil {
+	_tracer, isExist := db.InstanceGet(traceContextKey)
+	if !isExist || _tracer == nil {
 		return
 	}
 
-	// 断言，进行类型转换
-	span, ok := _span.(opentracing.Span)
-	if !ok || span == nil {
+	tracer, ok := _tracer.(*trace.Tracer)
+	if !ok || tracer == nil {
 		return
 	}
-	defer span.Finish()
 
-	// 记录error
-	if db.Error != nil {
-		span.LogFields(opentracinglog.Error(db.Error))
-	}
+	resultMap := map[string]any{}
+	result := _const.OK
 
 	b, err := json.Marshal(db.Statement.Vars)
 	if err != nil {
-		span.LogFields(opentracinglog.Error(err))
+		resultMap["err"] = err.Error()
+		result = _const.ERROR
 	}
 
-	// 记录其他内容
-	span.LogFields(
-		opentracinglog.String("sql", db.Dialector.Explain(db.Statement.SQL.String(), db.Statement.Vars...)),
-		opentracinglog.String("table", db.Statement.Table),
-		opentracinglog.String("query", db.Statement.SQL.String()),
-		opentracinglog.String("parentSpanId", tracing.GetHeaderWithKey("x-b3-spanid")),
-		opentracinglog.String("parameters", string(b)),
-	)
+	if db.Error != nil {
+		resultMap["err"] = db.Error.Error()
+		result = _const.ERROR
+	}
+	resultMap["sql"] = db.Dialector.Explain(db.Statement.SQL.String(), db.Statement.Vars...)
+	resultMap["table"] = db.Statement.Table
+	resultMap["query"] = db.Dialector.Explain(db.Statement.SQL.String(), db.Statement.Vars...)
+	resultMap["parameters"] = string(b)
+
+	// todo 返回大小，暂时设置为0
+	plugin.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
 }
 
 func beforeCreate(db *gorm.DB) {

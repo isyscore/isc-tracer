@@ -24,4 +24,5 @@ const (
 	HIVE
 	STORM
 	CONFIG
+	ETCD
 )

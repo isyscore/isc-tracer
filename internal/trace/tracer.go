@@ -61,7 +61,7 @@ type Tracer struct {
 	AttrMap map[string]string
 }
 
-func StartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, traceName string) *Tracer {
+func StartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, traceName string, endpoint _const.EndpointEnum) *Tracer {
 	tracer := createCurrentTracerIfAbsent()
 	if tracer.Ended {
 		if tracer.TraceId == traceId {
@@ -80,7 +80,7 @@ func StartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, tr
 		TraceType: traceType,
 		Sampled:   true,
 	}
-	tracer.startTrace(traceName, _const.SERVER)
+	tracer.startTrace(traceName, endpoint)
 	return tracer
 }
 
