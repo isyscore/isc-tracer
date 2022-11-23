@@ -1,10 +1,10 @@
 package trace
 
 import (
+	"github.com/isyscore/isc-gobase/logger"
 	"github.com/isyscore/isc-tracer/config"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/util"
-	"github.com/opentracing/opentracing-go/log"
 	"os"
 	"strconv"
 	"strings"
@@ -40,7 +40,7 @@ func init() {
 			l := newTraceLog(tracer)
 			_, err := file.Write([]byte(l))
 			if err != nil {
-				log.Error(err)
+				logger.Error("%v", err.Error())
 			}
 		}
 	}()
