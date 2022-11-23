@@ -7,7 +7,7 @@ import (
 	"github.com/isyscore/isc-tracer/config"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
-	"github.com/isyscore/isc-tracer/plugin"
+	"github.com/isyscore/isc-tracer/pkg"
 	"github.com/isyscore/isc-tracer/util"
 	"net/http"
 	"runtime/debug"
@@ -43,7 +43,7 @@ func TraceFilter() gin.HandlerFunc {
 		}
 
 		// 开始追踪
-		tracer := plugin.ServerStartTrace(_const.HTTP, c.Request.RequestURI)
+		tracer := pkg.ServerStartTrace(_const.HTTP, c.Request.RequestURI)
 		c.Writer.Header().Set(_const.TRACE_HEAD_ID, c.GetHeader(_const.TRACE_HEAD_ID))
 
 		defer func() {
@@ -51,7 +51,7 @@ func TraceFilter() gin.HandlerFunc {
 			if err := recover(); err != nil {
 				msg = string(debug.Stack())
 			}
-			plugin.ServerEndTrace(tracer, int(c.Request.ContentLength)+c.Writer.Size(), _const.ParseHttpStatus(c.Writer.Status()), msg)
+			pkg.ServerEndTrace(tracer, int(c.Request.ContentLength)+c.Writer.Size(), _const.ParseHttpStatus(c.Writer.Status()), msg)
 		}()
 		c.Next()
 	}

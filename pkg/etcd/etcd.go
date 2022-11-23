@@ -9,7 +9,7 @@ import (
 	"github.com/isyscore/isc-gobase/tracing"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
-	"github.com/isyscore/isc-tracer/plugin"
+	"github.com/isyscore/isc-tracer/pkg"
 	"github.com/opentracing/opentracing-go"
 	opentracinglog "github.com/opentracing/opentracing-go/log"
 	"github.com/uber/jaeger-client-go/zipkin"
@@ -28,7 +28,7 @@ func init() {
 }
 
 func (pHook *TracerEtcdHook) Before(ctx context.Context, op etcdClientV3.Op) context.Context {
-	tracer := plugin.ServerStartTrace(_const.ETCD, getCmd(op))
+	tracer := pkg.ServerStartTrace(_const.ETCD, getCmd(op))
 	ctx = context.WithValue(ctx, etcdContextKey, tracer)
 	return ctx
 }
@@ -51,7 +51,7 @@ func (pHook *TracerEtcdHook) After(ctx context.Context, op etcdClientV3.Op, pRsp
 	resultMap["rsp"] = isc.ToJsonString(pRsp)
 
 	// todo 返回值暂时未知，先不写
-	plugin.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
+	pkg.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
 	return
 }
 

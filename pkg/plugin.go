@@ -1,4 +1,4 @@
-package plugin
+package pkg
 
 import (
 	"github.com/isyscore/isc-gobase/server"

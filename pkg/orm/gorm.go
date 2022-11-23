@@ -9,7 +9,7 @@ import (
 	"github.com/isyscore/isc-gobase/tracing"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
-	"github.com/isyscore/isc-tracer/plugin"
+	"github.com/isyscore/isc-tracer/pkg"
 	"github.com/opentracing/opentracing-go"
 	opentracinglog "github.com/opentracing/opentracing-go/log"
 	"gorm.io/gorm"
@@ -88,7 +88,7 @@ func _injectBefore(db *gorm.DB, op string) {
 		return
 	}
 
-	tracer := plugin.ServerStartTrace(_const.MYSQL, "gorm:"+op)
+	tracer := pkg.ServerStartTrace(_const.MYSQL, "gorm:"+op)
 	db.InstanceSet(traceContextKey, tracer)
 }
 
@@ -132,7 +132,7 @@ func after(db *gorm.DB) {
 	resultMap["parameters"] = string(b)
 
 	// todo 返回大小，暂时设置为0
-	plugin.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
+	pkg.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
 }
 
 func beforeCreate(db *gorm.DB) {
