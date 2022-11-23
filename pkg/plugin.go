@@ -72,6 +72,7 @@ func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *trace.T
 	if frontIP != "" {
 		tracer.RemoteIp = frontIP
 	}
+	// 往当前上下文添加远程端属性
 	putAttr(tracer, header)
 	return tracer
 }

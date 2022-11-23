@@ -5,13 +5,9 @@ import (
 	"encoding/json"
 	"github.com/isyscore/isc-gobase/extend/orm"
 	"github.com/isyscore/isc-gobase/isc"
-	"github.com/isyscore/isc-gobase/server"
-	"github.com/isyscore/isc-gobase/tracing"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
 	"github.com/isyscore/isc-tracer/pkg"
-	"github.com/opentracing/opentracing-go"
-	opentracinglog "github.com/opentracing/opentracing-go/log"
 	"gorm.io/gorm"
 )
 

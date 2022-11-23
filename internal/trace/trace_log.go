@@ -1,8 +1,6 @@
 package trace
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/isyscore/isc-tracer/config"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/util"
@@ -16,6 +14,7 @@ const (
 	NULL_TAG   = "-"
 )
 
+var logFile =
 var traceChannel = make(chan *Tracer, 2048)
 
 func SendTraceLog(tracer *Tracer) {
@@ -23,10 +22,11 @@ func SendTraceLog(tracer *Tracer) {
 }
 
 func init() {
+
 	go func() {
 		for tracer := range traceChannel {
-			b, _ := json.Marshal(tracer)
-			fmt.Printf(string(b))
+			traceLog := newTraceLog(tracer)
+
 		}
 	}()
 

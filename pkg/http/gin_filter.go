@@ -1,18 +1,16 @@
 package http
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/isyscore/isc-gobase/server"
+	"github.com/isyscore/isc-gobase/server/rsp"
 	"github.com/isyscore/isc-tracer/config"
 	_const "github.com/isyscore/isc-tracer/internal/const"
-	"github.com/isyscore/isc-tracer/internal/trace"
 	"github.com/isyscore/isc-tracer/pkg"
-	"github.com/isyscore/isc-tracer/util"
-	"net/http"
 	"runtime/debug"
-	"strings"
-	"time"
 )
 
 const (
@@ -33,59 +31,55 @@ func init() {
 	server.AddGinHandlers(TraceFilter())
 }
 
+type bodyLogWriter struct {
+	gin.ResponseWriter
+	body *bytes.Buffer
+}
+
+func (w bodyLogWriter) Write(b []byte) (int, error) {
+	w.body.Write(b)
+	return w.ResponseWriter.Write(b)
+}
+
 func TraceFilter() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//todo 接口记录
 		traceConfig := config.GetConfig()
 		if !traceConfig.Enable || isExclude(c) {
 			c.Next()
 			return
 		}
-
 		// 开始追踪
 		tracer := pkg.ServerStartTrace(_const.HTTP, c.Request.RequestURI)
 		c.Writer.Header().Set(_const.TRACE_HEAD_ID, c.GetHeader(_const.TRACE_HEAD_ID))
+		// 重写writer,用于获取response
+		blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
+		c.Writer = blw
 
 		defer func() {
-			msg := ""
+			code := _const.OK
+			var msg string
+
+			var response rsp.DataResponse[any]
+
 			if err := recover(); err != nil {
+				code = _const.ERROR
 				msg = string(debug.Stack())
+			} else if httpStatus := c.Writer.Status(); httpStatus >= 300 {
+				code = _const.ERROR
+				msg = fmt.Sprintf("httpStatus: %d", httpStatus)
+			} else if err := json.Unmarshal([]byte(blw.body.String()), &response); err != nil {
+				code = _const.WARNING
+				msg = err.Error()
+			} else {
+				if response.Code != 0 {
+					code = _const.ERROR
+				}
+				msg = response.Message
 			}
-			pkg.ServerEndTrace(tracer, int(c.Request.ContentLength)+c.Writer.Size(), _const.ParseHttpStatus(c.Writer.Status()), msg)
+			// 结束追踪
+			pkg.ServerEndTrace(tracer, blw.body.Len(), code, msg)
 		}()
 		c.Next()
-	}
-}
-
-func record(c *gin.Context, msg string, start time.Time) {
-	uri := c.Request.RequestURI
-	if strings.HasPrefix(uri, API_PREFIX) {
-		traceName := fmt.Sprintf("<%s>%s", c.Request.Method, uri)
-		//异常记录
-		if msg != "" {
-			context := ""
-			rt := time.Since(start).Seconds()
-			//todo 根据code判断except还是warn
-			logExcept(traceName, context, msg, rt)
-		} else {
-			//todo log metric
-		}
-	}
-}
-
-func logExcept(name string, context string, msg string, rt float64) {
-	//todo 通过grpc发送给pivot服务端
-
-}
-
-func putAttr(tracer *trace.Tracer, head http.Header) {
-	if tracer.AttrMap == nil {
-		tracer.AttrMap = make(map[string]string)
-	}
-	for key, copyKey := range copyAttrMap {
-		if v := head.Get(key); v != "" {
-			tracer.AttrMap[copyKey] = v
-		}
 	}
 }
 
@@ -100,18 +94,23 @@ func isExclude(context *gin.Context) bool {
 	return false
 }
 
-//func getFrontIP(req *http.Request) string {
-//	ip := req.Header.Get("X-Forwarded-For")
-//	if ip != "" && strings.EqualFold(ip, "unKnown") {
-//		//多次反向代理后会有多个ip值，第一个ip才是真实ip
-//		if i := strings.Index(ip, ","); i != -1 {
-//			return ip[:i]
+//func record(c *gin.Context, msg string, start time.Time) {
+//	uri := c.Request.RequestURI
+//	if strings.HasPrefix(uri, API_PREFIX) {
+//		traceName := fmt.Sprintf("<%s>%s", c.Request.Method, uri)
+//		//异常记录
+//		if msg != "" {
+//			context := ""
+//			rt := time.Since(start).Seconds()
+//			// 根据code判断except还是warn
+//			logExcept(traceName, context, msg, rt)
+//		} else {
+//			// log metric
 //		}
-//		return ip
 //	}
-//	ip = req.Header.Get("X-Real-IP")
-//	if ip != "" && strings.EqualFold(ip, "unKnown") {
-//		return ip
-//	}
-//	return req.RemoteAddr
+//}
+//
+//func logExcept(name string, context string, msg string, rt float64) {
+//	// 通过grpc发送给pivot服务端
+//
 //}
