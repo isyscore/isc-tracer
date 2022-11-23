@@ -7,7 +7,6 @@ import (
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
-	"github.com/isyscore/isc-tracer/pkg"
 	"gorm.io/gorm"
 )
 
@@ -75,6 +74,10 @@ func (i *GobaseGormHook) Initialize(db *gorm.DB) (err error) {
 
 // 注册各种前置事件时，对应的事件方法
 func _injectBefore(db *gorm.DB, op string) {
+	if !trace.DatabaseTraceSwitch {
+		return
+	}
+
 	if db == nil {
 		return
 	}
@@ -84,12 +87,16 @@ func _injectBefore(db *gorm.DB, op string) {
 		return
 	}
 
-	tracer := pkg.ServerStartTrace(_const.MYSQL, "gorm:"+op)
+	tracer := trace.ServerStartTrace(_const.MYSQL, "gorm:"+op)
 	db.InstanceSet(traceContextKey, tracer)
 }
 
 // 注册后置事件时，对应的事件方法
 func after(db *gorm.DB) {
+	if !trace.DatabaseTraceSwitch {
+		return
+	}
+
 	if db == nil {
 		return
 	}
@@ -128,7 +135,7 @@ func after(db *gorm.DB) {
 	resultMap["parameters"] = string(b)
 
 	// todo 返回大小，暂时设置为0
-	pkg.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
+	trace.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
 }
 
 func beforeCreate(db *gorm.DB) {

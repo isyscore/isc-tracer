@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/isyscore/isc-gobase/server"
 	"github.com/isyscore/isc-gobase/server/rsp"
-	"github.com/isyscore/isc-tracer/config"
 	_const "github.com/isyscore/isc-tracer/internal/const"
-	"github.com/isyscore/isc-tracer/pkg"
+	"github.com/isyscore/isc-tracer/internal/trace"
 	"runtime/debug"
 )
 
@@ -18,18 +16,8 @@ const (
 )
 
 var (
-	excludes    = []string{"/system/status"}
-	copyAttrMap = map[string]string{
-		_const.TRACE_HEAD_REMOTE_APPNAME: _const.TRACE_HEAD_REMOTE_APPNAME,
-		_const.TRACE_HEAD_REMOTE_IP:      _const.TRACE_HEAD_REMOTE_IP,
-		_const.TRACE_HEAD_USER_ID:        _const.A_USER_ID,
-		_const.TRACE_HEAD_USER_NAME:      _const.A_USER_NAME,
-	}
+	excludes = []string{"/system/status"}
 )
-
-func init() {
-	server.AddGinHandlers(TraceFilter())
-}
 
 type bodyLogWriter struct {
 	gin.ResponseWriter
@@ -43,13 +31,18 @@ func (w bodyLogWriter) Write(b []byte) (int, error) {
 
 func TraceFilter() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		traceConfig := config.GetConfig()
-		if !traceConfig.Enable || isExclude(c) {
+		if isExclude(c) {
 			c.Next()
 			return
 		}
+
+		if !trace.HttpTraceSwitch {
+			c.Next()
+			return
+		}
+
 		// 开始追踪
-		tracer := pkg.ServerStartTrace(_const.HTTP, c.Request.RequestURI)
+		tracer := trace.ServerStartTrace(_const.HTTP, c.Request.RequestURI)
 		c.Writer.Header().Set(_const.TRACE_HEAD_ID, c.GetHeader(_const.TRACE_HEAD_ID))
 		// 重写writer,用于获取response
 		blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
@@ -77,7 +70,7 @@ func TraceFilter() gin.HandlerFunc {
 				msg = response.Message
 			}
 			// 结束追踪
-			pkg.ServerEndTrace(tracer, blw.body.Len(), code, msg)
+			trace.ServerEndTrace(tracer, blw.body.Len(), code, msg)
 		}()
 		c.Next()
 	}

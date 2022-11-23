@@ -2,11 +2,9 @@ package etcd
 
 import (
 	"context"
-	"github.com/isyscore/isc-gobase/extend/etcd"
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
-	"github.com/isyscore/isc-tracer/pkg"
 	pb "go.etcd.io/etcd/api/v3/etcdserverpb"
 	etcdClientV3 "go.etcd.io/etcd/client/v3"
 	"reflect"
@@ -17,17 +15,21 @@ var etcdContextKey = "gobase-etcd-context-key"
 type TracerEtcdHook struct {
 }
 
-func init() {
-	etcd.AddEtcdHook(&TracerEtcdHook{})
-}
-
 func (pHook *TracerEtcdHook) Before(ctx context.Context, op etcdClientV3.Op) context.Context {
-	tracer := pkg.ServerStartTrace(_const.ETCD, getCmd(op))
+	if !trace.EtcdTraceSwitch {
+		return ctx
+	}
+
+	tracer := trace.ServerStartTrace(_const.ETCD, getCmd(op))
 	ctx = context.WithValue(ctx, etcdContextKey, tracer)
 	return ctx
 }
 
 func (pHook *TracerEtcdHook) After(ctx context.Context, op etcdClientV3.Op, pRsp any, err error) {
+	if !trace.EtcdTraceSwitch {
+		return
+	}
+
 	tracer, ok := ctx.Value(etcdContextKey).(*trace.Tracer)
 	if !ok || tracer == nil {
 		return
@@ -45,7 +47,7 @@ func (pHook *TracerEtcdHook) After(ctx context.Context, op etcdClientV3.Op, pRsp
 	resultMap["rsp"] = isc.ToJsonString(pRsp)
 
 	// todo 返回值暂时未知，先不写
-	pkg.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
+	trace.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
 	return
 }
 

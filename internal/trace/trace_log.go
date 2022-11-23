@@ -1,8 +1,8 @@
 package trace
 
 import (
+	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/logger"
-	"github.com/isyscore/isc-tracer/config"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/util"
 	"os"
@@ -57,7 +57,7 @@ func newTraceLog(tracer *Tracer) string {
 	s += string(rune(tracer.Endpoint)) + SPLIT
 	s += string(rune(tracer.TraceType)) + SPLIT
 	s += replaceSplit(trimNull(tracer.TraceName)) + SPLIT
-	s += replaceSplit(config.GetConfig().ServiceName) + SPLIT
+	s += replaceSplit(config.GetValueString("base.application.name")) + SPLIT
 	s += replaceSplit(util.GetLocalIp()) + SPLIT
 	s += replaceSplit(trimNull(tracer.RemoteIp)) + SPLIT
 	s += string(rune(tracer.status)) + SPLIT

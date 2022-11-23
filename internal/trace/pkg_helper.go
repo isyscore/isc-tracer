@@ -1,9 +1,8 @@
-package pkg
+package trace
 
 import (
 	"github.com/isyscore/isc-gobase/server"
 	_const "github.com/isyscore/isc-tracer/internal/const"
-	"github.com/isyscore/isc-tracer/internal/trace"
 	"github.com/isyscore/isc-tracer/util"
 	"net/http"
 	"strings"
@@ -17,6 +16,20 @@ var (
 		_const.TRACE_HEAD_USER_NAME:      _const.A_USER_NAME,
 	}
 )
+
+var OsTraceSwitch bool
+var HttpTraceSwitch bool
+var DatabaseTraceSwitch bool
+var RedisTraceSwitch bool
+var EtcdTraceSwitch bool
+
+func init() {
+	OsTraceSwitch = false
+	HttpTraceSwitch = false
+	DatabaseTraceSwitch = false
+	RedisTraceSwitch = false
+	EtcdTraceSwitch = false
+}
 
 func GetFrontIP(head http.Header, remoteAddr string) string {
 	ip := head.Get("X-Forwarded-For")
@@ -34,7 +47,7 @@ func GetFrontIP(head http.Header, remoteAddr string) string {
 	return remoteAddr
 }
 
-func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *trace.Tracer {
+func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {
 	header := server.GetHeader()
 	remoteAddr := server.GetRemoteAddr()
 
@@ -45,7 +58,10 @@ func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *trace.T
 		frontIP = GetFrontIP(header, remoteAddr)
 	}
 	rpcId := header.Get(_const.TRACE_HEAD_RPC_ID)
-	tracer := trace.StartTrace(tracerId, rpcId, traceType, traceName, _const.CLIENT)
+	tracer := StartTrace(tracerId, rpcId, traceType, traceName, _const.CLIENT)
+	if tracer == nil {
+		return nil
+	}
 	if frontIP != "" {
 		tracer.RemoteIp = frontIP
 	}
@@ -53,11 +69,11 @@ func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *trace.T
 	return tracer
 }
 
-func ClientEndTrace(tracer *trace.Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
+func ClientEndTrace(tracer *Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
 	endTrace(tracer, responseSize, status, message)
 }
 
-func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *trace.Tracer {
+func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {
 	header := server.GetHeader()
 	remoteAddr := server.GetRemoteAddr()
 
@@ -68,7 +84,10 @@ func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *trace.T
 		frontIP = GetFrontIP(header, remoteAddr)
 	}
 	rpcId := header.Get(_const.TRACE_HEAD_RPC_ID)
-	tracer := trace.StartTrace(tracerId, rpcId, traceType, traceName, _const.SERVER)
+	tracer := StartTrace(tracerId, rpcId, traceType, traceName, _const.SERVER)
+	if tracer == nil {
+		return nil
+	}
 	if frontIP != "" {
 		tracer.RemoteIp = frontIP
 	}
@@ -77,17 +96,17 @@ func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *trace.T
 	return tracer
 }
 
-func ServerEndTrace(tracer *trace.Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
+func ServerEndTrace(tracer *Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
 	endTrace(tracer, responseSize, status, message)
 }
 
-func endTrace(tracer *trace.Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
+func endTrace(tracer *Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
 	req := server.GetRequest()
 	tracer.Size = int(req.ContentLength) + responseSize
 	tracer.EndTrace(status, message)
 }
 
-func putAttr(tracer *trace.Tracer, head http.Header) {
+func putAttr(tracer *Tracer, head http.Header) {
 	if tracer.AttrMap == nil {
 		tracer.AttrMap = make(map[string]string)
 	}

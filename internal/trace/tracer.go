@@ -2,8 +2,8 @@ package trace
 
 import (
 	"fmt"
+	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/goid"
-	"github.com/isyscore/isc-tracer/config"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/util"
 	"net/http"
@@ -62,6 +62,9 @@ type Tracer struct {
 }
 
 func StartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, traceName string, endpoint _const.EndpointEnum) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
 	tracer := createCurrentTracerIfAbsent()
 	if tracer.Ended {
 		if tracer.TraceId == traceId {
@@ -91,8 +94,7 @@ func (tracer *Tracer) startTrace(traceName string, endpoint _const.EndpointEnum)
 }
 
 func (tracer *Tracer) EndTrace(status _const.TraceStatusEnum, message string) {
-	traceConfig := config.GetConfig()
-	if !traceConfig.Enable || tracer.Ended {
+	if !TracerIsEnable() || tracer.Ended {
 		return
 	}
 	if tracer.TraceId == "" || tracer.RpcId == "" || tracer.StartTime == 0 {
@@ -125,6 +127,9 @@ func createCurrentTracerIfAbsent() *Tracer {
 
 // NewServerTracer 开启服务端跟踪
 func NewServerTracer(req *http.Request) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
 	tracer := New(req)
 	tracer.Endpoint = _const.SERVER
 	return tracer
@@ -132,10 +137,13 @@ func NewServerTracer(req *http.Request) *Tracer {
 
 // NewServerTracerWithoutReq 开启服务端跟踪,此用于服务端定时任务类请求
 func NewServerTracerWithoutReq() *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
 	tracer := &Tracer{
 		TraceId:   util.GenerateTraceId(),
 		Sampled:   true,
-		TraceName: config.GetConfig().ServiceName,
+		TraceName: config.GetValueString("base.application.name"),
 		StartTime: time.Now().UnixMilli(),
 		RpcId:     "0",
 		TraceType: _const.HTTP,
@@ -147,6 +155,10 @@ func NewServerTracerWithoutReq() *Tracer {
 var clientTracerLock sync.Mutex
 
 func (tracer *Tracer) NewClientWithHeader(header *http.Header) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
+
 	clientTracerLock.Lock()
 	defer clientTracerLock.Unlock()
 	rpcId := tracer.RpcId
@@ -166,7 +178,7 @@ func (tracer *Tracer) NewClientWithHeader(header *http.Header) *Tracer {
 	clientTracer := &Tracer{
 		TraceId:   tracer.TraceId,
 		Sampled:   true,
-		TraceName: config.GetConfig().ServiceName,
+		TraceName: config.GetValueString("base.application.name"),
 		StartTime: time.Now().UnixMilli(),
 		RpcId:     rpcId,
 		TraceType: _const.HTTP,
@@ -179,6 +191,10 @@ func (tracer *Tracer) NewClientWithHeader(header *http.Header) *Tracer {
 
 // NewClientTracer 开启客户端跟踪
 func (tracer *Tracer) NewClientTracer(req *http.Request) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
+
 	clientTracerLock.Lock()
 	defer clientTracerLock.Unlock()
 	rpcId := tracer.RpcId
@@ -203,6 +219,10 @@ func (tracer *Tracer) NewClientTracer(req *http.Request) *Tracer {
 
 // NewWithRpcId 自定义rpcId
 func NewWithRpcId(req *http.Request, rpcId string) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
+
 	tracer := New(req)
 	req.Header.Set(_const.TRACE_HEAD_RPC_ID, rpcId)
 	tracer.RpcId = rpcId
@@ -210,6 +230,10 @@ func NewWithRpcId(req *http.Request, rpcId string) *Tracer {
 }
 
 func New(req *http.Request) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
+
 	method := req.Method
 	if method == "" {
 		method = "nil"
@@ -268,5 +292,8 @@ func (tracer *Tracer) getStatus() _const.TraceStatusEnum {
 		return tracer.RemoteStatus
 	}
 	return _const.OK
+}
 
+func TracerIsEnable() bool {
+	return config.GetValueBoolDefault("tracer.enable", true) && OsTraceSwitch
 }
