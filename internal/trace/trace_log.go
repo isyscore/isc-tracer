@@ -1,13 +1,14 @@
 package trace
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/isyscore/isc-tracer/config"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/util"
+	"github.com/opentracing/opentracing-go/log"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -16,6 +17,7 @@ const (
 	NULL_TAG   = "-"
 )
 
+var logFile = ""
 var traceChannel = make(chan *Tracer, 2048)
 
 func SendTraceLog(tracer *Tracer) {
@@ -23,10 +25,23 @@ func SendTraceLog(tracer *Tracer) {
 }
 
 func init() {
+	path := "./logs/middleware/trace/trace.log"
+	file, err := os.Create(path)
+	if err != nil {
+		panic(err)
+	}
+	go func() {
+		for range time.NewTicker(time.Hour * 24).C {
+			_ = file.Truncate(0)
+		}
+	}()
 	go func() {
 		for tracer := range traceChannel {
-			b, _ := json.Marshal(tracer)
-			fmt.Printf(string(b))
+			l := newTraceLog(tracer)
+			_, err := file.Write([]byte(l))
+			if err != nil {
+				log.Error(err)
+			}
 		}
 	}()
 
@@ -49,6 +64,12 @@ func newTraceLog(tracer *Tracer) string {
 	s += string(rune(tracer.Size)) + SPLIT
 	s += strconv.FormatInt(tracer.endTime-tracer.StartTime, 10) + SPLIT
 	s += replaceSplit(trimNull(tracer.message)) + SPLIT
+	//用户id
+	userId := tracer.AttrMap[_const.TRACE_HEAD_USER_ID]
+	if userId == "" {
+		userId = tracer.AttrMap[_const.A_USER_ID]
+	}
+	s += userId + SPLIT
 	return s
 }
 
