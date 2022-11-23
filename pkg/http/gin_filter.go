@@ -8,7 +8,6 @@ import (
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
 	"github.com/isyscore/isc-tracer/pkg"
-	"github.com/isyscore/isc-tracer/util"
 	"net/http"
 	"runtime/debug"
 	"strings"

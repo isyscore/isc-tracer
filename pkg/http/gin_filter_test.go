@@ -16,7 +16,7 @@ func TestTraceFilter(t *testing.T) {
 	c.ServerConfig = serviceConfig
 
 	engine := gin.Default()
-	engine.Use(TraceFilter)
+	//engine.Use(TraceFilter)
 	// http://localhost:8080/api/test
 	group := engine.Group("/api")
 	group.GET("/test", test)
