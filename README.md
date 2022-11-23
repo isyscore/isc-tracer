@@ -3,6 +3,7 @@
 该框架是基于isc-gobase之上开发的用于链路搜集的sdk
 
 该框架目前支持以下的相关客户端埋点。以下客户端全部都要是基于isc-gobase提供的客户端才行，否则请用户自行埋点
+
 - http
 - orm
   - gorm
@@ -11,6 +12,9 @@
   - go-redis
 - etcd
   - go-etcd
+  
+相关isc-gobase的客户端接入请见这里 [isc-gobase/extend](https://github.com/isyscore/isc-gobase/tree/feature/trace/extend)
+
 
 ## 配置
 ```yaml
