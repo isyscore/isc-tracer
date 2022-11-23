@@ -143,7 +143,7 @@ func NewServerTracerWithoutReq() *Tracer {
 	tracer := &Tracer{
 		TraceId:   util.GenerateTraceId(),
 		Sampled:   true,
-		TraceName: config.GetValueString("base.application.name"),
+		TraceName: config.GetValueStringDefault("base.application.name", _const.DEFAULT_APP_NAME),
 		StartTime: time.Now().UnixMilli(),
 		RpcId:     "0",
 		TraceType: _const.HTTP,
@@ -178,7 +178,7 @@ func (tracer *Tracer) NewClientWithHeader(header *http.Header) *Tracer {
 	clientTracer := &Tracer{
 		TraceId:   tracer.TraceId,
 		Sampled:   true,
-		TraceName: config.GetValueString("base.application.name"),
+		TraceName: config.GetValueStringDefault("base.application.name", _const.DEFAULT_APP_NAME),
 		StartTime: time.Now().UnixMilli(),
 		RpcId:     rpcId,
 		TraceType: _const.HTTP,

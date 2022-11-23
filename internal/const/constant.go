@@ -30,4 +30,5 @@ const (
 	ISC_EXCEPT = "isc.except"
 
 	DEFAULT_PROFILES_ACTIVE = "default"
+	DEFAULT_APP_NAME        = "isc-tracer-default-name"
 )

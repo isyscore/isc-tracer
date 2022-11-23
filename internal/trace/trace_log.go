@@ -58,7 +58,7 @@ func newTraceLog(tracer *Tracer) string {
 	s += string(rune(tracer.Endpoint)) + SPLIT
 	s += string(rune(tracer.TraceType)) + SPLIT
 	s += replaceSplit(trimNull(tracer.TraceName)) + SPLIT
-	s += replaceSplit(config.GetValueString("base.application.name")) + SPLIT
+	s += replaceSplit(config.GetValueStringDefault("base.application.name", _const.DEFAULT_APP_NAME)) + SPLIT
 	s += replaceSplit(util.GetLocalIp()) + SPLIT
 	s += replaceSplit(trimNull(tracer.RemoteIp)) + SPLIT
 	s += string(rune(tracer.status)) + SPLIT
