@@ -14,7 +14,7 @@ type GobaseGormHook struct {
 }
 
 const (
-	traceContextKey = "gobase-gorm-trace-key"
+	traceContextGormKey = "gobase-gorm-trace-key"
 
 	// 自定义事件名称
 	_eventBeforeCreate = "gobase-gorm-collector-event:before_create"
@@ -87,8 +87,8 @@ func _injectBefore(db *gorm.DB, op string) {
 		return
 	}
 
-	tracer := trace.ServerStartTrace(_const.MYSQL, "gorm:"+op)
-	db.InstanceSet(traceContextKey, tracer)
+	tracer := trace.ServerStartTrace(_const.MYSQL, "gorm: "+op)
+	db.InstanceSet(traceContextGormKey, tracer)
 }
 
 // 注册后置事件时，对应的事件方法
@@ -106,7 +106,7 @@ func after(db *gorm.DB) {
 		return
 	}
 
-	_tracer, isExist := db.InstanceGet(traceContextKey)
+	_tracer, isExist := db.InstanceGet(traceContextGormKey)
 	if !isExist || _tracer == nil {
 		return
 	}
