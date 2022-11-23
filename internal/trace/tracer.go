@@ -84,6 +84,8 @@ func StartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, tr
 		Sampled:   true,
 	}
 	tracer.startTrace(traceName, endpoint)
+
+	localStore.Set(tracer)
 	return tracer
 }
 
