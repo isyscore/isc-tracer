@@ -249,6 +249,8 @@ github.com/isyscore/isc-gobase v1.4.4-0.20221123130516-7f3a59c3e10d h1:1MgVMKK9h
 github.com/isyscore/isc-gobase v1.4.4-0.20221123130516-7f3a59c3e10d/go.mod h1:pP0HdYdiZTnHq87IjRGwnSoJm6YtgiBucjGrWB2lFEI=
 github.com/isyscore/isc-gobase v1.4.4-0.20221123130715-6c7227392d9b h1:K52V/aL2TIrz19kAzxcZoo12bayVW35q+9hcYbhGORc=
 github.com/isyscore/isc-gobase v1.4.4-0.20221123130715-6c7227392d9b/go.mod h1:pP0HdYdiZTnHq87IjRGwnSoJm6YtgiBucjGrWB2lFEI=
+github.com/isyscore/isc-gobase v1.4.4-0.20221123140108-32366e0f1440 h1:8euiz6OGHbBap7eAkKw8xeG66fL0fIJwWtS5hvJXFuc=
+github.com/isyscore/isc-gobase v1.4.4-0.20221123140108-32366e0f1440/go.mod h1:pP0HdYdiZTnHq87IjRGwnSoJm6YtgiBucjGrWB2lFEI=
 github.com/jackc/chunkreader v1.0.0/go.mod h1:RT6O25fNZIuasFJRyZ4R/Y2BbhasbmZXF9QQ7T3kePo=
 github.com/jackc/chunkreader/v2 v2.0.0/go.mod h1:odVSm741yZoC3dpHEUXIqA9tQRhFrgOHwnPIn9lDKlk=
 github.com/jackc/chunkreader/v2 v2.0.1 h1:i+RDz65UE+mmpjTfyz0MoVTnzeYxroil2G82ki7MGG8=

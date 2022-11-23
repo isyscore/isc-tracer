@@ -48,29 +48,13 @@ func GetFrontIP(head http.Header, remoteAddr string) string {
 }
 
 func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {
-	header := server.GetHeader()
-	remoteAddr := server.GetRemoteAddr()
-
-	tracerId := header.Get(_const.TRACE_HEAD_ID)
-	frontIP := ""
-	if tracerId == "" {
-		tracerId = util.GenerateTraceId()
-		frontIP = GetFrontIP(header, remoteAddr)
-	}
-	rpcId := header.Get(_const.TRACE_HEAD_RPC_ID)
-	tracer := StartTrace(tracerId, rpcId, traceType, traceName, _const.CLIENT)
-	if tracer == nil {
-		return nil
-	}
-	if frontIP != "" {
-		tracer.RemoteIp = frontIP
-	}
-	putAttr(tracer, header)
-	return tracer
+	// todo
+	return nil
 }
 
 func ClientEndTrace(tracer *Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
-	endTrace(tracer, responseSize, status, message)
+	// todo
+	return
 }
 
 func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {

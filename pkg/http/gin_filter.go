@@ -86,24 +86,3 @@ func isExclude(context *gin.Context) bool {
 	}
 	return false
 }
-
-//func record(c *gin.Context, msg string, start time.Time) {
-//	uri := c.Request.RequestURI
-//	if strings.HasPrefix(uri, API_PREFIX) {
-//		traceName := fmt.Sprintf("<%s>%s", c.Request.Method, uri)
-//		//异常记录
-//		if msg != "" {
-//			context := ""
-//			rt := time.Since(start).Seconds()
-//			// 根据code判断except还是warn
-//			logExcept(traceName, context, msg, rt)
-//		} else {
-//			// log metric
-//		}
-//	}
-//}
-//
-//func logExcept(name string, context string, msg string, rt float64) {
-//	// 通过grpc发送给pivot服务端
-//
-//}
