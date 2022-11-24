@@ -245,6 +245,8 @@ github.com/iris-contrib/go.uuid v2.0.0+incompatible h1:XZubAYg61/JwnJNbZilGjf3b3
 github.com/iris-contrib/go.uuid v2.0.0+incompatible/go.mod h1:iz2lgM/1UnEf1kP0L/+fafWORmlnuysV2EMP8MW+qe0=
 github.com/isyscore/isc-gobase v1.4.4-0.20221124025255-942fe7c80f60 h1:gvvo+rrNa+CLlyeHyd7xc3EaIQWML0drW/lUbCGlX9k=
 github.com/isyscore/isc-gobase v1.4.4-0.20221124025255-942fe7c80f60/go.mod h1:pP0HdYdiZTnHq87IjRGwnSoJm6YtgiBucjGrWB2lFEI=
+github.com/isyscore/isc-gobase v1.4.4-0.20221124034032-8dc08ea72413 h1:ZjGpiVCOI3upnM8y5NJXEaRbWbtDSoHK2K7m98KeXKU=
+github.com/isyscore/isc-gobase v1.4.4-0.20221124034032-8dc08ea72413/go.mod h1:pP0HdYdiZTnHq87IjRGwnSoJm6YtgiBucjGrWB2lFEI=
 github.com/jackc/chunkreader v1.0.0/go.mod h1:RT6O25fNZIuasFJRyZ4R/Y2BbhasbmZXF9QQ7T3kePo=
 github.com/jackc/chunkreader/v2 v2.0.0/go.mod h1:odVSm741yZoC3dpHEUXIqA9tQRhFrgOHwnPIn9lDKlk=
 github.com/jackc/chunkreader/v2 v2.0.1 h1:i+RDz65UE+mmpjTfyz0MoVTnzeYxroil2G82ki7MGG8=
