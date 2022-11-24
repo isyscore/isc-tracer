@@ -8,11 +8,8 @@ import (
 	"github.com/isyscore/isc-gobase/server/rsp"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
-	"runtime/debug"
-)
 
-const (
-	API_PREFIX = "/api"
+	"runtime/debug"
 )
 
 var (
@@ -51,7 +48,7 @@ func TraceFilter() gin.HandlerFunc {
 			code := _const.OK
 			var msg string
 
-			var response rsp.DataResponse[any]
+			var response rsp.ResponseBase
 
 			if err := recover(); err != nil {
 				code = _const.ERROR

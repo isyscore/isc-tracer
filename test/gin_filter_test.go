@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/isyscore/isc-gobase/server"
 	"github.com/isyscore/isc-gobase/server/rsp"
+	_ "github.com/isyscore/isc-tracer/pkg"
 	"testing"
 )
 
@@ -20,6 +21,7 @@ func TestJson(t *testing.T) {
 	t.Log(response)
 }
 func TestTraceFilter(t *testing.T) {
+	// http://localhost:8081/api/test
 	server.Get("/test", test)
 
 	server.Run()

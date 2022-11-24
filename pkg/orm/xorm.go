@@ -7,7 +7,6 @@ import (
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
-	"github.com/isyscore/isc-tracer/pkg"
 	"strings"
 	"xorm.io/xorm/contexts"
 )
