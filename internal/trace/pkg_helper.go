@@ -85,8 +85,9 @@ func ServerEndTrace(tracer *Tracer, responseSize int, status _const.TraceStatusE
 }
 
 func endTrace(tracer *Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
-	req := store.GetRequest()
-	tracer.Size = int(req.ContentLength) + responseSize
+	//req := store.GetRequest()
+	//tracer.Size = int(req.ContentLength) + responseSize
+	tracer.Size = responseSize
 	tracer.EndTrace(status, message)
 }
 
