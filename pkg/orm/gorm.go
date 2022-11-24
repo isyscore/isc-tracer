@@ -9,9 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type GobaseGormHook struct {
-}
-
 const (
 	traceContextGormKey = "gobase-gorm-trace-key"
 
@@ -37,6 +34,9 @@ const (
 	_opRow    = "row"
 	_opRaw    = "execute"
 )
+
+type GobaseGormHook struct {
+}
 
 // 实现 gorm 插件所需方法
 func (i *GobaseGormHook) Name() string {

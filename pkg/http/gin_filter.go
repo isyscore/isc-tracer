@@ -12,6 +12,7 @@ import (
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
 	"net/http"
+	"strings"
 	"unsafe"
 
 	"runtime/debug"
@@ -47,7 +48,8 @@ func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Co
 			req.Header.Add(headKey, srcH)
 		}
 	}
-	tracer := trace.New(store.GetRequest())
+
+	tracer := trace.New(req)
 	ctx = context.WithValue(ctx, httpContextKey, tracer)
 	return ctx
 }
@@ -65,18 +67,19 @@ func (*TracerHttpHook) After(ctx context.Context, rsp *http.Response, rspCode in
 	resultMap := map[string]any{}
 	result := _const.OK
 
-	if err != nil {
-		resultMap["err"] = err.Error()
-	}
-
 	if rspCode >= 300 {
 		result = _const.ERROR
-	} else {
-		rspMap := map[string]any{}
-		err = isc.DataToObject(string(rspData.([]byte)), &rspMap)
 		if err != nil {
-			code, existCode := rspMap["code"]
-			msg, _ := rspMap["message"]
+			resultMap["err"] = err.Error()
+		}
+	} else {
+		bodyStr := string(rspData.([]byte))
+
+		if strings.HasPrefix(bodyStr, "{") && strings.HasSuffix(bodyStr, "}") {
+			bodys := map[string]any{}
+			_ = isc.StrToObject(bodyStr, &bodys)
+			code, existCode := bodys["code"]
+			msg, _ := bodys["message"]
 			if existCode && code != 0 && code != 200 {
 				resultMap["errCode"] = code
 				resultMap["errMsg"] = msg

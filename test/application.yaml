@@ -4,14 +4,17 @@ base:
     prefix: /api
   application:
     # 应用名，默认为空
-    name: isc-tracer
+    name: isc-tracer-test
     # 服务版本号
     version: v1.0.0
   server:
     # 是否启用，默认：true
     enable: true
     # 端口号，默认：8080
-    port: 8081
+    port: 8082
+    gin:
+      # 有三种模式：debug/release/test，默认 release
+      mode: debug
   datasource:
     # 是否启用，默认关闭
     enable: true

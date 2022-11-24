@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/isyscore/isc-gobase v1.4.4-0.20221124061555-3e11c1a9414d
+	github.com/isyscore/isc-gobase v1.4.4-0.20221124064715-4617c91b7cf0
 	go.etcd.io/etcd/api/v3 v3.5.5
 	go.etcd.io/etcd/client/v3 v3.5.5
 	gorm.io/gorm v1.24.0

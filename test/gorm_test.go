@@ -3,6 +3,7 @@ package test
 import (
 	"database/sql"
 	"github.com/isyscore/isc-gobase/extend/orm"
+	tracer "github.com/isyscore/isc-tracer"
 	"github.com/isyscore/isc-tracer/internal/trace"
 	"testing"
 )
@@ -10,6 +11,8 @@ import (
 func TestGorm(t *testing.T) {
 	trace.OsTraceSwitch = true
 	trace.DatabaseTraceSwitch = true
+
+	tracer.Init()
 
 	gormDb, err := orm.NewGormDb()
 	if err != nil {
