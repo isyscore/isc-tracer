@@ -49,7 +49,7 @@ func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Co
 		}
 	}
 
-	tracer := trace.ServerStartTrace(_const.HTTP, "【http】: <"+req.Method+">"+req.URL.Path)
+	tracer := trace.ClientStartTraceWithRequest(req)
 	ctx = context.WithValue(ctx, httpContextKey, tracer)
 	return ctx
 }

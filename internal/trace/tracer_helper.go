@@ -48,7 +48,7 @@ func ClientStartTraceWithRequest(req *http.Request) *Tracer {
 			uri = url.String()
 		}
 	}
-	return ClientStartTrace(_const.HTTP, fmt.Sprintf("<%s>%s", method, uri))
+	return ClientStartTrace(_const.HTTP, fmt.Sprintf("【http】: <%s>%s", method, uri))
 }
 
 // ClientStartTrace
