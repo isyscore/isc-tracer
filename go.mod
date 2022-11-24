@@ -9,6 +9,7 @@ require (
 	go.etcd.io/etcd/api/v3 v3.5.5
 	go.etcd.io/etcd/client/v3 v3.5.5
 	gorm.io/gorm v1.24.0
+	xorm.io/xorm v1.3.2
 )
 
 require (
@@ -83,5 +84,4 @@ require (
 	gorm.io/driver/sqlite v1.4.2 // indirect
 	gorm.io/driver/sqlserver v1.4.1 // indirect
 	xorm.io/builder v0.3.11-0.20220531020008-1bd24a7dc978 // indirect
-	xorm.io/xorm v1.3.2 // indirect
 )
