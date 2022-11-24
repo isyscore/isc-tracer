@@ -2,26 +2,30 @@ package test
 
 import (
 	"fmt"
-	tracer "github.com/isyscore/isc-tracer"
-	"testing"
-	"time"
-
 	"github.com/gin-gonic/gin"
 	baseHttp "github.com/isyscore/isc-gobase/http"
 	"github.com/isyscore/isc-gobase/server"
 	"github.com/isyscore/isc-gobase/server/rsp"
+	_ "github.com/isyscore/isc-tracer"
 	"github.com/isyscore/isc-tracer/internal/trace"
+	"testing"
+	"time"
 )
 
 func TestTraceFilter(t *testing.T) {
-	trace.OsTraceSwitch = true
-	trace.HttpTraceSwitch = true
-	tracer.Init()
-
 	server.Get("/test", test)
 	server.Get("/test/err", testErr)
 
-	server.Run()
+	go server.Run()
+
+	_, _, data, _ := baseHttp.GetSimple("http://localhost:8082/api/test/err")
+	if data == nil {
+		fmt.Println("返回值：nil")
+		return
+	}
+	fmt.Println("返回值：" + string(data.([]byte)))
+
+	time.Sleep(10000000)
 }
 
 func test(c *gin.Context) {
@@ -38,21 +42,12 @@ func testErr(c *gin.Context) {
 func TestGetSimple(t *testing.T) {
 	trace.OsTraceSwitch = true
 	trace.HttpTraceSwitch = true
-	tracer.Init()
 
-	_, _, data, _ := baseHttp.GetSimple("http://localhost:8082/api/test")
-	if data == nil {
-		fmt.Println("返回值：nil")
-		return
-	}
-	fmt.Println("返回值：" + string(data.([]byte)))
+	//_, _, data, _ := baseHttp.GetSimple("http://localhost:8082/api/test")
+	//if data == nil {
+	//	fmt.Println("返回值：nil")
+	//	return
+	//}
+	//fmt.Println("返回值：" + string(data.([]byte)))
 
-	_, _, data, _ = baseHttp.GetSimple("http://localhost:8082/api/test/err")
-	if data == nil {
-		fmt.Println("返回值：nil")
-		return
-	}
-	fmt.Println("返回值：" + string(data.([]byte)))
-
-	time.Sleep(30000)
 }

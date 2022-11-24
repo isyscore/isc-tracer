@@ -28,7 +28,13 @@ tracer:
   enable: true
 ```
 
+代码引入
+请在main.go方法这里引入如下的包
+```go
+import _ "github.com/isyscore/isc-tracer"
+```
+
 ## 自定义埋点
 ```yaml
-// todo
+
 ```

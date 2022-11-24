@@ -27,7 +27,7 @@ const (
 	SWITCH_OS_TRACE_EMQX     = "debug.os.trace.emqx"
 )
 
-func Init() {
+func init() {
 	server.AddGinHandlers(pkgHttp.TraceFilter())
 	orm.AddGormHook(&pkgOrm.GobaseGormHook{})
 	orm.AddXormHook(&pkgOrm.GobaseXormHook{})

@@ -3,7 +3,6 @@ package test
 import (
 	"context"
 	"github.com/isyscore/isc-gobase/extend/redis"
-	tracer "github.com/isyscore/isc-tracer"
 	"github.com/isyscore/isc-tracer/internal/trace"
 	"testing"
 )
@@ -11,8 +10,6 @@ import (
 func TestRedis(t *testing.T) {
 	trace.OsTraceSwitch = true
 	trace.RedisTraceSwitch = true
-
-	tracer.Init()
 
 	redisCli, err := redis.NewClient()
 	if err != nil {
