@@ -1,7 +1,7 @@
 package trace
 
 import (
-	"github.com/isyscore/isc-gobase/server"
+	"github.com/isyscore/isc-gobase/store"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/util"
 	"net/http"
@@ -58,8 +58,8 @@ func ClientEndTrace(tracer *Tracer, responseSize int, status _const.TraceStatusE
 }
 
 func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {
-	header := server.GetHeader()
-	remoteAddr := server.GetRemoteAddr()
+	header := store.GetHeader()
+	remoteAddr := store.GetRemoteAddr()
 
 	tracerId := header.Get(_const.TRACE_HEAD_ID)
 	frontIP := ""
@@ -85,7 +85,7 @@ func ServerEndTrace(tracer *Tracer, responseSize int, status _const.TraceStatusE
 }
 
 func endTrace(tracer *Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
-	req := server.GetRequest()
+	req := store.GetRequest()
 	tracer.Size = int(req.ContentLength) + responseSize
 	tracer.EndTrace(status, message)
 }

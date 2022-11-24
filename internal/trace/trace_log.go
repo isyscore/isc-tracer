@@ -2,7 +2,7 @@ package trace
 
 import (
 	"github.com/isyscore/isc-gobase/config"
-	"github.com/isyscore/isc-gobase/file"
+	baseFile "github.com/isyscore/isc-gobase/file"
 	"github.com/isyscore/isc-gobase/logger"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/util"
@@ -26,9 +26,9 @@ func SendTraceLog(tracer *Tracer) {
 
 func init() {
 	//path := "logs/middleware/trace/trace.log"
-	path := "logs\\middleware\\trace\\trace.log"
+	path := "logs" + string(os.PathSeparator) + "middleware" + string(os.PathSeparator) + "trace" + string(os.PathSeparator) + "trace.log"
 
-	file.CreateFile(path)
+	baseFile.CreateFile(path)
 	logFile, err := os.Create(path)
 	if err != nil {
 		panic(err)
@@ -38,7 +38,7 @@ func init() {
 			//_ = logFile.Truncate(0)
 
 			logFile.Close()
-			file.DeleteFile(path)
+			baseFile.DeleteFile(path)
 
 			logFile, _ = os.Create(path)
 		}
