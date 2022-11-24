@@ -3,7 +3,6 @@ package orm
 import (
 	"context"
 	"encoding/json"
-	"github.com/isyscore/isc-gobase/extend/orm"
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
@@ -16,10 +15,6 @@ const (
 )
 
 type GobaseXormHook struct {
-}
-
-func init() {
-	orm.AddXormHook(&GobaseXormHook{})
 }
 
 func (*GobaseXormHook) BeforeProcess(c *contexts.ContextHook) (context.Context, error) {

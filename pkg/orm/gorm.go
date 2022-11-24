@@ -3,7 +3,6 @@ package orm
 import (
 	"context"
 	"encoding/json"
-	"github.com/isyscore/isc-gobase/extend/orm"
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
@@ -38,10 +37,6 @@ const (
 	_opRow    = "row"
 	_opRaw    = "execute"
 )
-
-func init() {
-	orm.AddGormHook(&GobaseGormHook{})
-}
 
 // 实现 gorm 插件所需方法
 func (i *GobaseGormHook) Name() string {

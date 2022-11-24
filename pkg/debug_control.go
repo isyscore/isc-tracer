@@ -29,6 +29,7 @@ const (
 func init() {
 	server.AddGinHandlers(pkgHttp.TraceFilter())
 	orm.AddGormHook(&pkgOrm.GobaseGormHook{})
+	orm.AddXormHook(&pkgOrm.GobaseXormHook{})
 	baseRedis.AddRedisHook(&pkgRedis.GoBaseRedisHook{})
 	etcd.AddEtcdHook(&pkgEtcd.TracerEtcdHook{})
 

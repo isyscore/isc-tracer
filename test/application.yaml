@@ -12,6 +12,17 @@ base:
     enable: true
     # 端口号，默认：8080
     port: 8081
+  datasource:
+    # 是否启用，默认关闭
+    enable: true
+    username: isyscore
+    password: Isysc0re
+    host: 10.30.30.26
+    port: 23306
+    # 目前支持: mysql、postgresql、sqlite、sqlserver
+    driver-name: mysql
+    # 数据库名
+    db-name: isc_dmc
   redis:
     enable: true
     password: "ZljIsysc0re123"
