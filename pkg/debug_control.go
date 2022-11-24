@@ -5,6 +5,7 @@ import (
 	"github.com/isyscore/isc-gobase/extend/etcd"
 	"github.com/isyscore/isc-gobase/extend/orm"
 	baseRedis "github.com/isyscore/isc-gobase/extend/redis"
+	"github.com/isyscore/isc-gobase/http"
 	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/listener"
 	"github.com/isyscore/isc-gobase/logger"
@@ -32,6 +33,7 @@ func init() {
 	orm.AddXormHook(&pkgOrm.GobaseXormHook{})
 	baseRedis.AddRedisHook(&pkgRedis.GoBaseRedisHook{})
 	etcd.AddEtcdHook(&pkgEtcd.TracerEtcdHook{})
+	http.AddHook(&pkgHttp.TracerHttpHook{})
 
 	// 应用启动完成
 	listener.AddListener(listener.EventOfServerRunFinish, func(event listener.BaseEvent) {

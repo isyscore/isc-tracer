@@ -47,16 +47,6 @@ func GetFrontIP(head http.Header, remoteAddr string) string {
 	return remoteAddr
 }
 
-func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {
-	// todo
-	return nil
-}
-
-func ClientEndTrace(tracer *Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
-	// todo
-	return
-}
-
 func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {
 	header := store.GetHeader()
 	remoteAddr := store.GetRemoteAddr()

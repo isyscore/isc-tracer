@@ -2,12 +2,17 @@ package http
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/server/rsp"
+	"github.com/isyscore/isc-gobase/store"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
+	"net/http"
+	"unsafe"
 
 	"runtime/debug"
 )
@@ -15,6 +20,8 @@ import (
 var (
 	excludes = []string{"/system/status"}
 )
+
+var httpContextKey = "gobase-http-context-key"
 
 type bodyLogWriter struct {
 	gin.ResponseWriter
@@ -24,6 +31,63 @@ type bodyLogWriter struct {
 func (w bodyLogWriter) Write(b []byte) (int, error) {
 	w.body.Write(b)
 	return w.ResponseWriter.Write(b)
+}
+
+type TracerHttpHook struct {
+}
+
+func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Context {
+	if !trace.HttpTraceSwitch {
+		return ctx
+	}
+
+	srcHead := store.GetHeader()
+	for headKey, srcHs := range srcHead {
+		for _, srcH := range srcHs {
+			req.Header.Add(headKey, srcH)
+		}
+	}
+	tracer := trace.New(store.GetRequest())
+	ctx = context.WithValue(ctx, httpContextKey, tracer)
+	return ctx
+}
+
+func (*TracerHttpHook) After(ctx context.Context, rsp *http.Response, rspCode int, rspData any, err error) {
+	if !trace.HttpTraceSwitch {
+		return
+	}
+
+	tracer, ok := ctx.Value(httpContextKey).(*trace.Tracer)
+	if !ok || tracer == nil {
+		return
+	}
+
+	resultMap := map[string]any{}
+	result := _const.OK
+
+	if err != nil {
+		resultMap["err"] = err.Error()
+	}
+
+	if rspCode >= 300 {
+		result = _const.ERROR
+	} else {
+		rspMap := map[string]any{}
+		err = isc.DataToObject(string(rspData.([]byte)), &rspMap)
+		if err != nil {
+			code, existCode := rspMap["code"]
+			msg, _ := rspMap["message"]
+			if existCode && code != 0 && code != 200 {
+				resultMap["errCode"] = code
+				resultMap["errMsg"] = msg
+
+				trace.ServerEndTrace(tracer, isc.ToInt(unsafe.Sizeof(rspData)), _const.ERROR, isc.ToJsonString(resultMap))
+				return
+			}
+		}
+	}
+	trace.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
+	return
 }
 
 func TraceFilter() gin.HandlerFunc {

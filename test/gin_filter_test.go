@@ -1,8 +1,9 @@
 package test
 
 import (
-	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	baseHttp "github.com/isyscore/isc-gobase/http"
 	"github.com/isyscore/isc-gobase/server"
 	"github.com/isyscore/isc-gobase/server/rsp"
 	"github.com/isyscore/isc-tracer/internal/trace"
@@ -10,30 +11,24 @@ import (
 	"testing"
 )
 
-func TestJson(t *testing.T) {
-	v := map[string]any{
-		"code":    0,
-		"message": "成功",
-		"data":    123,
-	}
-	b, _ := json.Marshal(v)
-	var response rsp.ResponseBase
-	json.Unmarshal(b, &response)
-	t.Log(response)
-}
 func TestTraceFilter(t *testing.T) {
 	trace.OsTraceSwitch = true
 	trace.HttpTraceSwitch = true
 
-	// http://localhost:8081/api/test
 	server.Get("/test", test)
 
 	server.Run()
 }
 
 func test(c *gin.Context) {
-	dict := make(map[string]any)
-	dict["code"] = 0
-	dict["message"] = "成功"
-	c.JSON(200, dict)
+	rsp.Success(c, "成功")
+}
+
+func TestGetSimple(t *testing.T) {
+	_, _, data, _ := baseHttp.GetSimple("http://localhost:8081/api/test")
+
+	if data == nil {
+		fmt.Println("返回值：nil")
+	}
+	fmt.Println("返回值：" + string(data.([]byte)))
 }
