@@ -14,10 +14,10 @@ const (
 	traceContextXormKey = "tracer-xorm-trace-key"
 )
 
-type GobaseXormHook struct {
+type TracerXormHook struct {
 }
 
-func (*GobaseXormHook) BeforeProcess(c *contexts.ContextHook) (context.Context, error) {
+func (*TracerXormHook) BeforeProcess(c *contexts.ContextHook) (context.Context, error) {
 	if !trace.DatabaseTraceSwitch {
 		return c.Ctx, nil
 	}
@@ -33,7 +33,7 @@ func (*GobaseXormHook) BeforeProcess(c *contexts.ContextHook) (context.Context, 
 	return ctx, nil
 }
 
-func (*GobaseXormHook) AfterProcess(c *contexts.ContextHook) error {
+func (*TracerXormHook) AfterProcess(c *contexts.ContextHook) error {
 	if !trace.DatabaseTraceSwitch {
 		return nil
 	}

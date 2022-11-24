@@ -7,7 +7,6 @@ import (
 	"github.com/isyscore/isc-gobase/server"
 	"github.com/isyscore/isc-gobase/server/rsp"
 	_ "github.com/isyscore/isc-tracer"
-	"github.com/isyscore/isc-tracer/internal/trace"
 	"testing"
 	"time"
 )
@@ -37,17 +36,4 @@ func test(c *gin.Context) {
 
 func testErr(c *gin.Context) {
 	rsp.FailedOfStandard(c, 103222, "xxx业务的配置异常")
-}
-
-func TestGetSimple(t *testing.T) {
-	trace.OsTraceSwitch = true
-	trace.HttpTraceSwitch = true
-
-	//_, _, data, _ := baseHttp.GetSimple("http://localhost:8082/api/test")
-	//if data == nil {
-	//	fmt.Println("返回值：nil")
-	//	return
-	//}
-	//fmt.Println("返回值：" + string(data.([]byte)))
-
 }

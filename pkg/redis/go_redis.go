@@ -11,10 +11,10 @@ import (
 
 var redisContextKey = "gobase-redis-trace-key"
 
-type GoBaseRedisHook struct {
+type TracerRedisHook struct {
 }
 
-func (*GoBaseRedisHook) BeforeProcess(ctx context.Context, cmd redis.Cmder) (context.Context, error) {
+func (*TracerRedisHook) BeforeProcess(ctx context.Context, cmd redis.Cmder) (context.Context, error) {
 	if !trace.RedisTraceSwitch {
 		return ctx, nil
 	}
@@ -24,7 +24,7 @@ func (*GoBaseRedisHook) BeforeProcess(ctx context.Context, cmd redis.Cmder) (con
 	return ctx, nil
 }
 
-func (*GoBaseRedisHook) AfterProcess(ctx context.Context, cmd redis.Cmder) error {
+func (*TracerRedisHook) AfterProcess(ctx context.Context, cmd redis.Cmder) error {
 	if !trace.RedisTraceSwitch {
 		return nil
 	}
@@ -58,10 +58,10 @@ func (*GoBaseRedisHook) AfterProcess(ctx context.Context, cmd redis.Cmder) error
 	return nil
 }
 
-func (*GoBaseRedisHook) BeforeProcessPipeline(ctx context.Context, cmds []redis.Cmder) (context.Context, error) {
+func (*TracerRedisHook) BeforeProcessPipeline(ctx context.Context, cmds []redis.Cmder) (context.Context, error) {
 	return ctx, nil
 }
 
-func (*GoBaseRedisHook) AfterProcessPipeline(ctx context.Context, cmds []redis.Cmder) error {
+func (*TracerRedisHook) AfterProcessPipeline(ctx context.Context, cmds []redis.Cmder) error {
 	return nil
 }

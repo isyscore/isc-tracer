@@ -102,3 +102,4 @@ fabric.properties
 !.gitignore
 *.idea
 *.log
+*.vscode

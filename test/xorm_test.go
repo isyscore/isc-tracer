@@ -8,19 +8,16 @@ import (
 	"testing"
 )
 
-func TestGorm(t *testing.T) {
+func TestXorm(t *testing.T) {
 	trace.OsTraceSwitch = true
 	trace.DatabaseTraceSwitch = true
 
-	db, _ := orm.NewGormDb()
+	db, _ := orm.NewXormDb()
 
 	// 删除表
-	//db.Exec("drop table isc_demo.gobase_demo")
+	db.Exec("drop table isc_demo.gobase_demo")
 
-	// 测试异常
-	//db.Exec("drop table isc_demo.gobase_demoxxx")
-	//
-	////新增表
+	//新增表
 	db.Exec("CREATE TABLE gobase_demo(\n" +
 		"  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',\n" +
 		"  `name` char(20) NOT NULL COMMENT '名字',\n" +
@@ -33,31 +30,16 @@ func TestGorm(t *testing.T) {
 		"  PRIMARY KEY (`id`)\n" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='测试表'")
 
+	db.Table("gobase_demo").Insert(&GobaseDemo{Name: "zhou", Age: 18, Address: "杭州"})
 	// 新增
-	db.Create(&GobaseDemo{Name: "zhou", Age: 18, Address: "杭州"})
-	db.Create(&GobaseDemo{Name: "zhou", Age: 11, Address: "杭州2"})
+	db.Table("gobase_demo").Insert(&GobaseDemo{Name: "zhou", Age: 18, Address: "杭州"})
 
-	// 查询：一行
 	var demo GobaseDemo
-	db.First(&demo).Where("name=?", "zhou")
+	db.Table("gobase_demo").Where("name=?", "zhou").Get(&demo)
 
-	// 测试sql
-	dd, _ := db.DB()
+	dd := db.DB()
 	dd.Query("select * from gobase_demo")
 
-	// 测试参数
-	dd.Query("select * from gobase_demo where id = ?", 23)
-
-	// 测试异常
-	dd.Query("select * from gobase_demoxxx where id = ?", 23)
-
-	//查询：多行
+	// 查询：多行
 	fmt.Println(demo)
-}
-
-type GobaseDemo struct {
-	Id      uint64
-	Name    string
-	Age     int
-	Address string
 }
