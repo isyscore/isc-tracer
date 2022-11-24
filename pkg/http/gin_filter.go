@@ -49,7 +49,7 @@ func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Co
 		}
 	}
 
-	tracer := trace.New(req)
+	tracer := trace.ClientStartTraceWithRequest(req)
 	ctx = context.WithValue(ctx, httpContextKey, tracer)
 	return ctx
 }
@@ -84,12 +84,12 @@ func (*TracerHttpHook) After(ctx context.Context, rsp *http.Response, rspCode in
 				resultMap["errCode"] = code
 				resultMap["errMsg"] = msg
 
-				trace.ServerEndTrace(tracer, isc.ToInt(unsafe.Sizeof(rspData)), _const.ERROR, isc.ToJsonString(resultMap))
+				trace.EndTrace(tracer, isc.ToInt(unsafe.Sizeof(rspData)), _const.ERROR, isc.ToJsonString(resultMap))
 				return
 			}
 		}
 	}
-	trace.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
+	trace.EndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
 	return
 }
 
@@ -133,7 +133,7 @@ func TraceFilter() gin.HandlerFunc {
 				msg = response.Message
 			}
 			// 结束追踪
-			trace.ServerEndTrace(tracer, blw.body.Len(), code, msg)
+			trace.EndTrace(tracer, blw.body.Len(), code, msg)
 		}()
 		c.Next()
 	}

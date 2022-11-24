@@ -47,7 +47,7 @@ func (pHook *TracerEtcdHook) After(ctx context.Context, op etcdClientV3.Op, pRsp
 	resultMap["rsp"] = isc.ToJsonString(pRsp)
 
 	// todo 返回值暂时未知，先不写
-	trace.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
+	trace.EndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
 	return
 }
 

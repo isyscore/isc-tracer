@@ -56,6 +56,6 @@ func (*GobaseXormHook) AfterProcess(c *contexts.ContextHook) error {
 	resultMap["sql"] = c.SQL
 	resultMap["parameters"] = string(b)
 
-	trace.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
+	trace.EndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
 	return nil
 }

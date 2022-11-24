@@ -26,6 +26,18 @@ base:
 tracer:
   # 采集总开关；默认开启；
   enable: true
+  # 数据库相关配置  
+  datasource:
+    # 是否启用，默认开启
+    enable: true
+  # redis相关配置    
+  redis:
+    # 是否启用，默认开启
+    enable: true
+  # etcd相关配置  
+  etcd:
+    # 是否启用，默认开启
+    enable: true
 ```
 
 代码引入
@@ -35,6 +47,6 @@ import _ "github.com/isyscore/isc-tracer"
 ```
 
 ## 自定义埋点
-```yaml
+```go
 
 ```

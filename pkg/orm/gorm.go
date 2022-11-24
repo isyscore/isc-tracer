@@ -130,7 +130,7 @@ func after(db *gorm.DB) {
 	resultMap["parameters"] = string(b)
 
 	// todo 返回大小，暂时设置为0
-	trace.ServerEndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
+	trace.EndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
 }
 
 func beforeCreate(db *gorm.DB) {
