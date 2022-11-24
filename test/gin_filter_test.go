@@ -7,11 +7,14 @@ import (
 	"github.com/isyscore/isc-gobase/server"
 	"github.com/isyscore/isc-gobase/server/rsp"
 	_ "github.com/isyscore/isc-tracer"
+	"github.com/isyscore/isc-tracer/internal/trace"
 	"testing"
 	"time"
 )
 
 func TestTraceFilter(t *testing.T) {
+	trace.OsTraceSwitch = true
+	trace.HttpTraceSwitch = true
 	server.Get("/test", test)
 	server.Get("/test/err", testErr)
 

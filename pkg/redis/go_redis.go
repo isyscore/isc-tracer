@@ -19,7 +19,7 @@ func (*TracerRedisHook) BeforeProcess(ctx context.Context, cmd redis.Cmder) (con
 		return ctx, nil
 	}
 
-	tracer := trace.ServerStartTrace(_const.REDIS, cmd.Name())
+	tracer := trace.ClientStartTrace(_const.REDIS, "【redis】: "+cmd.Name())
 	ctx = context.WithValue(ctx, redisContextKey, tracer)
 	return ctx, nil
 }
@@ -53,7 +53,6 @@ func (*TracerRedisHook) AfterProcess(ctx context.Context, cmd redis.Cmder) error
 	resultMap["fullName"] = cmd.FullName()
 	resultMap["parameters"] = string(args)
 
-	// todo 返回值暂时未知，先不写
 	trace.EndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
 	return nil
 }

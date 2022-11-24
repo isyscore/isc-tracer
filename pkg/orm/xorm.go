@@ -28,7 +28,7 @@ func (*TracerXormHook) BeforeProcess(c *contexts.ContextHook) (context.Context, 
 
 	ctx := c.Ctx
 	sqlMetas := strings.SplitN(c.SQL, " ", 2)
-	tracer := trace.ServerStartTrace(_const.MYSQL, "xorm: "+sqlMetas[0])
+	tracer := trace.ClientStartTrace(_const.MYSQL, "【xorm】: "+sqlMetas[0])
 	ctx = context.WithValue(ctx, traceContextXormKey, tracer)
 	return ctx, nil
 }

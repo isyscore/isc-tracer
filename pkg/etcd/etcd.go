@@ -20,7 +20,7 @@ func (pHook *TracerEtcdHook) Before(ctx context.Context, op etcdClientV3.Op) con
 		return ctx
 	}
 
-	tracer := trace.ServerStartTrace(_const.ETCD, getCmd(op))
+	tracer := trace.ClientStartTrace(_const.ETCD, "【etcd】: "+getCmd(op))
 	ctx = context.WithValue(ctx, etcdContextKey, tracer)
 	return ctx
 }
@@ -46,7 +46,6 @@ func (pHook *TracerEtcdHook) After(ctx context.Context, op etcdClientV3.Op, pRsp
 	resultMap["req"] = isc.ToJsonString(toRequestOp(op))
 	resultMap["rsp"] = isc.ToJsonString(pRsp)
 
-	// todo 返回值暂时未知，先不写
 	trace.EndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
 	return
 }

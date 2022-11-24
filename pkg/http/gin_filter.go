@@ -49,7 +49,7 @@ func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Co
 		}
 	}
 
-	tracer := trace.ClientStartTraceWithRequest(req)
+	tracer := trace.ServerStartTrace(_const.HTTP, "【http】: <"+req.Method+">"+req.URL.Path)
 	ctx = context.WithValue(ctx, httpContextKey, tracer)
 	return ctx
 }
@@ -105,7 +105,7 @@ func TraceFilter() gin.HandlerFunc {
 			return
 		}
 		// 开始追踪
-		tracer := trace.ServerStartTrace(_const.HTTP, fmt.Sprintf("<%s>%s", c.Request.Method, c.Request.RequestURI))
+		tracer := trace.ServerStartTrace(_const.HTTP, fmt.Sprintf("【http】: <%s>%s", c.Request.Method, c.Request.RequestURI))
 		c.Writer.Header().Set(_const.TRACE_HEAD_ID, c.GetHeader(_const.TRACE_HEAD_ID))
 		// 重写writer,用于获取response
 		blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}

@@ -26,7 +26,7 @@ func (*TracerGormHook) Before(ctx context.Context, parameters map[string]any) (c
 	}
 
 	cmds := strings.SplitN(query.(string), " ", 2)
-	tracer := trace.ServerStartTrace(_const.MYSQL, "gorm: "+cmds[0])
+	tracer := trace.ClientStartTrace(_const.MYSQL, "【gorm】: "+cmds[0])
 
 	return context.WithValue(ctx, traceContextGormKey, tracer), nil
 }
