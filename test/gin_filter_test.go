@@ -25,7 +25,10 @@ func TestTraceFilter(t *testing.T) {
 }
 
 func test(c *gin.Context) {
-	rsp.Success(c, "成功")
+	dict := make(map[string]any)
+	dict["code"] = 0
+	dict["message"] = "成功"
+	rsp.Success(c, dict)
 }
 
 func testErr(c *gin.Context) {
