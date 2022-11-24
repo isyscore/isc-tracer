@@ -20,6 +20,7 @@ func TestTraceFilter(t *testing.T) {
 
 	go server.Run()
 
+	baseHttp.GetSimple("http://localhost:8082/api/test")
 	_, _, data, _ := baseHttp.GetSimple("http://localhost:8082/api/test/err")
 	if data == nil {
 		fmt.Println("返回值：nil")

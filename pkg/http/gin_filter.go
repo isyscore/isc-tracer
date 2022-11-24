@@ -2,18 +2,12 @@ package http
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/server/rsp"
-	"github.com/isyscore/isc-gobase/store"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
-	"net/http"
-	"strings"
-	"unsafe"
 
 	"runtime/debug"
 )
@@ -32,65 +26,6 @@ type bodyLogWriter struct {
 func (w bodyLogWriter) Write(b []byte) (int, error) {
 	w.body.Write(b)
 	return w.ResponseWriter.Write(b)
-}
-
-type TracerHttpHook struct {
-}
-
-func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Context {
-	if !trace.HttpTraceSwitch {
-		return ctx
-	}
-
-	srcHead := store.GetHeader()
-	for headKey, srcHs := range srcHead {
-		for _, srcH := range srcHs {
-			req.Header.Add(headKey, srcH)
-		}
-	}
-
-	tracer := trace.ClientStartTraceWithRequest(req)
-	ctx = context.WithValue(ctx, httpContextKey, tracer)
-	return ctx
-}
-
-func (*TracerHttpHook) After(ctx context.Context, rsp *http.Response, rspCode int, rspData any, err error) {
-	if !trace.HttpTraceSwitch {
-		return
-	}
-
-	tracer, ok := ctx.Value(httpContextKey).(*trace.Tracer)
-	if !ok || tracer == nil {
-		return
-	}
-
-	resultMap := map[string]any{}
-	result := _const.OK
-
-	if rspCode >= 300 {
-		result = _const.ERROR
-		if err != nil {
-			resultMap["err"] = err.Error()
-		}
-	} else {
-		bodyStr := string(rspData.([]byte))
-
-		if strings.HasPrefix(bodyStr, "{") && strings.HasSuffix(bodyStr, "}") {
-			bodys := map[string]any{}
-			_ = isc.StrToObject(bodyStr, &bodys)
-			code, existCode := bodys["code"]
-			msg, _ := bodys["message"]
-			if existCode && code != 0 && code != 200 {
-				resultMap["errCode"] = code
-				resultMap["errMsg"] = msg
-
-				trace.EndTrace(tracer, isc.ToInt(unsafe.Sizeof(rspData)), _const.ERROR, isc.ToJsonString(resultMap))
-				return
-			}
-		}
-	}
-	trace.EndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
-	return
 }
 
 func TraceFilter() gin.HandlerFunc {

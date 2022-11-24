@@ -17,7 +17,7 @@ const (
 type TracerXormHook struct {
 }
 
-func (*TracerXormHook) BeforeProcess(c *contexts.ContextHook) (context.Context, error) {
+func (*TracerXormHook) BeforeProcess(c *contexts.ContextHook, driverName string) (context.Context, error) {
 	if !trace.DatabaseTraceSwitch {
 		return c.Ctx, nil
 	}
@@ -28,12 +28,12 @@ func (*TracerXormHook) BeforeProcess(c *contexts.ContextHook) (context.Context, 
 
 	ctx := c.Ctx
 	sqlMetas := strings.SplitN(c.SQL, " ", 2)
-	tracer := trace.ClientStartTrace(_const.MYSQL, "【xorm】: "+sqlMetas[0])
+	tracer := trace.ClientStartTrace(getSqlType(driverName), "【"+driverName+"】:"+sqlMetas[0])
 	ctx = context.WithValue(ctx, traceContextXormKey, tracer)
 	return ctx, nil
 }
 
-func (*TracerXormHook) AfterProcess(c *contexts.ContextHook) error {
+func (*TracerXormHook) AfterProcess(c *contexts.ContextHook, driverName string) error {
 	if !trace.DatabaseTraceSwitch {
 		return nil
 	}
@@ -53,6 +53,7 @@ func (*TracerXormHook) AfterProcess(c *contexts.ContextHook) error {
 		resultMap["err"] = c.Err.Error()
 		result = _const.ERROR
 	}
+	resultMap["database"] = driverName
 	resultMap["sql"] = c.SQL
 	resultMap["parameters"] = string(b)
 
