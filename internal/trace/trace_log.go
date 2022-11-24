@@ -29,26 +29,35 @@ func init() {
 	path := "logs" + string(os.PathSeparator) + "middleware" + string(os.PathSeparator) + "trace" + string(os.PathSeparator) + "trace.log"
 
 	baseFile.CreateFile(path)
-	logFile, err := os.Create(path)
+	logFile, err := os.OpenFile(path, os.O_RDWR, 0666)
 	if err != nil {
-		panic(err)
+		logger.Warn("OpenFile err:", err)
+	} else {
+		_, err = logFile.Seek(0, 2)
+		if err != nil {
+			logger.Warn("Seek err:", err)
+		}
 	}
+
 	go func() {
 		for range time.NewTicker(time.Hour * 24).C {
-			//_ = logFile.Truncate(0)
+			if logFile != nil {
+				//_ = logFile.Truncate(0)
+				logger.Warn("定时删除文件")
+				logFile.Close()
+				baseFile.DeleteFile(path)
 
-			logFile.Close()
-			baseFile.DeleteFile(path)
-
-			logFile, _ = os.Create(path)
+				logFile, _ = os.OpenFile(path, os.O_RDWR, 0666)
+			}
 		}
 	}()
 	go func() {
 		for tracer := range traceChannel {
-			l := newTraceLog(tracer)
-
-			if _, err := logFile.WriteString(l); err != nil {
-				logger.Error("%v", err.Error())
+			if logFile != nil {
+				l := newTraceLog(tracer)
+				if _, err := logFile.WriteString(l); err != nil {
+					logger.Error("%v", err.Error())
+				}
 			}
 		}
 	}()

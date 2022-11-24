@@ -27,5 +27,5 @@ base:
     enable: true
     password: "ZljIsysc0re123"
     standalone:
-      addr: 10.30.30.78:26379
+      addr: 10.30.30.81:26379
       database: 15
