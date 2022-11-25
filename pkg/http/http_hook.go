@@ -15,10 +15,9 @@ type TracerHttpHook struct {
 }
 
 func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Context {
-	if !trace.HttpTraceSwitch {
+	if !trace.TracerIsEnable() {
 		return ctx
 	}
-
 	srcHead := store.GetHeader()
 	for headKey, srcHs := range srcHead {
 		for _, srcH := range srcHs {
@@ -32,7 +31,7 @@ func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Co
 }
 
 func (*TracerHttpHook) After(ctx context.Context, rsp *http.Response, rspCode int, rspData any, err error) {
-	if !trace.HttpTraceSwitch {
+	if !trace.TracerIsEnable() {
 		return
 	}
 

@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
@@ -16,7 +17,7 @@ type TracerGormHook struct {
 }
 
 func (*TracerGormHook) Before(ctx context.Context, driverName string, parameters map[string]any) (context.Context, error) {
-	if !trace.DatabaseTraceSwitch {
+	if !TracerDatabaseIsEnable() {
 		return ctx, nil
 	}
 
@@ -26,12 +27,12 @@ func (*TracerGormHook) Before(ctx context.Context, driverName string, parameters
 	}
 
 	cmds := strings.SplitN(query.(string), " ", 2)
-	tracer := trace.ClientStartTrace(getSqlType(driverName), "【"+driverName+"】:"+cmds[0])
+	tracer := trace.ClientStartTrace(getSqlType(driverName), "【gorm】:"+cmds[0])
 	return context.WithValue(ctx, traceContextGormKey, tracer), nil
 }
 
 func (*TracerGormHook) After(ctx context.Context, driverName string, parameters map[string]any) (context.Context, error) {
-	if !trace.DatabaseTraceSwitch {
+	if !TracerDatabaseIsEnable() {
 		return ctx, nil
 	}
 
@@ -53,7 +54,7 @@ func (*TracerGormHook) After(ctx context.Context, driverName string, parameters 
 }
 
 func (*TracerGormHook) Err(ctx context.Context, driverName string, err error, parameters map[string]any) error {
-	if !trace.DatabaseTraceSwitch {
+	if !TracerDatabaseIsEnable() {
 		return nil
 	}
 
@@ -86,4 +87,8 @@ func getSqlType(driverName string) _const.TraceTypeEnum {
 		return _const.SQLITE
 	}
 	return _const.UNKNOWN
+}
+
+func TracerDatabaseIsEnable() bool {
+	return config.GetValueBoolDefault("tracer.database.enable", false)
 }

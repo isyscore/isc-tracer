@@ -2,6 +2,7 @@ package etcd
 
 import (
 	"context"
+	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
@@ -16,17 +17,17 @@ type TracerEtcdHook struct {
 }
 
 func (pHook *TracerEtcdHook) Before(ctx context.Context, op etcdClientV3.Op) context.Context {
-	if !trace.EtcdTraceSwitch {
+	if !TracerEtcdIsEnable() {
 		return ctx
 	}
 
-	tracer := trace.ClientStartTrace(_const.ETCD, "【etcd】: "+getCmd(op))
+	tracer := trace.ClientStartTrace(_const.ETCD, "【etcd.io】: "+getCmd(op))
 	ctx = context.WithValue(ctx, etcdContextKey, tracer)
 	return ctx
 }
 
 func (pHook *TracerEtcdHook) After(ctx context.Context, op etcdClientV3.Op, pRsp any, err error) {
-	if !trace.EtcdTraceSwitch {
+	if !TracerEtcdIsEnable() {
 		return
 	}
 
@@ -100,4 +101,8 @@ func getCmd(op etcdClientV3.Op) string {
 		return "delete"
 	}
 	return ""
+}
+
+func TracerEtcdIsEnable() bool {
+	return config.GetValueBoolDefault("tracer.etcd.enable", false)
 }

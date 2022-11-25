@@ -4,14 +4,11 @@ import (
 	"fmt"
 	"github.com/isyscore/isc-gobase/extend/orm"
 	_ "github.com/isyscore/isc-tracer"
-	"github.com/isyscore/isc-tracer/internal/trace"
 	"testing"
 )
 
+// 使用环境变量：base.profiles.active=database
 func TestGorm(t *testing.T) {
-	trace.OsTraceSwitch = true
-	trace.DatabaseTraceSwitch = true
-
 	db, _ := orm.NewGormDb()
 
 	// 删除表

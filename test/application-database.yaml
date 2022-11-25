@@ -1,0 +1,46 @@
+base:
+  api:
+    # api前缀，默认包含api前缀，如果路径本身有api，则不再添加api前缀
+    prefix: /api
+  application:
+    # 应用名，默认为空
+    name: isc-tracer-test
+    # 服务版本号
+    version: v1.0.0
+  server:
+    # 是否启用，默认：true
+    enable: true
+    # 端口号，默认：8080
+    port: 8082
+    gin:
+      # 有三种模式：debug/release/test，默认 release
+      mode: debug
+  datasource:
+    # 是否启用，默认关闭
+    enable: true
+    username: isyscore
+    password: Isysc0re
+    host: 10.30.30.26
+    port: 23306
+    # 目前支持: mysql、postgresql、sqlite、sqlserver
+    driver-name: mysql
+    # 数据库名
+    db-name: isc_dmc
+tracer:
+  # 采集总开关；默认关闭
+  enable: true
+  # 数据库相关配置
+  database:
+    # 是否启用（只有tracer.enable开启情况下才生效）；默认关闭
+    enable: true
+
+
+# 调试模式
+debug:
+  # 是否启用，默认启用
+  enable: true
+  # 调试模式的底层依赖
+  etcd:
+    endpoints: 10.30.30.78:52379
+    user: root
+    password: ZljIsysc0re123

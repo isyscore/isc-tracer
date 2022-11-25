@@ -28,16 +28,10 @@ func init() {
 	//path := "logs/middleware/trace/trace.log"
 	path := "logs" + string(os.PathSeparator) + "middleware" + string(os.PathSeparator) + "trace" + string(os.PathSeparator) + "trace.log"
 
-	baseFile.CreateFile(path)
-	logFile, err := os.OpenFile(path, os.O_RDWR, 0666)
-	if err != nil {
-		logger.Warn("OpenFile err:", err)
-	} else {
-		_, err = logFile.Seek(0, 2)
-		if err != nil {
-			logger.Warn("Seek err:", err)
-		}
+	if !baseFile.FileExists(path) {
+		baseFile.CreateFile(path)
 	}
+	logFile := getTraceLogFile(path)
 
 	go func() {
 		for range time.NewTicker(time.Hour * 24).C {
@@ -55,13 +49,31 @@ func init() {
 		for tracer := range traceChannel {
 			if logFile != nil {
 				l := newTraceLog(tracer)
+				if !baseFile.FileExists(path) {
+					logFile.Close()
+					baseFile.CreateFile(path)
+					logFile = getTraceLogFile(path)
+				}
+
 				if _, err := logFile.WriteString(l); err != nil {
 					logger.Error("%v", err.Error())
 				}
 			}
 		}
 	}()
+}
 
+func getTraceLogFile(path string) *os.File {
+	logFile, err := os.OpenFile(path, os.O_RDWR, 0666)
+	if err != nil {
+		logger.Warn("OpenFile err:", err)
+	} else {
+		_, err = logFile.Seek(0, 2)
+		if err != nil {
+			logger.Warn("Seek err:", err)
+		}
+	}
+	return logFile
 }
 
 func newTraceLog(tracer *Tracer) string {

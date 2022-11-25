@@ -11,7 +11,17 @@ base:
     # 是否启用，默认：true
     enable: true
     # 端口号，默认：8080
-    port: 8082
+    port: 8083
     gin:
       # 有三种模式：debug/release/test，默认 release
       mode: debug
+
+# 调试模式
+debug:
+  # 是否启用，默认启用
+  enable: true
+  # 调试模式的底层依赖
+  etcd:
+    endpoints: 10.30.30.78:52379
+    user: root
+    password: ZljIsysc0re123

@@ -19,20 +19,6 @@ var (
 	}
 )
 
-var OsTraceSwitch bool
-var HttpTraceSwitch bool
-var DatabaseTraceSwitch bool
-var RedisTraceSwitch bool
-var EtcdTraceSwitch bool
-
-func init() {
-	OsTraceSwitch = false
-	HttpTraceSwitch = false
-	DatabaseTraceSwitch = false
-	RedisTraceSwitch = false
-	EtcdTraceSwitch = false
-}
-
 func ClientStartTraceWithRequest(req *http.Request) *Tracer {
 	if !TracerIsEnable() {
 		return nil
@@ -48,12 +34,15 @@ func ClientStartTraceWithRequest(req *http.Request) *Tracer {
 			uri = url.String()
 		}
 	}
-	return ClientStartTrace(_const.HTTP, fmt.Sprintf("【http】: <%s>%s", method, uri))
+	return ClientStartTrace(_const.HTTP, fmt.Sprintf("<%s>%s", method, uri))
 }
 
 // ClientStartTrace
 // 开启客户端跟踪(如前端访问某个后端接口a, 接口a内访问其他接口b, 此时a访问b称为客户端, b接口内为服务端)
 func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
 	return StartTrace(traceType, traceName, _const.CLIENT)
 }
 
@@ -66,9 +55,15 @@ traceName 名称
  可以是访问redis的 get.{namespace}.{key}
 */
 func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
 	return StartTrace(traceType, traceName, _const.SERVER)
 }
 func StartTrace(traceType _const.TraceTypeEnum, traceName string, endPoint _const.EndpointEnum) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
 	header := store.GetHeader()
 	remoteAddr := store.GetRemoteAddr()
 
@@ -110,6 +105,9 @@ func StartTrace(traceType _const.TraceTypeEnum, traceName string, endPoint _cons
 }
 
 func EndTrace(tracer *Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
+	if !TracerIsEnable() {
+		return
+	}
 	tracer.Size = responseSize
 	tracer.EndTrace(status, message)
 }

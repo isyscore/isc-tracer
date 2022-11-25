@@ -18,7 +18,7 @@ type TracerXormHook struct {
 }
 
 func (*TracerXormHook) BeforeProcess(c *contexts.ContextHook, driverName string) (context.Context, error) {
-	if !trace.DatabaseTraceSwitch {
+	if !TracerDatabaseIsEnable() {
 		return c.Ctx, nil
 	}
 
@@ -28,13 +28,13 @@ func (*TracerXormHook) BeforeProcess(c *contexts.ContextHook, driverName string)
 
 	ctx := c.Ctx
 	sqlMetas := strings.SplitN(c.SQL, " ", 2)
-	tracer := trace.ClientStartTrace(getSqlType(driverName), "【"+driverName+"】:"+sqlMetas[0])
+	tracer := trace.ClientStartTrace(getSqlType(driverName), "【xorm】:"+sqlMetas[0])
 	ctx = context.WithValue(ctx, traceContextXormKey, tracer)
 	return ctx, nil
 }
 
 func (*TracerXormHook) AfterProcess(c *contexts.ContextHook, driverName string) error {
-	if !trace.DatabaseTraceSwitch {
+	if !TracerDatabaseIsEnable() {
 		return nil
 	}
 

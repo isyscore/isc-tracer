@@ -132,5 +132,5 @@ func (tracer *Tracer) getStatus() _const.TraceStatusEnum {
 }
 
 func TracerIsEnable() bool {
-	return config.GetValueBoolDefault("tracer.enable", true) && OsTraceSwitch
+	return config.GetValueBoolDefault("tracer.enable", false)
 }

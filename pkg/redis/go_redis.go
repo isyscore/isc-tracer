@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/go-redis/redis/v8"
+	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
@@ -15,17 +16,17 @@ type TracerRedisHook struct {
 }
 
 func (*TracerRedisHook) BeforeProcess(ctx context.Context, cmd redis.Cmder) (context.Context, error) {
-	if !trace.RedisTraceSwitch {
+	if !TracerRedisIsEnable() {
 		return ctx, nil
 	}
 
-	tracer := trace.ClientStartTrace(_const.REDIS, "【redis】: "+cmd.Name())
+	tracer := trace.ClientStartTrace(_const.REDIS, "【go-redis】: "+cmd.Name())
 	ctx = context.WithValue(ctx, redisContextKey, tracer)
 	return ctx, nil
 }
 
 func (*TracerRedisHook) AfterProcess(ctx context.Context, cmd redis.Cmder) error {
-	if !trace.RedisTraceSwitch {
+	if !TracerRedisIsEnable() {
 		return nil
 	}
 
@@ -63,4 +64,8 @@ func (*TracerRedisHook) BeforeProcessPipeline(ctx context.Context, cmds []redis.
 
 func (*TracerRedisHook) AfterProcessPipeline(ctx context.Context, cmds []redis.Cmder) error {
 	return nil
+}
+
+func TracerRedisIsEnable() bool {
+	return config.GetValueBoolDefault("tracer.redis.enable", false)
 }
