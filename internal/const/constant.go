@@ -31,4 +31,5 @@ const (
 
 	DEFAULT_PROFILES_ACTIVE = "default"
 	DEFAULT_APP_NAME        = "isc-tracer-default-name"
+	CORE_BACK_ADDRESS       = "http://isc-core-back-service:31300"
 )

@@ -15,3 +15,6 @@ base:
     gin:
       # 有三种模式：debug/release/test，默认 release
       mode: debug
+
+address:
+  core-back: http://localhost:31301

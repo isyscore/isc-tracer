@@ -35,3 +35,9 @@ tracer:
   etcd:
     # 是否启用（只有tracer.enable开启情况下才生效）；默认关闭
     enable: true
+  # 调试模式
+  debug:
+    # 是否启用，默认启用
+    enable: true
+    # 账号地址
+    secret: http://10.30.30.78:31300
