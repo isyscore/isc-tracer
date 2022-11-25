@@ -1,13 +1,11 @@
 # isc-tracer
 
-该框架是基于isc-gobase之上开发的用于链路搜集的sdk
-
-该框架目前支持以下的相关客户端埋点。以下客户端全部都要是基于isc-gobase提供的客户端才行，否则请用户自行埋点
+该框架是基于isc-gobase之上开发的用于链路搜集的sdk。目前支持以下协议的埋点，客户端全部都要是基于isc-gobase提供的客户端才行，其他一些协议请自行埋点
 
 - http
 - orm
   - gorm
-  - xorm  
+  - xorm
 - redis
   - go-redis
 - etcd
