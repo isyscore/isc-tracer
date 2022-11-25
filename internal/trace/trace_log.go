@@ -63,11 +63,7 @@ func init() {
 		for tracer := range traceChannel {
 			if logFileWriter != nil {
 				l := newTraceLog(tracer)
-				//if !baseFile.FileExists(path) {
-				//	logFile.Close()
-				//	baseFile.CreateFile(path)
-				//	logFile = getTraceLogFile(path)
-				//}
+
 				if _, err := logFileWriter.WriteString(l); err != nil {
 					logger.Error("%v", err.Error())
 				}

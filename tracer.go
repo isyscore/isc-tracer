@@ -12,6 +12,7 @@ import (
 	"github.com/isyscore/isc-gobase/logger"
 	"github.com/isyscore/isc-gobase/server"
 	_const "github.com/isyscore/isc-tracer/internal/const"
+	"github.com/isyscore/isc-tracer/internal/trace"
 	pkgEtcd "github.com/isyscore/isc-tracer/pkg/etcd"
 	pkgHttp "github.com/isyscore/isc-tracer/pkg/http"
 	pkgOrm "github.com/isyscore/isc-tracer/pkg/orm"
@@ -39,6 +40,11 @@ func init() {
 	// 应用启动完成
 	listener.AddListener(listener.EventOfServerRunFinish, func(event listener.BaseEvent) {
 		register()
+	})
+
+	// 应用退出
+	listener.AddListener(listener.EventOfServerStop, func(event listener.BaseEvent) {
+		trace.Close()
 	})
 }
 
