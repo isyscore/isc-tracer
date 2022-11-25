@@ -40,13 +40,50 @@ tracer:
     enable: false
 ```
 
-代码引入
+## 代码使用
 请在main.go方法这里引入如下的包
 ```go
 import _ "github.com/isyscore/isc-tracer"
 ```
 
 ## 自定义埋点
+包trace提供如下的方法
 ```go
+// 发起方埋点：start
+func ClientStartTraceWithRequest(req *http.Request) *Tracer {}
 
+// 发起方埋点：start
+func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {}
+
+// 接收方埋点：start
+func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {}
+
+
+// 发起方/接收方埋点：start
+func StartTrace(traceType _const.TraceTypeEnum, traceName string, endPoint _const.EndpointEnum) *Tracer {}
+
+// 发起方/接收方埋点：end
+func EndTrace(tracer *Tracer, responseSize int, status _const.TraceStatusEnum, message string) {}
+```
+### 发起方（服务端）埋点示例：
+```go
+// 执行前
+tracerClient := trace.ClientStartTrace(xxxx, "xxx-name")
+
+// 业务执行
+// ......
+
+// 执行后
+tracerClient.EndTrace(tracerClient, 0, xxxx, "xxxx")
+```
+### 接收方（服务端）埋点示例：
+```go
+// 执行前埋点
+tracerServer := trace.ServerStartTrace(_const.HTTP, "xxx")
+
+// 业务执行
+// ......
+
+// 业务执行完后埋点
+trace.EndTrace(tracerServer, size, status, "xxx")
 ```
