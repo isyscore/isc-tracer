@@ -41,7 +41,7 @@ func init() {
 				logFile.Close()
 				baseFile.DeleteFile(path)
 
-				logFile, _ = os.OpenFile(path, os.O_RDWR, 0666)
+				logFile, _ = os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
 			}
 		}
 	}()
