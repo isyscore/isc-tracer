@@ -36,6 +36,7 @@ tracer:
     # 是否启用（只有tracer.enable开启情况下才生效）；默认关闭
     enable: true
   # 调试模式
+  // todo 这里还没有开发，明天继续
   debug:
     # 是否启用，默认启用
     enable: true
