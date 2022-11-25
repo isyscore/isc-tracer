@@ -10,6 +10,7 @@ import (
 	"github.com/isyscore/isc-gobase/listener"
 	"github.com/isyscore/isc-gobase/logger"
 	"github.com/isyscore/isc-gobase/server"
+	"github.com/isyscore/isc-tracer/internal/trace"
 	pkgEtcd "github.com/isyscore/isc-tracer/pkg/etcd"
 	pkgHttp "github.com/isyscore/isc-tracer/pkg/http"
 	pkgOrm "github.com/isyscore/isc-tracer/pkg/orm"
@@ -37,12 +38,10 @@ func init() {
 	listener.AddListener(listener.EventOfServerRunFinish, func(event listener.BaseEvent) {
 		register()
 	})
-	//go func() {
-	//	sigs := make(chan os.Signal, 1)
-	//	signal.Notify(sigs)
-	//	<-sigs
-	//	trace.Close()
-	//}()
+	// 应用退出
+	listener.AddListener(listener.EventOfServerStop, func(event listener.BaseEvent) {
+		trace.Close()
+	})
 }
 
 func register() {
