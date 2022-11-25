@@ -37,6 +37,12 @@ func init() {
 	listener.AddListener(listener.EventOfServerRunFinish, func(event listener.BaseEvent) {
 		register()
 	})
+	//go func() {
+	//	sigs := make(chan os.Signal, 1)
+	//	signal.Notify(sigs)
+	//	<-sigs
+	//	trace.Close()
+	//}()
 }
 
 func register() {

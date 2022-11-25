@@ -1,6 +1,7 @@
 package trace
 
 import (
+	"bufio"
 	"github.com/isyscore/isc-gobase/config"
 	baseFile "github.com/isyscore/isc-gobase/file"
 	"github.com/isyscore/isc-gobase/logger"
@@ -19,6 +20,8 @@ const (
 )
 
 var traceChannel = make(chan *Tracer, 2048)
+var logFileWriter *bufio.Writer
+var logFile *os.File
 
 func SendTraceLog(tracer *Tracer) {
 	traceChannel <- tracer
@@ -31,31 +34,41 @@ func init() {
 	if !baseFile.FileExists(path) {
 		baseFile.CreateFile(path)
 	}
-	logFile := getTraceLogFile(path)
+	logFile = getTraceLogFile(path)
+	logFileWriter = bufio.NewWriter(logFile)
 
 	go func() {
 		for range time.NewTicker(time.Hour * 24).C {
 			if logFile != nil {
 				//_ = logFile.Truncate(0)
-				logger.Warn("定时删除文件")
-				logFile.Close()
+				//logger.Warn("定时删除文件")
+				_ = logFileWriter.Flush()
+				_ = logFile.Close()
 				baseFile.DeleteFile(path)
 
 				logFile, _ = os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
+				logFileWriter = bufio.NewWriter(logFile)
+			}
+		}
+	}()
+	go func() {
+		for range time.NewTicker(time.Second).C {
+			err := logFileWriter.Flush()
+			if err != nil {
+				logger.Warn("定时刷新文件异常, %v", err)
 			}
 		}
 	}()
 	go func() {
 		for tracer := range traceChannel {
-			if logFile != nil {
+			if logFileWriter != nil {
 				l := newTraceLog(tracer)
-				if !baseFile.FileExists(path) {
-					logFile.Close()
-					baseFile.CreateFile(path)
-					logFile = getTraceLogFile(path)
-				}
-
-				if _, err := logFile.WriteString(l); err != nil {
+				//if !baseFile.FileExists(path) {
+				//	logFile.Close()
+				//	baseFile.CreateFile(path)
+				//	logFile = getTraceLogFile(path)
+				//}
+				if _, err := logFileWriter.WriteString(l); err != nil {
 					logger.Error("%v", err.Error())
 				}
 			}
@@ -63,6 +76,15 @@ func init() {
 	}()
 }
 
+func Close() {
+	logger.Warn("Close!")
+	if logFileWriter != nil {
+		logFileWriter.Flush()
+	}
+	if logFile != nil {
+		logFile.Close()
+	}
+}
 func getTraceLogFile(path string) *os.File {
 	logFile, err := os.OpenFile(path, os.O_RDWR, 0666)
 	if err != nil {
