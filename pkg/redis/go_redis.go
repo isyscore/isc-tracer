@@ -8,6 +8,7 @@ import (
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
+	"github.com/isyscore/isc-tracer/pkg"
 )
 
 var redisContextKey = "gobase-redis-trace-key"
@@ -20,7 +21,7 @@ func (*TracerRedisHook) BeforeProcess(ctx context.Context, cmd redis.Cmder) (con
 		return ctx, nil
 	}
 
-	tracer := trace.ClientStartTrace(_const.REDIS, "【go-redis】: "+cmd.Name())
+	tracer := pkg.ClientStartTrace(_const.REDIS, "【go-redis】: "+cmd.Name())
 	ctx = context.WithValue(ctx, redisContextKey, tracer)
 	return ctx, nil
 }
@@ -54,7 +55,7 @@ func (*TracerRedisHook) AfterProcess(ctx context.Context, cmd redis.Cmder) error
 	resultMap["fullName"] = cmd.FullName()
 	resultMap["parameters"] = string(args)
 
-	trace.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
+	pkg.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
 	return nil
 }
 

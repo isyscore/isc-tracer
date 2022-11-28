@@ -6,6 +6,7 @@ import (
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
+	"github.com/isyscore/isc-tracer/pkg"
 	"strings"
 )
 
@@ -27,7 +28,7 @@ func (*TracerGormHook) Before(ctx context.Context, driverName string, parameters
 	}
 
 	cmds := strings.SplitN(query.(string), " ", 2)
-	tracer := trace.ClientStartTrace(getSqlType(driverName), "【gorm】:"+cmds[0])
+	tracer := pkg.ClientStartTrace(getSqlType(driverName), "【gorm】:"+cmds[0])
 	return context.WithValue(ctx, traceContextGormKey, tracer), nil
 }
 
@@ -49,7 +50,7 @@ func (*TracerGormHook) After(ctx context.Context, driverName string, parameters 
 	resultMap["sql"] = query
 	resultMap["parameters"] = args
 
-	trace.EndTrace(tracer, _const.OK, isc.ToJsonString(resultMap), 0)
+	pkg.EndTrace(tracer, _const.OK, isc.ToJsonString(resultMap), 0)
 	return ctx, nil
 }
 
@@ -72,7 +73,7 @@ func (*TracerGormHook) Err(ctx context.Context, driverName string, err error, pa
 	resultMap["parameters"] = args
 	resultMap["err"] = err.Error()
 
-	trace.EndTrace(tracer, _const.ERROR, isc.ToJsonString(resultMap), 0)
+	pkg.EndTrace(tracer, _const.ERROR, isc.ToJsonString(resultMap), 0)
 	return nil
 }
 

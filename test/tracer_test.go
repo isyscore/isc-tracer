@@ -2,7 +2,7 @@ package test
 
 import (
 	_const "github.com/isyscore/isc-tracer/internal/const"
-	"github.com/isyscore/isc-tracer/internal/trace"
+	"github.com/isyscore/isc-tracer/pkg"
 	"net/http"
 	"testing"
 	"time"
@@ -10,9 +10,9 @@ import (
 
 func TestClientStartTraceWithHeader(t *testing.T) {
 	header := &http.Header{}
-	tr := trace.ClientStartTraceWithHeader(header, "")
+	tr := pkg.ClientStartTraceWithHeader(header, "")
 	time.Sleep(time.Second)
-	trace.EndTrace(tr, _const.OK, "", 0)
+	pkg.EndTrace(tr, _const.OK, "", 0)
 
 	t.Log(header)
 

@@ -8,6 +8,7 @@ import (
 	"github.com/isyscore/isc-gobase/server/rsp"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
+	"github.com/isyscore/isc-tracer/pkg"
 
 	"runtime/debug"
 )
@@ -41,7 +42,7 @@ func TraceFilter() gin.HandlerFunc {
 		}
 
 		// 开始追踪
-		tracer := trace.ServerStartTrace(_const.HTTP, fmt.Sprintf("<%s>%s", c.Request.Method, c.Request.RequestURI))
+		tracer := pkg.ServerStartTrace(_const.HTTP, fmt.Sprintf("<%s>%s", c.Request.Method, c.Request.RequestURI))
 		c.Writer.Header().Set(_const.TRACE_HEAD_ID, c.GetHeader(_const.TRACE_HEAD_ID))
 		// 重写writer,用于获取response
 		blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
@@ -69,7 +70,7 @@ func TraceFilter() gin.HandlerFunc {
 				msg = response.Message
 			}
 			// 结束追踪
-			trace.EndTrace(tracer, code, msg, blw.body.Len())
+			pkg.EndTrace(tracer, code, msg, blw.body.Len())
 		}()
 		c.Next()
 	}

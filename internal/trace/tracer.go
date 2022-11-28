@@ -3,7 +3,12 @@ package trace
 import (
 	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/goid"
+	"github.com/isyscore/isc-gobase/store"
 	_const "github.com/isyscore/isc-tracer/internal/const"
+	"github.com/isyscore/isc-tracer/util"
+	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -11,6 +16,15 @@ const ROOT_RPC_ID = "0"
 
 // 携程上存储tracer
 var localStore = goid.NewLocalStorage()
+
+var (
+	copyAttrMap = map[string]string{
+		_const.TRACE_HEAD_REMOTE_APPNAME: _const.TRACE_HEAD_REMOTE_APPNAME,
+		_const.TRACE_HEAD_REMOTE_IP:      _const.TRACE_HEAD_REMOTE_IP,
+		_const.TRACE_HEAD_USER_ID:        _const.A_USER_ID,
+		_const.TRACE_HEAD_USER_NAME:      _const.A_USER_NAME,
+	}
+)
 
 type Tracer struct {
 	// TraceId 调用链ID,一旦初始化,不能修改
@@ -135,4 +149,76 @@ func (tracer *Tracer) getStatus() _const.TraceStatusEnum {
 
 func TracerIsEnable() bool {
 	return config.GetValueBoolDefault("tracer.enable", false)
+}
+
+func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, traceName string, header *http.Header) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
+	remoteAddr := store.GetRemoteAddr()
+	if header == nil {
+		h := store.GetHeader()
+		header = &h
+	}
+	tracerId := header.Get(_const.TRACE_HEAD_ID)
+	frontIP := ""
+	if tracerId == "" {
+		tracerId = util.GenerateTraceId()
+		frontIP = GetFrontIP(header, remoteAddr)
+	}
+
+	rpcId := header.Get(_const.TRACE_HEAD_RPC_ID)
+	if rpcId == "" {
+		rpcId = ROOT_RPC_ID
+	} else {
+		// 获取最后一位 +1
+		splits := strings.Split(rpcId, ".")
+		lastOne, _ := strconv.Atoi(splits[len(splits)-1])
+		lastOne += 1
+		splits[len(splits)-1] = strconv.Itoa(lastOne)
+		rpcId = strings.Join(splits, ".")
+	}
+
+	if header != nil {
+		header.Set(_const.TRACE_HEAD_ID, tracerId)
+		header.Set(_const.TRACE_HEAD_RPC_ID, rpcId)
+	}
+
+	tracer := doStartTrace(tracerId, rpcId, traceType, traceName, endPoint)
+	if tracer == nil {
+		return nil
+	}
+	if frontIP != "" {
+		tracer.RemoteIp = frontIP
+	}
+	// 往当前上下文添加远程端属性
+	putAttr(tracer, header)
+	return tracer
+}
+
+func putAttr(tracer *Tracer, head *http.Header) {
+	if tracer.AttrMap == nil {
+		tracer.AttrMap = make(map[string]string)
+	}
+	for key, copyKey := range copyAttrMap {
+		if v := head.Get(key); v != "" {
+			tracer.AttrMap[copyKey] = v
+		}
+	}
+}
+
+func GetFrontIP(head *http.Header, remoteAddr string) string {
+	ip := head.Get("X-Forwarded-For")
+	if ip != "" && strings.EqualFold(ip, "unKnown") {
+		//多次反向代理后会有多个ip值，第一个ip才是真实ip
+		if i := strings.Index(ip, ","); i != -1 {
+			return ip[:i]
+		}
+		return ip
+	}
+	ip = head.Get("X-Real-IP")
+	if ip != "" && strings.EqualFold(ip, "unKnown") {
+		return ip
+	}
+	return remoteAddr
 }

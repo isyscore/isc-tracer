@@ -15,7 +15,12 @@ base:
     gin:
       # 有三种模式：debug/release/test，默认 release
       mode: debug
-
+  redis:
+    enable: true
+    password: "ZljIsysc0re123"
+    standalone:
+      addr: 10.30.30.81:26379
+      database: 15
 address:
   core-back: http://localhost:31301
 
