@@ -23,49 +23,33 @@ func TestSwitch(t *testing.T) {
 }
 
 func traceOpen(c *gin.Context) {
-	debug.Init()
-
 	debug.Update(isc_tracer.SWITCH_OS_TRACE, "true")
 }
 
 func traceClose(c *gin.Context) {
-	debug.Init()
-
 	debug.Update(isc_tracer.SWITCH_OS_TRACE, "false")
 }
 
 func traceDatabaseOpen(c *gin.Context) {
-	debug.Init()
-
 	debug.Update(isc_tracer.SWITCH_OS_TRACE_DATABASE, "true")
 }
 
 func traceDatabaseClose(c *gin.Context) {
-	debug.Init()
-
 	debug.Update(isc_tracer.SWITCH_OS_TRACE_DATABASE, "false")
 }
 
 func traceRedisOpen(c *gin.Context) {
-	debug.Init()
-
 	debug.Update(isc_tracer.SWITCH_OS_TRACE_REDIS, "true")
 }
 
 func traceRedisClose(c *gin.Context) {
-	debug.Init()
-
 	debug.Update(isc_tracer.SWITCH_OS_TRACE_REDIS, "false")
 }
 
 func traceEtcdOpen(c *gin.Context) {
-	debug.Init()
-
 	debug.Update(isc_tracer.SWITCH_OS_TRACE_ETCD, "true")
 }
 
 func traceEtcdClose(c *gin.Context) {
-	debug.Init()
-
 	debug.Update(isc_tracer.SWITCH_OS_TRACE_ETCD, "false")
 }

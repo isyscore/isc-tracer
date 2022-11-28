@@ -36,6 +36,12 @@ tracer:
   etcd:
     # 是否启用（只有tracer.enable开启情况下才生效）；默认关闭
     enable: false
+  # 动态调试功能
+  debug:
+    # 是否启用，默认关闭
+    enable: false
+    # 账号获取地址，默认：http://isc-core-back-service:31300
+    account: http://http://isc-core-back-service:31300
 ```
 
 ## 代码使用

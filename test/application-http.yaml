@@ -20,12 +20,4 @@ tracer:
   # 采集总开关；默认关闭
   enable: true
 
-# 调试模式
-debug:
-  # 是否启用，默认启用
-  enable: true
-  # 调试模式的底层依赖
-  etcd:
-    endpoints: 10.30.30.78:52379
-    user: root
-    password: ZljIsysc0re123
+
