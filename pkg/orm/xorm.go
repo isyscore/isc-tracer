@@ -6,6 +6,7 @@ import (
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
+	"github.com/isyscore/isc-tracer/pkg"
 	"strings"
 	"xorm.io/xorm/contexts"
 )
@@ -28,7 +29,7 @@ func (*TracerXormHook) BeforeProcess(c *contexts.ContextHook, driverName string)
 
 	ctx := c.Ctx
 	sqlMetas := strings.SplitN(c.SQL, " ", 2)
-	tracer := trace.ClientStartTrace(getSqlType(driverName), "【xorm】:"+sqlMetas[0])
+	tracer := pkg.ClientStartTrace(getSqlType(driverName), "【xorm】:"+sqlMetas[0])
 	ctx = context.WithValue(ctx, traceContextXormKey, tracer)
 	return ctx, nil
 }

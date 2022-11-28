@@ -6,6 +6,7 @@ import (
 	"github.com/isyscore/isc-gobase/store"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
+	"github.com/isyscore/isc-tracer/pkg"
 	"net/http"
 	"strings"
 	"unsafe"
@@ -25,7 +26,7 @@ func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Co
 		}
 	}
 
-	tracer := trace.ClientStartTraceWithRequest(req)
+	tracer := pkg.ClientStartTraceWithRequest(req)
 	ctx = context.WithValue(ctx, httpContextKey, tracer)
 	return ctx
 }

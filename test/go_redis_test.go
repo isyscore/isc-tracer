@@ -4,11 +4,11 @@ import (
 	"context"
 	"github.com/isyscore/isc-gobase/extend/redis"
 	"testing"
+	"time"
 )
 
 // 使用环境变量：base.profiles.active=redis
 func TestRedis(t *testing.T) {
-
 	redisCli, err := redis.NewClient()
 	if err != nil {
 		t.Fatal(err)
@@ -26,7 +26,7 @@ func TestRedis(t *testing.T) {
 		}
 		t.Log(getCmd.Val())
 
-		//time.Sleep(time.Second)
 	}
+	time.Sleep(time.Second * 2)
 
 }
