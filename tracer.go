@@ -54,7 +54,7 @@ func register() {
 	}
 
 	// 获取etcd账号和密码
-	corebackAddr := config.GetValueStringDefault("tracer.debug.secret", _const.CORE_BACK_ADDRESS)
+	corebackAddr := config.GetValueStringDefault("tracer.debug.account", _const.CORE_BACK_ADDRESS)
 	header := http.Header{}
 	parameterMap := map[string]string{}
 	_, _, data, err := baseHttp.GetOfStandard(corebackAddr+"/api/core/back/account/etcd", header, parameterMap)
@@ -71,7 +71,7 @@ func register() {
 	}
 
 	etcdEndpoints, exist := etcdAccountMap["endpoints"]
-	etcdUser, _ := etcdAccountMap["user"]
+	etcdUser, _ := etcdAccountMap["username"]
 	etcdPassword, _ := etcdAccountMap["password"]
 
 	if !exist {

@@ -18,3 +18,10 @@ base:
 
 address:
   core-back: http://localhost:31301
+
+tracer:
+  debug:
+    # 是否启用，默认启用
+    enable: true
+    # 账号获取地址
+    account: http://10.30.30.78:31300
