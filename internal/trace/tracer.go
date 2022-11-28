@@ -89,7 +89,7 @@ func (tracer *Tracer) startTrace() {
 	tracer.AttrMap = make(map[string]string)
 }
 
-func (tracer *Tracer) EndTrace(status _const.TraceStatusEnum, message string) {
+func (tracer *Tracer) EndTrace(status _const.TraceStatusEnum, message string, responseSize int) {
 	if !TracerIsEnable() || tracer.Ended {
 		return
 	}
@@ -101,8 +101,10 @@ func (tracer *Tracer) EndTrace(status _const.TraceStatusEnum, message string) {
 	if tracer.getStatus() == _const.OK && !tracer.Sampled {
 		return
 	}
+
 	tracer.endTime = time.Now().UnixMilli()
 	tracer.status = status
+	tracer.Size = responseSize
 	if message != "" {
 		tracer.message = message
 	}

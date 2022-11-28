@@ -115,12 +115,11 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 	return tracer
 }
 
-func EndTrace(tracer *Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
+func EndTrace(tracer *Tracer, status _const.TraceStatusEnum, message string, responseSize int) {
 	if !TracerIsEnable() {
 		return
 	}
-	tracer.Size = responseSize
-	tracer.EndTrace(status, message)
+	tracer.EndTrace(status, message, responseSize)
 }
 
 func putAttr(tracer *Tracer, head *http.Header) {
