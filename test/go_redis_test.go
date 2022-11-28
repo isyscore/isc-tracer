@@ -13,7 +13,7 @@ func TestRedis(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 1; i++ {
 		ctx := context.Background()
 		key := "test"
 		cmd := redisCli.Set(ctx, key, "233", 0)
