@@ -25,6 +25,9 @@ address:
   core-back: http://localhost:31301
 
 tracer:
+  enable: true
+  redis:
+    enable: true
   debug:
     # 是否启用，默认关闭
     enable: true

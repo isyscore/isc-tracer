@@ -58,9 +58,18 @@ func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *trace.T
 	return trace.StartTrace(traceType, _const.SERVER, traceName, nil)
 }
 
-func EndTrace(tracer *trace.Tracer, status _const.TraceStatusEnum, message string, responseSize int) {
-	if !trace.TracerIsEnable() {
-		return
-	}
-	tracer.EndTrace(status, message, responseSize)
+func EndTraceOk(tracer *trace.Tracer, message string, responseSize int) {
+	tracer.EndTrace(_const.OK, message, responseSize)
+}
+
+func EndTraceTimeout(tracer *trace.Tracer, message string, responseSize int) {
+	tracer.EndTrace(_const.TIMEOUT, message, responseSize)
+}
+
+func EndTraceWarn(tracer *trace.Tracer, message string, responseSize int) {
+	tracer.EndTrace(_const.WARNING, message, responseSize)
+}
+
+func EndTraceError(tracer *trace.Tracer, message string, responseSize int) {
+	tracer.EndTrace(_const.ERROR, message, responseSize)
 }

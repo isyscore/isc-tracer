@@ -58,6 +58,6 @@ func (*TracerXormHook) AfterProcess(c *contexts.ContextHook, driverName string) 
 	resultMap["sql"] = c.SQL
 	resultMap["parameters"] = string(b)
 
-	pkg.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
+	trace.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
 	return nil
 }

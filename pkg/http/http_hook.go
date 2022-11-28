@@ -61,11 +61,11 @@ func (*TracerHttpHook) After(ctx context.Context, rsp *http.Response, rspCode in
 				resultMap["errCode"] = code
 				resultMap["errMsg"] = msg
 
-				pkg.EndTrace(tracer, _const.ERROR, isc.ToJsonString(resultMap), isc.ToInt(unsafe.Sizeof(rspData)))
+				trace.EndTrace(tracer, _const.ERROR, isc.ToJsonString(resultMap), isc.ToInt(unsafe.Sizeof(rspData)))
 				return
 			}
 		}
 	}
-	pkg.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
+	trace.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
 	return
 }

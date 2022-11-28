@@ -179,7 +179,7 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 		rpcId = strings.Join(splits, ".")
 	}
 
-	if header != nil {
+	if *header != nil {
 		header.Set(_const.TRACE_HEAD_ID, tracerId)
 		header.Set(_const.TRACE_HEAD_RPC_ID, rpcId)
 	}
@@ -194,6 +194,10 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 	// 往当前上下文添加远程端属性
 	putAttr(tracer, header)
 	return tracer
+}
+
+func EndTrace(tracer *Tracer, status _const.TraceStatusEnum, message string, responseSize int) {
+	tracer.EndTrace(status, message, responseSize)
 }
 
 func putAttr(tracer *Tracer, head *http.Header) {

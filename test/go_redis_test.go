@@ -9,7 +9,6 @@ import (
 
 // 使用环境变量：base.profiles.active=redis
 func TestRedis(t *testing.T) {
-
 	redisCli, err := redis.NewClient()
 	if err != nil {
 		t.Fatal(err)
