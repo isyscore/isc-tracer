@@ -14,6 +14,11 @@
 相关isc-gobase的客户端接入请见这里 [isc-gobase/extend](https://github.com/isyscore/isc-gobase/tree/feature/trace/extend)
 
 
+## 下载
+```go
+go get github.com/isyscore/isc-tracer
+```
+
 ## 配置
 ```yaml
 base:
