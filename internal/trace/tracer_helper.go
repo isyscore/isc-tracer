@@ -19,6 +19,16 @@ var (
 	}
 )
 
+func ClientStartTraceWithHeader(header *http.Header, traceName string) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
+	if traceName == "" {
+		traceName = "<default>_server"
+	}
+	return StartTrace(_const.HTTP, _const.CLIENT, traceName, header)
+}
+
 func ClientStartTraceWithRequest(req *http.Request) *Tracer {
 	if !TracerIsEnable() {
 		return nil
@@ -43,7 +53,7 @@ func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer 
 	if !TracerIsEnable() {
 		return nil
 	}
-	return StartTrace(traceType, traceName, _const.CLIENT)
+	return StartTrace(traceType, _const.CLIENT, traceName, nil)
 }
 
 // ServerStartTrace
@@ -58,23 +68,22 @@ func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer 
 	if !TracerIsEnable() {
 		return nil
 	}
-	return StartTrace(traceType, traceName, _const.SERVER)
+	return StartTrace(traceType, _const.SERVER, traceName, nil)
 }
-func StartTrace(traceType _const.TraceTypeEnum, traceName string, endPoint _const.EndpointEnum) *Tracer {
+func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, traceName string, header *http.Header) *Tracer {
 	if !TracerIsEnable() {
 		return nil
 	}
-	header := store.GetHeader()
 	remoteAddr := store.GetRemoteAddr()
-
+	if header == nil {
+		h := store.GetHeader()
+		header = &h
+	}
 	tracerId := header.Get(_const.TRACE_HEAD_ID)
 	frontIP := ""
 	if tracerId == "" {
 		tracerId = util.GenerateTraceId()
 		frontIP = GetFrontIP(header, remoteAddr)
-		if header != nil {
-			header.Set(_const.TRACE_HEAD_ID, tracerId)
-		}
 	}
 
 	rpcId := header.Get(_const.TRACE_HEAD_RPC_ID)
@@ -88,7 +97,9 @@ func StartTrace(traceType _const.TraceTypeEnum, traceName string, endPoint _cons
 		splits[len(splits)-1] = strconv.Itoa(lastOne)
 		rpcId = strings.Join(splits, ".")
 	}
+
 	if header != nil {
+		header.Set(_const.TRACE_HEAD_ID, tracerId)
 		header.Set(_const.TRACE_HEAD_RPC_ID, rpcId)
 	}
 
@@ -104,15 +115,14 @@ func StartTrace(traceType _const.TraceTypeEnum, traceName string, endPoint _cons
 	return tracer
 }
 
-func EndTrace(tracer *Tracer, responseSize int, status _const.TraceStatusEnum, message string) {
+func EndTrace(tracer *Tracer, status _const.TraceStatusEnum, message string, responseSize int) {
 	if !TracerIsEnable() {
 		return
 	}
-	tracer.Size = responseSize
-	tracer.EndTrace(status, message)
+	tracer.EndTrace(status, message, responseSize)
 }
 
-func putAttr(tracer *Tracer, head http.Header) {
+func putAttr(tracer *Tracer, head *http.Header) {
 	if tracer.AttrMap == nil {
 		tracer.AttrMap = make(map[string]string)
 	}
@@ -123,7 +133,7 @@ func putAttr(tracer *Tracer, head http.Header) {
 	}
 }
 
-func GetFrontIP(head http.Header, remoteAddr string) string {
+func GetFrontIP(head *http.Header, remoteAddr string) string {
 	ip := head.Get("X-Forwarded-For")
 	if ip != "" && strings.EqualFold(ip, "unKnown") {
 		//多次反向代理后会有多个ip值，第一个ip才是真实ip

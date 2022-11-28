@@ -69,7 +69,7 @@ func TraceFilter() gin.HandlerFunc {
 				msg = response.Message
 			}
 			// 结束追踪
-			trace.EndTrace(tracer, blw.body.Len(), code, msg)
+			trace.EndTrace(tracer, code, msg, blw.body.Len())
 		}()
 		c.Next()
 	}

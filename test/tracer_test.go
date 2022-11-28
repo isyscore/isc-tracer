@@ -1,16 +1,20 @@
 package test
 
 import (
-	"github.com/isyscore/isc-gobase/goid"
+	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
+	"net/http"
 	"testing"
+	"time"
 )
 
-func TestName(t *testing.T) {
-	//tracer := Tracer{}
-	//tracer.AttrMap["k"] = "123"
+func TestClientStartTraceWithHeader(t *testing.T) {
+	header := &http.Header{}
+	tr := trace.ClientStartTraceWithHeader(header, "")
+	time.Sleep(time.Second)
+	trace.EndTrace(tr, _const.OK, "", 0)
 
-	localStore := goid.NewLocalStorage()
-	t2 := localStore.Get().(*trace.Tracer)
-	t.Log(t2)
+	t.Log(header)
+
+	time.Sleep(time.Second * 2)
 }

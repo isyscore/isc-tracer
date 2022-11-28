@@ -54,7 +54,7 @@ func (*TracerRedisHook) AfterProcess(ctx context.Context, cmd redis.Cmder) error
 	resultMap["fullName"] = cmd.FullName()
 	resultMap["parameters"] = string(args)
 
-	trace.EndTrace(tracer, 0, result, isc.ToJsonString(resultMap))
+	trace.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
 	return nil
 }
 
