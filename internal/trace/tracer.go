@@ -183,13 +183,13 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 	if *header != nil {
 		header.Set(_const.TRACE_HEAD_ID, tracerId)
 		header.Set(_const.TRACE_HEAD_RPC_ID, rpcId)
-	} else {
-		store.RequestHeadAdd(_const.TRACE_HEAD_ID, tracerId)
-		store.RequestHeadAdd(_const.TRACE_HEAD_RPC_ID, rpcId)
-
-		logger.PutMdc(_const.TRACE_HEAD_ID, tracerId)
-		logger.PutMdc(_const.TRACE_HEAD_RPC_ID, rpcId)
 	}
+
+	store.RequestHeadAdd(_const.TRACE_HEAD_ID, tracerId)
+	store.RequestHeadAdd(_const.TRACE_HEAD_RPC_ID, rpcId)
+
+	logger.PutMdc(_const.TRACE_HEAD_ID, tracerId)
+	logger.PutMdc(_const.TRACE_HEAD_RPC_ID, rpcId)
 
 	tracer := doStartTrace(tracerId, rpcId, traceType, traceName, endPoint)
 	if tracer == nil {
