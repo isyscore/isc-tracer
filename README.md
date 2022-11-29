@@ -43,10 +43,10 @@ tracer:
     enable: false
   # 动态调试功能
   debug:
-    # 是否启用，默认关闭
-    enable: false
+    # 是否启用，默认开启
+    enable: true
     # 账号获取地址，默认：http://isc-core-back-service:31300
-    account: http://http://isc-core-back-service:31300
+    account: http://isc-core-back-service:31300
   # 不采集的http的url配置
   http:
     url:
