@@ -4,8 +4,8 @@ const (
 	/**
 	 * trace链路核心信息
 	 */
-	TRACE_HEAD_ID             = "t-head-traceid"
-	TRACE_HEAD_RPC_ID         = "t-head-rpcid"
+	TRACE_HEAD_ID             = "t-head-traceId"
+	TRACE_HEAD_RPC_ID         = "t-head-rpcId"
 	TRACE_HEAD_SAMPLED        = "t-head-sampled"
 	TRACE_HEAD_USER_ID        = "t-head-userId"
 	TRACE_HEAD_USER_NAME      = "t-head-userName"
