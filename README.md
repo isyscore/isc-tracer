@@ -88,7 +88,7 @@ tracerClient := trace.ClientStartTrace(xxxx, "xxx-name")
 // ......
 
 // 执行后
-tracerClient.EndTrace(tracerClient, 0, xxxx, "xxxx")
+tracer.EndTrace(tracerClient, 0, xxxx, "xxxx")
 ```
 ### 接收方（服务端）埋点示例：
 ```go
