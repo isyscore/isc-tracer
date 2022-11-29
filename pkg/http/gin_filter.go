@@ -86,7 +86,7 @@ func isExclude(context *gin.Context) bool {
 		}
 	}
 
-	excludes := config.GetValueArray("tracer.http.url.excludes")
+	excludes := config.GetValueArray("tracer.http.excludes-url")
 	for _, excludeUri := range excludes {
 		if excludeUri == uri {
 			return true
