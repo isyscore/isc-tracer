@@ -10,6 +10,7 @@ import (
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
 	"github.com/isyscore/isc-tracer/pkg"
+	"strings"
 
 	"runtime/debug"
 )
@@ -81,7 +82,7 @@ func isExclude(context *gin.Context) bool {
 	uri := context.Request.RequestURI
 
 	for _, exclude := range excludes {
-		if exclude == uri {
+		if strings.Contains(uri, exclude) {
 			return true
 		}
 	}
