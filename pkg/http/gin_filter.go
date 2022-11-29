@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/server/rsp"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
@@ -81,6 +82,13 @@ func isExclude(context *gin.Context) bool {
 
 	for _, exclude := range excludes {
 		if exclude == uri {
+			return true
+		}
+	}
+
+	excludes := config.GetValueArray("tracer.http.url.excludes")
+	for _, excludeUri := range excludes {
+		if excludeUri == uri {
 			return true
 		}
 	}
