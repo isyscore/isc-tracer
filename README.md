@@ -31,15 +31,15 @@ tracer:
   enable: true
   # 数据库相关配置
   database:
-    # 是否启用（只有tracer.enable开启情况下才生效）；默认开启
+    # 是否启用（只有tracer.enable开启情况下才有效）；默认开启
     enable: true
   # redis相关配置    
   redis:
-    # 是否启用（只有tracer.enable开启情况下才生效）；默认开启
+    # 是否启用（只有tracer.enable开启情况下才有效）；默认开启
     enable: true
   # etcd相关配置  
   etcd:
-    # 是否启用（只有tracer.enable开启情况下才生效）；默认开启
+    # 是否启用（只有tracer.enable开启情况下才有效）；默认开启
     enable: true
   # 动态调试功能
   debug:
