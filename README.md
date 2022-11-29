@@ -49,10 +49,9 @@ tracer:
     account: http://isc-core-back-service:31300
   # 不采集的http的url配置
   http:
-    url:
-      excludes:
-        - /api/xxx/xxx/xxxx
-        - /api/xxx/xxx/xxxx
+    excludes-url:
+      - /api/xxx/xxx/xxxx
+      - /api/xxx/xxx/xxxx
 ```
 
 ## 代码使用
