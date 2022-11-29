@@ -23,13 +23,14 @@ const (
 var traceChannel = make(chan *Tracer, 2048)
 var logFileWriter *bufio.Writer
 var logFile *os.File
-var lock sync.Locker
+var lock sync.Mutex
 
 func SendTraceLog(tracer *Tracer) {
 	traceChannel <- tracer
 }
 
 func init() {
+	lock = sync.Mutex{}
 	//path := "logs/middleware/trace/trace.log"
 	path := "logs" + string(os.PathSeparator) + "middleware" + string(os.PathSeparator) + "trace" + string(os.PathSeparator) + "trace.log"
 
