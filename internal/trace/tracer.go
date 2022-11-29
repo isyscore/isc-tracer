@@ -3,6 +3,7 @@ package trace
 import (
 	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/goid"
+	"github.com/isyscore/isc-gobase/logger"
 	"github.com/isyscore/isc-gobase/store"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/util"
@@ -182,6 +183,12 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 	if *header != nil {
 		header.Set(_const.TRACE_HEAD_ID, tracerId)
 		header.Set(_const.TRACE_HEAD_RPC_ID, rpcId)
+	} else {
+		store.RequestHeadAdd(_const.TRACE_HEAD_ID, tracerId)
+		store.RequestHeadAdd(_const.TRACE_HEAD_RPC_ID, rpcId)
+
+		logger.PutMdc(_const.TRACE_HEAD_ID, tracerId)
+		logger.PutMdc(_const.TRACE_HEAD_RPC_ID, rpcId)
 	}
 
 	tracer := doStartTrace(tracerId, rpcId, traceType, traceName, endPoint)
