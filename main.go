@@ -87,19 +87,19 @@ func register() {
 	debug.InitWithParameter(endpoints, etcdUser.(string), etcdPassword.(string))
 	debug.AddWatcher(SWITCH_OS_TRACE, func(key string, value string) {
 		logger.Info("配置最新值：key:【%v】, value：【%v】", key, value)
-		config.SetValue("tracer.enable", value)
+		trace.SwitchTrace = isc.ToBool(value)
 	})
 	debug.AddWatcher(SWITCH_OS_TRACE_DATABASE, func(key string, value string) {
 		logger.Info("配置最新值：key:【%v】, value：【%v】", key, value)
-		config.SetValue("tracer.database.enable", value)
+		trace.SwitchTraceDatabase = isc.ToBool(value)
 	})
 	debug.AddWatcher(SWITCH_OS_TRACE_REDIS, func(key string, value string) {
 		logger.Info("配置最新值：key:【%v】, value：【%v】", key, value)
-		config.SetValue("tracer.redis.enable", value)
+		trace.SwitchTraceRedis = isc.ToBool(value)
 	})
 	debug.AddWatcher(SWITCH_OS_TRACE_ETCD, func(key string, value string) {
 		logger.Info("配置最新值：key:【%v】, value：【%v】", key, value)
-		config.SetValue("tracer.etcd.enable", value)
+		trace.SwitchTraceEtcd = isc.ToBool(value)
 	})
 	debug.StartWatch()
 }

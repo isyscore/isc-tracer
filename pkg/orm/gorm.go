@@ -91,5 +91,5 @@ func getSqlType(driverName string) _const.TraceTypeEnum {
 }
 
 func TracerDatabaseIsEnable() bool {
-	return config.GetValueBoolDefault("tracer.database.enable", false)
+	return config.GetValueBoolDefault("tracer.database.enable", true) && trace.SwitchTraceDatabase
 }

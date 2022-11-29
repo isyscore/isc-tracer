@@ -27,20 +27,20 @@ base:
     name: isc-biz-xxx
   
 tracer:
-  # 采集总开关；默认关闭
-  enable: false
+  # 采集总开关；默认开启；注意：关闭后可能会造成链路不连续
+  enable: true
   # 数据库相关配置
   database:
-    # 是否启用（只有tracer.enable开启情况下才生效）；默认关闭
-    enable: false
+    # 是否启用（只有tracer.enable开启情况下才生效）；默认开启
+    enable: true
   # redis相关配置    
   redis:
-    # 是否启用（只有tracer.enable开启情况下才生效）；默认关闭
-    enable: false
+    # 是否启用（只有tracer.enable开启情况下才生效）；默认开启
+    enable: true
   # etcd相关配置  
   etcd:
-    # 是否启用（只有tracer.enable开启情况下才生效）；默认关闭
-    enable: false
+    # 是否启用（只有tracer.enable开启情况下才生效）；默认开启
+    enable: true
   # 动态调试功能
   debug:
     # 是否启用，默认开启

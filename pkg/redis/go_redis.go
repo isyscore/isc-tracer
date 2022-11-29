@@ -68,5 +68,5 @@ func (*TracerRedisHook) AfterProcessPipeline(ctx context.Context, cmds []redis.C
 }
 
 func TracerRedisIsEnable() bool {
-	return config.GetValueBoolDefault("tracer.redis.enable", false)
+	return config.GetValueBoolDefault("tracer.redis.enable", true) && trace.SwitchTraceRedis
 }

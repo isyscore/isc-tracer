@@ -27,6 +27,13 @@ var (
 	}
 )
 
+var (
+	SwitchTrace         = false
+	SwitchTraceDatabase = false
+	SwitchTraceRedis    = false
+	SwitchTraceEtcd     = false
+)
+
 type Tracer struct {
 	// TraceId 调用链ID,一旦初始化,不能修改
 	TraceId string
@@ -149,7 +156,7 @@ func (tracer *Tracer) getStatus() _const.TraceStatusEnum {
 }
 
 func TracerIsEnable() bool {
-	return config.GetValueBoolDefault("tracer.enable", false)
+	return config.GetValueBoolDefault("tracer.enable", true) && SwitchTrace
 }
 
 func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, traceName string, header *http.Header) *Tracer {

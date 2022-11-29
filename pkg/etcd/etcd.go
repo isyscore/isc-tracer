@@ -104,5 +104,5 @@ func getCmd(op etcdClientV3.Op) string {
 }
 
 func TracerEtcdIsEnable() bool {
-	return config.GetValueBoolDefault("tracer.etcd.enable", false)
+	return config.GetValueBoolDefault("tracer.etcd.enable", true) && trace.SwitchTraceEtcd
 }
