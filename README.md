@@ -29,7 +29,7 @@ base:
 tracer:
   # 采集总开关；默认关闭
   enable: false
-  # 数据库相关配置  
+  # 数据库相关配置
   database:
     # 是否启用（只有tracer.enable开启情况下才生效）；默认关闭
     enable: false
@@ -47,6 +47,12 @@ tracer:
     enable: false
     # 账号获取地址，默认：http://isc-core-back-service:31300
     account: http://http://isc-core-back-service:31300
+  # 不采集的http的url配置
+  http:
+    url:
+      excludes:
+        - /api/xxx/xxx/xxxx
+        - /api/xxx/xxx/xxxx
 ```
 
 ## 代码使用
