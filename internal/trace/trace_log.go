@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -22,6 +23,7 @@ const (
 var traceChannel = make(chan *Tracer, 2048)
 var logFileWriter *bufio.Writer
 var logFile *os.File
+var lock sync.Locker
 
 func SendTraceLog(tracer *Tracer) {
 	traceChannel <- tracer
@@ -53,9 +55,12 @@ func init() {
 	}()
 	go func() {
 		for range time.NewTicker(time.Second).C {
-			err := logFileWriter.Flush()
-			if err != nil {
-				logger.Warn("定时刷新文件异常, %v", err)
+			if logFileWriter != nil {
+				lock.Lock()
+				if err := logFileWriter.Flush(); err != nil {
+					logger.Warn("定时刷新文件异常, %v", err)
+				}
+				lock.Unlock()
 			}
 		}
 	}()
@@ -63,10 +68,11 @@ func init() {
 		for tracer := range traceChannel {
 			if logFileWriter != nil {
 				l := newTraceLog(tracer)
-
+				lock.Lock()
 				if _, err := logFileWriter.WriteString(l); err != nil {
 					logger.Error("%v", err.Error())
 				}
+				lock.Unlock()
 			}
 		}
 	}()
