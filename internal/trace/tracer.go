@@ -161,41 +161,48 @@ func TracerIsEnable() bool {
 	return config.GetValueBoolDefault("tracer.enable", true) && SwitchTrace
 }
 
-func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, traceName string, header *http.Header) *Tracer {
+// ClientStartTraceWithHeader
+// traceName 名称
+// 可以是一个 http url
+// 可以是一个rpc的 service.name
+// 可以是一个MQ的 send.{topic}.{partition}
+// 可以是访问redis的 get.{namespace}.{key}
+func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, traceName string, request *http.Request) *Tracer {
 	if !TracerIsEnable() {
 		return nil
 	}
 	remoteAddr := store.GetRemoteAddr()
-	if header == nil {
-		h := store.GetHeader()
-		header = h
+	if request == nil {
+		request = store.GetRequest()
 	}
 	var tracerId string
 	var rpcId string
-	if header != nil {
-		tracerId = header.Get(_const.TRACE_HEAD_ID)
-		rpcId = header.Get(_const.TRACE_HEAD_RPC_ID)
+	if request != nil {
+		tracerId = request.Header.Get(_const.TRACE_HEAD_ID)
+		rpcId = request.Header.Get(_const.TRACE_HEAD_RPC_ID)
 	}
 
 	frontIP := ""
 	if tracerId == "" {
 		tracerId = util.GenerateTraceId()
-		frontIP = GetFrontIP(header, remoteAddr)
+		if request != nil {
+			frontIP = GetFrontIP(&request.Header, remoteAddr)
+		}
 	}
 
 	tracer := doStartTrace(tracerId, rpcId, traceType, traceName, endPoint)
 	if tracer == nil {
 		return nil
 	}
-	rpcId = tracer.RpcId
 
-	if header != nil {
-		header.Set(_const.TRACE_HEAD_ID, tracerId)
-		header.Set(_const.TRACE_HEAD_RPC_ID, rpcId)
+	rpcId = tracer.RpcId
+	if request != nil {
+		request.Header.Set(_const.TRACE_HEAD_ID, tracerId)
+		request.Header.Set(_const.TRACE_HEAD_RPC_ID, rpcId)
 	}
 
-	store.RequestHeadAdd(_const.TRACE_HEAD_ID, tracerId)
-	store.RequestHeadAdd(_const.TRACE_HEAD_RPC_ID, rpcId)
+	store.RequestHeadSet(_const.TRACE_HEAD_ID, tracerId)
+	store.RequestHeadSet(_const.TRACE_HEAD_RPC_ID, rpcId)
 
 	logger.PutMdc(_const.TRACE_HEAD_ID, tracerId)
 	logger.PutMdc(_const.TRACE_HEAD_RPC_ID, rpcId)
@@ -204,7 +211,9 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 		tracer.RemoteIp = frontIP
 	}
 	// 往当前上下文添加远程端属性
-	putAttr(tracer, header)
+	if request != nil {
+		putAttr(tracer, &request.Header)
+	}
 	return tracer
 }
 

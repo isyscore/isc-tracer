@@ -7,20 +7,13 @@ import (
 	"net/http"
 )
 
-// ClientStartTraceWithHeader
-// traceName 名称
-// 可以是一个 http url
-// 可以是一个rpc的 service.name
-// 可以是一个MQ的 send.{topic}.{partition}
-// 可以是访问redis的 get.{namespace}.{key}
-func ClientStartTraceWithHeader(header *http.Header, traceName string) *trace.Tracer {
+// ClientStartTrace
+// 开启客户端跟踪(如前端访问某个后端接口a, 接口a内访问其他接口b, 此时a访问b称为客户端, b接口内为服务端)
+func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *trace.Tracer {
 	if !trace.TracerIsEnable() {
 		return nil
 	}
-	if traceName == "" {
-		traceName = "<default>_server"
-	}
-	return trace.StartTrace(_const.HTTP, _const.CLIENT, traceName, header)
+	return trace.StartTrace(traceType, _const.CLIENT, traceName, nil)
 }
 
 func ClientStartTraceWithRequest(req *http.Request) *trace.Tracer {
@@ -38,24 +31,21 @@ func ClientStartTraceWithRequest(req *http.Request) *trace.Tracer {
 			uri = url.String()
 		}
 	}
-	return ClientStartTrace(_const.HTTP, fmt.Sprintf("<%s>%s", method, uri))
+	return trace.StartTrace(_const.HTTP, _const.CLIENT, fmt.Sprintf("<%s>%s", method, uri), req)
 }
 
-// ClientStartTrace
-// 开启客户端跟踪(如前端访问某个后端接口a, 接口a内访问其他接口b, 此时a访问b称为客户端, b接口内为服务端)
-func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *trace.Tracer {
-	if !trace.TracerIsEnable() {
-		return nil
-	}
-	return trace.StartTrace(traceType, _const.CLIENT, traceName, nil)
-}
-
-// ServerStartTrace
 func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *trace.Tracer {
 	if !trace.TracerIsEnable() {
 		return nil
 	}
 	return trace.StartTrace(traceType, _const.SERVER, traceName, nil)
+}
+
+func ServerStartTraceWithRequest(traceType _const.TraceTypeEnum, traceName string, request *http.Request) *trace.Tracer {
+	if !trace.TracerIsEnable() {
+		return nil
+	}
+	return trace.StartTrace(traceType, _const.SERVER, traceName, request)
 }
 
 func EndTraceOk(tracer *trace.Tracer, message string, responseSize int) {
