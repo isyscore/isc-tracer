@@ -168,7 +168,7 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 	remoteAddr := store.GetRemoteAddr()
 	if header == nil {
 		h := store.GetHeader()
-		header = &h
+		header = h
 	}
 	tracerId := header.Get(_const.TRACE_HEAD_ID)
 	frontIP := ""
@@ -183,7 +183,7 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 	}
 	rpcId = tracer.RpcId
 
-	if *header != nil {
+	if header != nil {
 		header.Set(_const.TRACE_HEAD_ID, tracerId)
 		header.Set(_const.TRACE_HEAD_RPC_ID, rpcId)
 	}
