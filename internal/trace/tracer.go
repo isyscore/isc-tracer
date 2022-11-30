@@ -86,8 +86,8 @@ func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, 
 		if tracer.TraceId == traceId {
 			return tracer
 		}
-	} else if tracer.TraceId != "" {
-		return tracer
+	} else if tracer.TraceId == "" {
+		return &Tracer{}
 	}
 
 	tracer = &Tracer{
