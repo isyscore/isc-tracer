@@ -4,28 +4,28 @@ package _const
 type TraceTypeEnum int
 
 const (
-	ROOT TraceTypeEnum = iota
-	HTTP
-	DUBBO
-	MYSQL
-	ROCKETMQ
-	REDIS
-	KAFKA
-	IDS
-	MQTT
-	ORACLE
-	ELASTIC
-	ZOOKEEPER
-	HBASE
-	HADOOP
-	FLINK
-	SPARK
-	KUDU
-	HIVE
-	STORM
-	CONFIG
-	ETCD
-	POSTGRESQL
-	SQLITE
-	UNKNOWN = 100
+	ROOT       TraceTypeEnum = iota
+	HTTP                     // 1
+	DUBBO                    // 2
+	MYSQL                    // 3
+	ROCKETMQ                 // 4
+	REDIS                    // 5
+	KAFKA                    // 6
+	IDS                      // 7
+	MQTT                     // 8
+	ORACLE                   // 9
+	ELASTIC                  // 10
+	ZOOKEEPER                // 11
+	HBASE                    // 12
+	HADOOP                   // 13
+	FLINK                    // 14
+	SPARK                    // 15
+	KUDU                     // 16
+	HIVE                     // 17
+	STORM                    // 18
+	CONFIG                   // 19
+	ETCD                     // 20
+	POSTGRESQL               // 21
+	SQLITE                   // 22
+	UNKNOWN    = 100
 )
