@@ -82,13 +82,6 @@ func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, 
 	}
 	if rpcId == "" {
 		rpcId = ROOT_RPC_ID
-	} else {
-		// 获取最后一位 +1
-		//splits := strings.Split(rpcId, ".")
-		//lastOne, _ := strconv.Atoi(splits[len(splits)-1])
-		//lastOne += 1
-		//splits[len(splits)-1] = strconv.Itoa(lastOne)
-		//rpcId = strings.Join(splits, ".")
 	}
 
 	tracer := createCurrentTracerIfAbsent()
@@ -97,9 +90,7 @@ func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, 
 			return tracer
 		}
 	} else if endpoint == _const.CLIENT {
-		//newChildTrace(tracer)
 		childTracer := newTracer(traceId, rpcId, traceType, traceName, endpoint)
-		//取到parentTrace
 		if tracer.TraceId != "" {
 			// 0 -> 0.1 -> 0.1.1
 			rpcId += fmt.Sprintf(".%d", tracer.ChildRpcSeq.Inc())
@@ -107,6 +98,7 @@ func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, 
 			childTracer.RpcId = rpcId
 			childTracer.Sampled = tracer.Sampled
 		}
+		setTrace(rpcId, tracer)
 		return childTracer
 	} else if tracer.TraceId != "" {
 		return tracer
