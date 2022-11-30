@@ -11,12 +11,12 @@ import (
 	"github.com/isyscore/isc-gobase/listener"
 	"github.com/isyscore/isc-gobase/logger"
 	"github.com/isyscore/isc-gobase/server"
-	_const "github.com/isyscore/isc-tracer/internal/const"
-	"github.com/isyscore/isc-tracer/internal/trace"
+	_const2 "github.com/isyscore/isc-tracer/const"
 	pkgEtcd "github.com/isyscore/isc-tracer/pkg/etcd"
 	pkgHttp "github.com/isyscore/isc-tracer/pkg/http"
 	pkgOrm "github.com/isyscore/isc-tracer/pkg/orm"
 	pkgRedis "github.com/isyscore/isc-tracer/pkg/redis"
+	trace2 "github.com/isyscore/isc-tracer/trace"
 	"net/http"
 )
 
@@ -44,7 +44,7 @@ func init() {
 
 	// 应用退出
 	listener.AddListener(listener.EventOfServerStop, func(event listener.BaseEvent) {
-		trace.Close()
+		trace2.Close()
 	})
 }
 
@@ -54,7 +54,7 @@ func register() {
 	}
 
 	// 获取etcd账号和密码
-	corebackAddr := config.GetValueStringDefault("tracer.debug.account", _const.CORE_BACK_ADDRESS)
+	corebackAddr := config.GetValueStringDefault("tracer.debug.account", _const2.CORE_BACK_ADDRESS)
 	header := http.Header{}
 	parameterMap := map[string]string{}
 	_, _, data, err := baseHttp.GetOfStandard(corebackAddr+"/api/core/back/account/etcd", header, parameterMap)
@@ -87,19 +87,19 @@ func register() {
 	debug.InitWithParameter(endpoints, etcdUser.(string), etcdPassword.(string))
 	debug.AddWatcher(SWITCH_OS_TRACE, func(key string, value string) {
 		logger.Info("配置最新值：key:【%v】, value：【%v】", key, value)
-		trace.SwitchTrace = isc.ToBool(value)
+		trace2.SwitchTrace = isc.ToBool(value)
 	})
 	debug.AddWatcher(SWITCH_OS_TRACE_DATABASE, func(key string, value string) {
 		logger.Info("配置最新值：key:【%v】, value：【%v】", key, value)
-		trace.SwitchTraceDatabase = isc.ToBool(value)
+		trace2.SwitchTraceDatabase = isc.ToBool(value)
 	})
 	debug.AddWatcher(SWITCH_OS_TRACE_REDIS, func(key string, value string) {
 		logger.Info("配置最新值：key:【%v】, value：【%v】", key, value)
-		trace.SwitchTraceRedis = isc.ToBool(value)
+		trace2.SwitchTraceRedis = isc.ToBool(value)
 	})
 	debug.AddWatcher(SWITCH_OS_TRACE_ETCD, func(key string, value string) {
 		logger.Info("配置最新值：key:【%v】, value：【%v】", key, value)
-		trace.SwitchTraceEtcd = isc.ToBool(value)
+		trace2.SwitchTraceEtcd = isc.ToBool(value)
 	})
 	debug.StartWatch()
 }

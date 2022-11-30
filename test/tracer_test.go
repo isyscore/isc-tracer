@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/isyscore/isc-tracer/internal/trace"
+	trace2 "github.com/isyscore/isc-tracer/trace"
 	"testing"
 )
 
@@ -17,6 +17,6 @@ import (
 //}
 
 func TestTracer(t *testing.T) {
-	tr := trace.Tracer{}
+	tr := trace2.Tracer{}
 	t.Log(tr.ChildRpcSeq.Inc())
 }

@@ -6,8 +6,8 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/isc"
-	_const "github.com/isyscore/isc-tracer/internal/const"
-	"github.com/isyscore/isc-tracer/internal/trace"
+	_const2 "github.com/isyscore/isc-tracer/const"
+	trace2 "github.com/isyscore/isc-tracer/trace"
 )
 
 var redisContextKey = "gobase-redis-trace-key"
@@ -20,7 +20,7 @@ func (*TracerRedisHook) BeforeProcess(ctx context.Context, cmd redis.Cmder) (con
 		return ctx, nil
 	}
 
-	tracer := trace.ClientStartTrace(_const.REDIS, "【go-redis】: "+cmd.Name())
+	tracer := trace2.ClientStartTrace(_const2.REDIS, "【go-redis】: "+cmd.Name())
 	ctx = context.WithValue(ctx, redisContextKey, tracer)
 	return ctx, nil
 }
@@ -30,31 +30,31 @@ func (*TracerRedisHook) AfterProcess(ctx context.Context, cmd redis.Cmder) error
 		return nil
 	}
 
-	tracer, ok := ctx.Value(redisContextKey).(*trace.Tracer)
+	tracer, ok := ctx.Value(redisContextKey).(*trace2.Tracer)
 	if !ok || tracer == nil {
 		return nil
 	}
 
 	resultMap := map[string]any{}
-	result := _const.OK
+	result := _const2.OK
 	// 记录error
 	err := cmd.Err()
 	if err != nil {
 		resultMap["err"] = err.Error()
-		result = _const.ERROR
+		result = _const2.ERROR
 	}
 
 	args, err := json.Marshal(cmd.Args())
 	if err != nil {
 		resultMap["err"] = err.Error()
-		result = _const.ERROR
+		result = _const2.ERROR
 	}
 
 	resultMap["cmd"] = cmd.Name()
 	resultMap["fullName"] = cmd.FullName()
 	resultMap["parameters"] = string(args)
 
-	trace.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
+	trace2.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
 	return nil
 }
 
@@ -67,5 +67,5 @@ func (*TracerRedisHook) AfterProcessPipeline(ctx context.Context, cmds []redis.C
 }
 
 func TracerRedisIsEnable() bool {
-	return config.GetValueBoolDefault("tracer.redis.enable", true) && trace.SwitchTraceRedis
+	return config.GetValueBoolDefault("tracer.redis.enable", true) && trace2.SwitchTraceRedis
 }

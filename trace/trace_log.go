@@ -5,7 +5,7 @@ import (
 	baseFile "github.com/isyscore/isc-gobase/file"
 	"github.com/isyscore/isc-gobase/goid"
 	"github.com/isyscore/isc-gobase/logger"
-	_const "github.com/isyscore/isc-tracer/internal/const"
+	_const2 "github.com/isyscore/isc-tracer/const"
 	"github.com/isyscore/isc-tracer/util"
 	"os"
 	"strconv"
@@ -127,14 +127,14 @@ func getTraceLogFile(path string) *os.File {
 func newTraceLog(tracer *Tracer) string {
 	s := ""
 	s += logVersion + SPLIT
-	s += _const.DEFAULT_PROFILES_ACTIVE + SPLIT
+	s += _const2.DEFAULT_PROFILES_ACTIVE + SPLIT
 	s += strconv.FormatInt(tracer.StartTime, 10) + SPLIT
 	s += tracer.TraceId + SPLIT
 	s += tracer.RpcId + SPLIT
 	s += strconv.FormatInt(int64(tracer.Endpoint), 10) + SPLIT
 	s += strconv.FormatInt(int64(tracer.TraceType), 10) + SPLIT
 	s += replaceSplit(trimNull(tracer.TraceName)) + SPLIT
-	s += replaceSplit(config.GetValueStringDefault("base.application.name", _const.DEFAULT_APP_NAME)) + SPLIT
+	s += replaceSplit(config.GetValueStringDefault("base.application.name", _const2.DEFAULT_APP_NAME)) + SPLIT
 	s += replaceSplit(util.GetLocalIp()) + SPLIT
 	s += replaceSplit(trimNull(tracer.RemoteIp)) + SPLIT
 	s += strconv.FormatInt(int64(tracer.status), 10) + SPLIT
@@ -142,9 +142,9 @@ func newTraceLog(tracer *Tracer) string {
 	s += strconv.FormatInt(tracer.endTime-tracer.StartTime, 10) + SPLIT
 	s += replaceSplit(trimNull(tracer.message)) + SPLIT
 	//用户id
-	userId := tracer.AttrMap[_const.TRACE_HEAD_USER_ID]
+	userId := tracer.AttrMap[_const2.TRACE_HEAD_USER_ID]
 	if userId == "" {
-		userId = tracer.AttrMap[_const.A_USER_ID]
+		userId = tracer.AttrMap[_const2.A_USER_ID]
 	}
 	s += trimNull(userId) + SPLIT + "\r\n"
 	return s

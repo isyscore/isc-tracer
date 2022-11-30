@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/store"
-	_const "github.com/isyscore/isc-tracer/internal/const"
-	"github.com/isyscore/isc-tracer/internal/trace"
+	_const2 "github.com/isyscore/isc-tracer/const"
+	trace2 "github.com/isyscore/isc-tracer/trace"
 	"net/http"
 	"strings"
 	"unsafe"
@@ -15,7 +15,7 @@ type TracerHttpHook struct {
 }
 
 func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Context {
-	if !trace.TracerIsEnable() {
+	if !trace2.TracerIsEnable() {
 		return ctx
 	}
 	request := store.GetRequest()
@@ -27,26 +27,26 @@ func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Co
 		}
 	}
 
-	tracer := trace.ClientStartTraceWithRequest(req)
+	tracer := trace2.ClientStartTraceWithRequest(req)
 	ctx = context.WithValue(ctx, httpContextKey, tracer)
 	return ctx
 }
 
 func (*TracerHttpHook) After(ctx context.Context, rsp *http.Response, rspCode int, rspData any, err error) {
-	if !trace.TracerIsEnable() {
+	if !trace2.TracerIsEnable() {
 		return
 	}
 
-	tracer, ok := ctx.Value(httpContextKey).(*trace.Tracer)
+	tracer, ok := ctx.Value(httpContextKey).(*trace2.Tracer)
 	if !ok || tracer == nil {
 		return
 	}
 
 	resultMap := map[string]any{}
-	result := _const.OK
+	result := _const2.OK
 
 	if rspCode >= 300 {
-		result = _const.ERROR
+		result = _const2.ERROR
 		if err != nil {
 			resultMap["err"] = err.Error()
 		}
@@ -63,12 +63,12 @@ func (*TracerHttpHook) After(ctx context.Context, rsp *http.Response, rspCode in
 					resultMap["errCode"] = code
 					resultMap["errMsg"] = msg
 
-					trace.EndTrace(tracer, _const.ERROR, isc.ToJsonString(resultMap), isc.ToInt(unsafe.Sizeof(rspData)))
+					trace2.EndTrace(tracer, _const2.ERROR, isc.ToJsonString(resultMap), isc.ToInt(unsafe.Sizeof(rspData)))
 					return
 				}
 			}
 		}
 	}
-	trace.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
+	trace2.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
 	return
 }

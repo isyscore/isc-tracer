@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/isc"
-	_const "github.com/isyscore/isc-tracer/internal/const"
-	"github.com/isyscore/isc-tracer/internal/trace"
+	_const2 "github.com/isyscore/isc-tracer/const"
+	trace2 "github.com/isyscore/isc-tracer/trace"
 	"strings"
 )
 
@@ -27,7 +27,7 @@ func (*TracerGormHook) Before(ctx context.Context, driverName string, parameters
 	}
 
 	cmds := strings.SplitN(query.(string), " ", 2)
-	tracer := trace.ClientStartTrace(getSqlType(driverName), "【gorm】:"+cmds[0])
+	tracer := trace2.ClientStartTrace(getSqlType(driverName), "【gorm】:"+cmds[0])
 	return context.WithValue(ctx, traceContextGormKey, tracer), nil
 }
 
@@ -36,7 +36,7 @@ func (*TracerGormHook) After(ctx context.Context, driverName string, parameters 
 		return ctx, nil
 	}
 
-	tracer, ok := ctx.Value(traceContextGormKey).(*trace.Tracer)
+	tracer, ok := ctx.Value(traceContextGormKey).(*trace2.Tracer)
 	if !ok || tracer == nil {
 		return ctx, nil
 	}
@@ -49,7 +49,7 @@ func (*TracerGormHook) After(ctx context.Context, driverName string, parameters 
 	resultMap["sql"] = query
 	resultMap["parameters"] = args
 
-	trace.EndTrace(tracer, _const.OK, isc.ToJsonString(resultMap), 0)
+	trace2.EndTrace(tracer, _const2.OK, isc.ToJsonString(resultMap), 0)
 	return ctx, nil
 }
 
@@ -58,7 +58,7 @@ func (*TracerGormHook) Err(ctx context.Context, driverName string, err error, pa
 		return nil
 	}
 
-	tracer, ok := ctx.Value(traceContextGormKey).(*trace.Tracer)
+	tracer, ok := ctx.Value(traceContextGormKey).(*trace2.Tracer)
 	if !ok || tracer == nil {
 		return nil
 	}
@@ -72,23 +72,23 @@ func (*TracerGormHook) Err(ctx context.Context, driverName string, err error, pa
 	//resultMap["parameters"] = args
 	resultMap["err"] = err.Error()
 
-	trace.EndTrace(tracer, _const.ERROR, isc.ToJsonString(resultMap), 0)
+	trace2.EndTrace(tracer, _const2.ERROR, isc.ToJsonString(resultMap), 0)
 	return nil
 }
 
-func getSqlType(driverName string) _const.TraceTypeEnum {
+func getSqlType(driverName string) _const2.TraceTypeEnum {
 	driverName = strings.ToLower(driverName)
 	switch driverName {
 	case "mysql":
-		return _const.MYSQL
+		return _const2.MYSQL
 	case "postgresql":
-		return _const.POSTGRESQL
+		return _const2.POSTGRESQL
 	case "sqlite":
-		return _const.SQLITE
+		return _const2.SQLITE
 	}
-	return _const.UNKNOWN
+	return _const2.UNKNOWN
 }
 
 func TracerDatabaseIsEnable() bool {
-	return config.GetValueBoolDefault("tracer.database.enable", true) && trace.SwitchTraceDatabase
+	return config.GetValueBoolDefault("tracer.database.enable", true) && trace2.SwitchTraceDatabase
 }

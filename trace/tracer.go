@@ -5,7 +5,7 @@ import (
 	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/logger"
 	"github.com/isyscore/isc-gobase/store"
-	_const "github.com/isyscore/isc-tracer/internal/const"
+	_const2 "github.com/isyscore/isc-tracer/const"
 	"github.com/isyscore/isc-tracer/util"
 	"go.uber.org/atomic"
 	"net/http"
@@ -17,10 +17,10 @@ const ROOT_RPC_ID = "0"
 
 var (
 	copyAttrMap = map[string]string{
-		_const.TRACE_HEAD_REMOTE_APPNAME: _const.TRACE_HEAD_REMOTE_APPNAME,
-		_const.TRACE_HEAD_REMOTE_IP:      _const.TRACE_HEAD_REMOTE_IP,
-		_const.TRACE_HEAD_USER_ID:        _const.A_USER_ID,
-		_const.TRACE_HEAD_USER_NAME:      _const.A_USER_NAME,
+		_const2.TRACE_HEAD_REMOTE_APPNAME: _const2.TRACE_HEAD_REMOTE_APPNAME,
+		_const2.TRACE_HEAD_REMOTE_IP:      _const2.TRACE_HEAD_REMOTE_IP,
+		_const2.TRACE_HEAD_USER_ID:        _const2.A_USER_ID,
+		_const2.TRACE_HEAD_USER_NAME:      _const2.A_USER_NAME,
 	}
 )
 
@@ -37,7 +37,7 @@ type Tracer struct {
 	// RpcId 调用顺序，依次为0 → 0.1 → 0.1.1,1 -> 1.1 -> 1.1.1 ...
 	RpcId string
 	// TraceType 链路跟踪类型
-	TraceType _const.TraceTypeEnum
+	TraceType _const2.TraceTypeEnum
 	/**
 	 * 名称
 	 * 可以是一个 http url
@@ -47,12 +47,12 @@ type Tracer struct {
 	 */
 	TraceName string
 	// Endpoint 跟踪类型
-	Endpoint _const.EndpointEnum
+	Endpoint _const2.EndpointEnum
 	// status 跟踪结果
-	status _const.TraceStatusEnum
+	status _const2.TraceStatusEnum
 
 	// RemoteStatus 远程调用结果
-	RemoteStatus _const.TraceStatusEnum
+	RemoteStatus _const2.TraceStatusEnum
 	// RemoteIp 远程调用IP,即下游(Client)或上游(Server)ip
 	RemoteIp string
 	// message 调用返回或异常信息
@@ -76,7 +76,7 @@ type Tracer struct {
 	ChildRpcSeq atomic.Int32
 }
 
-func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, traceName string, endpoint _const.EndpointEnum) *Tracer {
+func doStartTrace(traceId string, rpcId string, traceType _const2.TraceTypeEnum, traceName string, endpoint _const2.EndpointEnum) *Tracer {
 	if !TracerIsEnable() {
 		return nil
 	}
@@ -89,7 +89,7 @@ func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, 
 		if tracer.TraceId == traceId {
 			return tracer
 		}
-	} else if endpoint == _const.CLIENT {
+	} else if endpoint == _const2.CLIENT {
 		childTracer := newTracer(traceId, rpcId, traceType, traceName, endpoint)
 		if tracer.TraceId != "" {
 			// 0 -> 0.1 -> 0.1.1
@@ -106,7 +106,7 @@ func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, 
 	return tracer
 }
 
-func newTracer(traceId string, rpcId string, traceType _const.TraceTypeEnum, traceName string, endpoint _const.EndpointEnum) *Tracer {
+func newTracer(traceId string, rpcId string, traceType _const2.TraceTypeEnum, traceName string, endpoint _const2.EndpointEnum) *Tracer {
 	tracer := &Tracer{
 		TraceId:   traceId,
 		RpcId:     rpcId,
@@ -123,7 +123,7 @@ func (tracer *Tracer) startTrace() {
 	tracer.AttrMap = make(map[string]string)
 }
 
-func (tracer *Tracer) EndTrace(status _const.TraceStatusEnum, message string, responseSize int) {
+func (tracer *Tracer) EndTrace(status _const2.TraceStatusEnum, message string, responseSize int) {
 	if !TracerIsEnable() || tracer.Ended {
 		return
 	}
@@ -132,7 +132,7 @@ func (tracer *Tracer) EndTrace(status _const.TraceStatusEnum, message string, re
 		return
 	}
 	tracer.Ended = true
-	if tracer.getStatus() == _const.OK && !tracer.Sampled {
+	if tracer.getStatus() == _const2.OK && !tracer.Sampled {
 		return
 	}
 
@@ -147,14 +147,14 @@ func (tracer *Tracer) EndTrace(status _const.TraceStatusEnum, message string, re
 	deleteTrace(tracer.RpcId)
 }
 
-func (tracer *Tracer) getStatus() _const.TraceStatusEnum {
-	if tracer.status != _const.OK {
+func (tracer *Tracer) getStatus() _const2.TraceStatusEnum {
+	if tracer.status != _const2.OK {
 		return tracer.status
 	}
-	if tracer.RemoteStatus != _const.OK {
+	if tracer.RemoteStatus != _const2.OK {
 		return tracer.RemoteStatus
 	}
-	return _const.OK
+	return _const2.OK
 }
 
 func TracerIsEnable() bool {
@@ -167,7 +167,7 @@ func TracerIsEnable() bool {
 // 可以是一个rpc的 service.name
 // 可以是一个MQ的 send.{topic}.{partition}
 // 可以是访问redis的 get.{namespace}.{key}
-func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, traceName string, request *http.Request) *Tracer {
+func StartTrace(traceType _const2.TraceTypeEnum, endPoint _const2.EndpointEnum, traceName string, request *http.Request) *Tracer {
 	if !TracerIsEnable() {
 		return nil
 	}
@@ -178,8 +178,8 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 	var tracerId string
 	var rpcId string
 	if request != nil {
-		tracerId = request.Header.Get(_const.TRACE_HEAD_ID)
-		rpcId = request.Header.Get(_const.TRACE_HEAD_RPC_ID)
+		tracerId = request.Header.Get(_const2.TRACE_HEAD_ID)
+		rpcId = request.Header.Get(_const2.TRACE_HEAD_RPC_ID)
 	}
 
 	frontIP := ""
@@ -197,15 +197,15 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 
 	rpcId = tracer.RpcId
 	if request != nil {
-		request.Header.Set(_const.TRACE_HEAD_ID, tracerId)
-		request.Header.Set(_const.TRACE_HEAD_RPC_ID, rpcId)
+		request.Header.Set(_const2.TRACE_HEAD_ID, tracerId)
+		request.Header.Set(_const2.TRACE_HEAD_RPC_ID, rpcId)
 	}
 
-	store.RequestHeadSet(_const.TRACE_HEAD_ID, tracerId)
-	store.RequestHeadSet(_const.TRACE_HEAD_RPC_ID, rpcId)
+	store.RequestHeadSet(_const2.TRACE_HEAD_ID, tracerId)
+	store.RequestHeadSet(_const2.TRACE_HEAD_RPC_ID, rpcId)
 
-	logger.PutMdc(_const.TRACE_HEAD_ID, tracerId)
-	logger.PutMdc(_const.TRACE_HEAD_RPC_ID, rpcId)
+	logger.PutMdc(_const2.TRACE_HEAD_ID, tracerId)
+	logger.PutMdc(_const2.TRACE_HEAD_RPC_ID, rpcId)
 
 	if frontIP != "" {
 		tracer.RemoteIp = frontIP
@@ -217,7 +217,7 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 	return tracer
 }
 
-func EndTrace(tracer *Tracer, status _const.TraceStatusEnum, message string, responseSize int) {
+func EndTrace(tracer *Tracer, status _const2.TraceStatusEnum, message string, responseSize int) {
 	tracer.EndTrace(status, message, responseSize)
 }
 

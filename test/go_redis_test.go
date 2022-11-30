@@ -3,15 +3,15 @@ package test
 import (
 	"context"
 	"github.com/isyscore/isc-gobase/extend/redis"
-	"github.com/isyscore/isc-tracer/internal/trace"
+	trace2 "github.com/isyscore/isc-tracer/trace"
 	"testing"
 	"time"
 )
 
 // 使用环境变量：base.profiles.active=redis
 func TestRedis(t *testing.T) {
-	trace.SwitchTrace = true
-	trace.SwitchTraceRedis = true
+	trace2.SwitchTrace = true
+	trace2.SwitchTraceRedis = true
 
 	redisCli, err := redis.NewClient()
 	if err != nil {

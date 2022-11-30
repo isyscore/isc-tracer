@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/isc"
-	_const "github.com/isyscore/isc-tracer/internal/const"
-	"github.com/isyscore/isc-tracer/internal/trace"
+	_const2 "github.com/isyscore/isc-tracer/const"
+	trace2 "github.com/isyscore/isc-tracer/trace"
 	pb "go.etcd.io/etcd/api/v3/etcdserverpb"
 	etcdClientV3 "go.etcd.io/etcd/client/v3"
 	"reflect"
@@ -21,7 +21,7 @@ func (pHook *TracerEtcdHook) Before(ctx context.Context, op etcdClientV3.Op) con
 		return ctx
 	}
 
-	tracer := trace.ClientStartTrace(_const.ETCD, "【etcd.io】: "+getCmd(op))
+	tracer := trace2.ClientStartTrace(_const2.ETCD, "【etcd.io】: "+getCmd(op))
 	ctx = context.WithValue(ctx, etcdContextKey, tracer)
 	return ctx
 }
@@ -31,22 +31,22 @@ func (pHook *TracerEtcdHook) After(ctx context.Context, op etcdClientV3.Op, pRsp
 		return
 	}
 
-	tracer, ok := ctx.Value(etcdContextKey).(*trace.Tracer)
+	tracer, ok := ctx.Value(etcdContextKey).(*trace2.Tracer)
 	if !ok || tracer == nil {
 		return
 	}
 
 	resultMap := map[string]any{}
-	result := _const.OK
+	result := _const2.OK
 	// 记录error
 	if err != nil {
 		resultMap["err"] = err.Error()
-		result = _const.ERROR
+		result = _const2.ERROR
 	}
 
 	resultMap["req"] = isc.ToJsonString(toRequestOp(op))
 
-	trace.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
+	trace2.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
 	return
 }
 
@@ -103,5 +103,5 @@ func getCmd(op etcdClientV3.Op) string {
 }
 
 func TracerEtcdIsEnable() bool {
-	return config.GetValueBoolDefault("tracer.etcd.enable", true) && trace.SwitchTraceEtcd
+	return config.GetValueBoolDefault("tracer.etcd.enable", true) && trace2.SwitchTraceEtcd
 }
