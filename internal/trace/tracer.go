@@ -86,25 +86,30 @@ func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, 
 		if tracer.TraceId == traceId {
 			return tracer
 		}
+	} else if endpoint == _const.CLIENT {
+		//newChildTrace(tracer)
+		childTracer := newTracer(traceId, rpcId, traceType, traceName, endpoint)
+		childTracer.Sampled = tracer.Sampled
+		return childTracer
 	} else if tracer.TraceId != "" {
 		return tracer
 	}
+	tracer = newTracer(traceId, rpcId, traceType, traceName, endpoint)
+	localStore.Set(tracer)
+	return tracer
+}
 
-	tracer = &Tracer{
+func newTracer(traceId string, rpcId string, traceType _const.TraceTypeEnum, traceName string, endpoint _const.EndpointEnum) *Tracer {
+	tracer := &Tracer{
 		TraceId:   traceId,
 		RpcId:     rpcId,
 		TraceType: traceType,
 		TraceName: traceName,
 		Endpoint:  endpoint,
-		Sampled:   true,
-		StartTime: time.Now().UnixMilli(),
 	}
 	tracer.startTrace()
-
-	localStore.Set(tracer)
 	return tracer
 }
-
 func (tracer *Tracer) startTrace() {
 	tracer.Sampled = true
 	tracer.StartTime = time.Now().UnixMilli()
