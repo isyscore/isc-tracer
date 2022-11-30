@@ -3,6 +3,7 @@ package trace
 import (
 	"fmt"
 	"github.com/isyscore/isc-gobase/config"
+	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/logger"
 	"github.com/isyscore/isc-gobase/store"
 	_const "github.com/isyscore/isc-tracer/internal/const"
@@ -93,9 +94,7 @@ func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, 
 		childTracer := newTracer(traceId, rpcId, traceType, traceName, endpoint)
 		if tracer.TraceId != "" {
 			// 0 -> 0.1 -> 0.1.1
-			rpcId += fmt.Sprintf(".%d", tracer.ChildRpcSeq.Inc())
-
-			childTracer.RpcId = rpcId
+			childTracer.RpcId = tracer.RpcId + "." + isc.ToString(tracer.ChildRpcSeq.Inc())
 			childTracer.Sampled = tracer.Sampled
 		}
 		setTrace(rpcId, tracer)
