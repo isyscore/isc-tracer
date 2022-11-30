@@ -8,6 +8,7 @@ require (
 	github.com/isyscore/isc-gobase v1.4.4-0.20221130111150-b0b3154f7a6a
 	go.etcd.io/etcd/api/v3 v3.5.5
 	go.etcd.io/etcd/client/v3 v3.5.5
+	go.uber.org/atomic v1.10.0
 	xorm.io/xorm v1.3.2
 )
 
@@ -67,7 +68,6 @@ require (
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.5 // indirect
-	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.17.0 // indirect
 	golang.org/x/crypto v0.0.0-20221005025214-4161e89ecf1b // indirect
