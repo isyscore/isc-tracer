@@ -1,7 +1,6 @@
 package trace
 
 import (
-	"bufio"
 	"github.com/isyscore/isc-gobase/config"
 	baseFile "github.com/isyscore/isc-gobase/file"
 	"github.com/isyscore/isc-gobase/logger"
@@ -21,15 +20,18 @@ const (
 )
 
 var traceChannel = make(chan *Tracer, 2048)
-var logFileWriter *bufio.Writer
+
+//var logFileWriter *bufio.Writer
 var logFile *os.File
 var lock sync.Mutex
+var arr []string
 
 func SendTraceLog(tracer *Tracer) {
 	traceChannel <- tracer
 }
 
 func init() {
+	arr = make([]string, 0)
 	lock = sync.Mutex{}
 	//path := "logs/middleware/trace/trace.log"
 	path := "logs" + string(os.PathSeparator) + "middleware" + string(os.PathSeparator) + "trace" + string(os.PathSeparator) + "trace.log"
@@ -38,40 +40,41 @@ func init() {
 		baseFile.CreateFile(path)
 	}
 	logFile = getTraceLogFile(path)
-	logFileWriter = bufio.NewWriter(logFile)
+	//logFileWriter = bufio.NewWriter(logFile)
 
 	go func() {
 		for range time.NewTicker(time.Hour * 24).C {
 			if logFile != nil {
 				//_ = logFile.Truncate(0)
 				//logger.Warn("定时删除文件")
-				_ = logFileWriter.Flush()
+
+				//_ = logFileWriter.Flush()
 				_ = logFile.Close()
 				baseFile.DeleteFile(path)
 
 				logFile, _ = os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
-				logFileWriter = bufio.NewWriter(logFile)
+				//logFileWriter = bufio.NewWriter(logFile)
 			}
 		}
 	}()
 	go func() {
 		for range time.NewTicker(time.Second).C {
-			if logFileWriter != nil {
+			if logFile != nil {
 				lock.Lock()
-				if err := logFileWriter.Flush(); err != nil {
-					logger.Warn("定时刷新文件异常, %v", err)
-				}
+				flush()
 				lock.Unlock()
 			}
 		}
 	}()
 	go func() {
 		for tracer := range traceChannel {
-			if logFileWriter != nil {
+			if logFile != nil {
 				l := newTraceLog(tracer)
+
 				lock.Lock()
-				if _, err := logFileWriter.WriteString(l); err != nil {
-					logger.Error("%v", err.Error())
+				arr = append(arr, l)
+				if len(arr) >= 100 {
+					flush()
 				}
 				lock.Unlock()
 			}
@@ -79,11 +82,30 @@ func init() {
 	}()
 }
 
-func Close() {
-	logger.Warn("Close!")
-	if logFileWriter != nil {
-		logFileWriter.Flush()
+func flush() {
+	if len(arr) == 0 {
+		return
 	}
+	writeContent := ""
+	for _, traceLog := range arr {
+		writeContent += traceLog
+	}
+	_, err := logFile.Write([]byte(writeContent))
+	if err != nil {
+		logger.Warn("文件写入异常, %v", err)
+		return
+	}
+	arr = arr[:0]
+	//if err := logFileWriter.Flush(); err != nil {
+	//	logger.Warn("定时刷新文件异常, %v", err)
+	//}
+}
+func Close() {
+	logger.Warn("trace_log Close!")
+	//if logFileWriter != nil {
+	//	logFileWriter.Flush()
+	//}
+	flush()
 	if logFile != nil {
 		logFile.Close()
 	}
