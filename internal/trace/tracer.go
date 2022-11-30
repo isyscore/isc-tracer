@@ -3,7 +3,6 @@ package trace
 import (
 	"fmt"
 	"github.com/isyscore/isc-gobase/config"
-	"github.com/isyscore/isc-gobase/goid"
 	"github.com/isyscore/isc-gobase/logger"
 	"github.com/isyscore/isc-gobase/store"
 	_const "github.com/isyscore/isc-tracer/internal/const"
@@ -15,9 +14,6 @@ import (
 )
 
 const ROOT_RPC_ID = "0"
-
-// 携程上存储tracer
-var localStore = goid.NewLocalStorage()
 
 var (
 	copyAttrMap = map[string]string{
@@ -116,7 +112,7 @@ func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, 
 		return tracer
 	}
 	tracer = newTracer(traceId, rpcId, traceType, traceName, endpoint)
-	localStore.Set(tracer)
+	setTrace(rpcId, tracer)
 	return tracer
 }
 
@@ -158,17 +154,7 @@ func (tracer *Tracer) EndTrace(status _const.TraceStatusEnum, message string, re
 	}
 	SendTraceLog(tracer)
 
-	localStore.Del()
-}
-
-func createCurrentTracerIfAbsent() *Tracer {
-	l := localStore.Get()
-	if l == nil {
-		tracer := &Tracer{}
-		localStore.Set(tracer)
-		return tracer
-	}
-	return l.(*Tracer)
+	deleteTrace(tracer.RpcId)
 }
 
 func (tracer *Tracer) getStatus() _const.TraceStatusEnum {
