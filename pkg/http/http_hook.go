@@ -50,19 +50,21 @@ func (*TracerHttpHook) After(ctx context.Context, rsp *http.Response, rspCode in
 			resultMap["err"] = err.Error()
 		}
 	} else {
-		bodyStr := string(rspData.([]byte))
+		if rspData != nil {
+			bodyStr := string(rspData.([]byte))
 
-		if strings.HasPrefix(bodyStr, "{") && strings.HasSuffix(bodyStr, "}") {
-			bodys := map[string]any{}
-			_ = isc.StrToObject(bodyStr, &bodys)
-			code, existCode := bodys["code"]
-			msg, _ := bodys["message"]
-			if existCode && isc.ToInt(code) != 0 && isc.ToInt(code) != 200 {
-				resultMap["errCode"] = code
-				resultMap["errMsg"] = msg
+			if strings.HasPrefix(bodyStr, "{") && strings.HasSuffix(bodyStr, "}") {
+				bodys := map[string]any{}
+				_ = isc.StrToObject(bodyStr, &bodys)
+				code, existCode := bodys["code"]
+				msg, _ := bodys["message"]
+				if existCode && isc.ToInt(code) != 0 && isc.ToInt(code) != 200 {
+					resultMap["errCode"] = code
+					resultMap["errMsg"] = msg
 
-				trace.EndTrace(tracer, _const.ERROR, isc.ToJsonString(resultMap), isc.ToInt(unsafe.Sizeof(rspData)))
-				return
+					trace.EndTrace(tracer, _const.ERROR, isc.ToJsonString(resultMap), isc.ToInt(unsafe.Sizeof(rspData)))
+					return
+				}
 			}
 		}
 	}
