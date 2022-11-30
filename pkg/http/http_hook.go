@@ -19,10 +19,9 @@ func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Co
 	if !trace.TracerIsEnable() {
 		return ctx
 	}
-	_srcHead := store.GetHeader()
-	if _srcHead != nil {
-		srcHead := *_srcHead
-		for headKey, srcHs := range srcHead {
+	request := store.GetRequest()
+	if request != nil {
+		for headKey, srcHs := range request.Header {
 			for _, srcH := range srcHs {
 				req.Header.Add(headKey, srcH)
 			}
