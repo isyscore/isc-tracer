@@ -2,7 +2,6 @@ package orm
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
@@ -48,7 +47,7 @@ func (*TracerXormHook) AfterProcess(c *contexts.ContextHook, driverName string) 
 	resultMap := map[string]any{}
 	result := _const.OK
 
-	b, _ := json.Marshal(c.Args)
+	//b, _ := json.Marshal(c.Args)
 
 	if c.Err != nil {
 		resultMap["err"] = c.Err.Error()
@@ -56,7 +55,7 @@ func (*TracerXormHook) AfterProcess(c *contexts.ContextHook, driverName string) 
 	}
 	resultMap["database"] = driverName
 	resultMap["sql"] = c.SQL
-	resultMap["parameters"] = string(b)
+	//resultMap["parameters"] = string(b)
 
 	trace.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
 	return nil

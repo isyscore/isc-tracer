@@ -65,12 +65,12 @@ func (*TracerGormHook) Err(ctx context.Context, driverName string, err error, pa
 	}
 
 	query, _ := parameters["query"]
-	args, _ := parameters["args"]
+	//args, _ := parameters["args"]
 
 	resultMap := map[string]any{}
 	resultMap["database"] = driverName
 	resultMap["sql"] = query
-	resultMap["parameters"] = args
+	//resultMap["parameters"] = args
 	resultMap["err"] = err.Error()
 
 	trace.EndTrace(tracer, _const.ERROR, isc.ToJsonString(resultMap), 0)
