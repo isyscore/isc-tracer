@@ -96,7 +96,7 @@ func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, 
 			childTracer.RpcId = tracer.RpcId + "." + isc.ToString(tracer.ChildRpcSeq.Inc())
 			childTracer.Sampled = tracer.Sampled
 		}
-		setTrace(rpcId, tracer)
+		setTrace(childTracer.RpcId, childTracer)
 		return childTracer
 	} else if tracer.TraceId != "" {
 		return tracer
