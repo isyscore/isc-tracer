@@ -63,21 +63,30 @@ import _ "github.com/isyscore/isc-tracer"
 ## 自定义埋点
 包trace提供如下的方法
 ```go
+import "github.com/isyscore/isc-tracer/trace"
+
+// 发起方埋点：start
+func ClientStartTrace(traceType _const2.TraceTypeEnum, traceName string) *Tracer {}
+
 // 发起方埋点：start
 func ClientStartTraceWithRequest(req *http.Request) *Tracer {}
 
-// 发起方埋点：start
-func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {}
+// 接收方埋点：start
+func ServerStartTrace(traceType _const2.TraceTypeEnum, traceName string) *Tracer {}
 
 // 接收方埋点：start
-func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {}
+func ServerStartTraceWithRequest(traceType _const2.TraceTypeEnum, traceName string, request *http.Request) *Tracer {}
 
 
 // 发起方/接收方埋点：start
-func StartTrace(traceType _const.TraceTypeEnum, traceName string, endPoint _const.EndpointEnum) *Tracer {}
+func StartTrace(traceType _const2.TraceTypeEnum, endPoint _const2.EndpointEnum, traceName string, request *http.Request) *Tracer {}
 
 // 发起方/接收方埋点：end
-func EndTrace(tracer *Tracer, responseSize int, status _const.TraceStatusEnum, message string) {}
+func EndTrace(tracer *Tracer, status _const2.TraceStatusEnum, message string, responseSize int) {}
+func EndTraceOk(tracer *Tracer, message string, responseSize int) {}
+func EndTraceTimeout(tracer *Tracer, message string, responseSize int) {}
+func EndTraceWarn(tracer *Tracer, message string, responseSize int) {}
+func EndTraceError(tracer *Tracer, message string, responseSize int) {}
 ```
 ### 发起方（服务端）埋点示例：
 ```go
