@@ -6,7 +6,6 @@ import (
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
-	"github.com/isyscore/isc-tracer/pkg"
 	"strings"
 )
 
@@ -28,7 +27,7 @@ func (*TracerGormHook) Before(ctx context.Context, driverName string, parameters
 	}
 
 	cmds := strings.SplitN(query.(string), " ", 2)
-	tracer := pkg.ClientStartTrace(getSqlType(driverName), "【gorm】:"+cmds[0])
+	tracer := trace.ClientStartTrace(getSqlType(driverName), "【gorm】:"+cmds[0])
 	return context.WithValue(ctx, traceContextGormKey, tracer), nil
 }
 

@@ -6,7 +6,6 @@ import (
 	"github.com/isyscore/isc-gobase/isc"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/internal/trace"
-	"github.com/isyscore/isc-tracer/pkg"
 	pb "go.etcd.io/etcd/api/v3/etcdserverpb"
 	etcdClientV3 "go.etcd.io/etcd/client/v3"
 	"reflect"
@@ -22,7 +21,7 @@ func (pHook *TracerEtcdHook) Before(ctx context.Context, op etcdClientV3.Op) con
 		return ctx
 	}
 
-	tracer := pkg.ClientStartTrace(_const.ETCD, "【etcd.io】: "+getCmd(op))
+	tracer := trace.ClientStartTrace(_const.ETCD, "【etcd.io】: "+getCmd(op))
 	ctx = context.WithValue(ctx, etcdContextKey, tracer)
 	return ctx
 }
