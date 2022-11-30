@@ -19,3 +19,8 @@ func TestClientStartTraceWithHeader(t *testing.T) {
 
 	time.Sleep(time.Second * 2)
 }
+
+func TestTracer(t *testing.T) {
+	tr := trace.Tracer{}
+	t.Log(tr.ChildRpcSeq.Inc())
+}

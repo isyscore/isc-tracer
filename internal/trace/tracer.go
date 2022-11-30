@@ -1,14 +1,15 @@
 package trace
 
 import (
+	"fmt"
 	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/goid"
 	"github.com/isyscore/isc-gobase/logger"
 	"github.com/isyscore/isc-gobase/store"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/util"
+	"go.uber.org/atomic"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -75,12 +76,25 @@ type Tracer struct {
 	Ended bool
 	// AttrMap 请求参数
 	AttrMap map[string]string
+	//  子rpc id的自增器
+	ChildRpcSeq atomic.Int32
 }
 
 func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, traceName string, endpoint _const.EndpointEnum) *Tracer {
 	if !TracerIsEnable() {
 		return nil
 	}
+	if rpcId == "" {
+		rpcId = ROOT_RPC_ID
+	} else {
+		// 获取最后一位 +1
+		//splits := strings.Split(rpcId, ".")
+		//lastOne, _ := strconv.Atoi(splits[len(splits)-1])
+		//lastOne += 1
+		//splits[len(splits)-1] = strconv.Itoa(lastOne)
+		//rpcId = strings.Join(splits, ".")
+	}
+
 	tracer := createCurrentTracerIfAbsent()
 	if tracer.Ended {
 		if tracer.TraceId == traceId {
@@ -89,7 +103,14 @@ func doStartTrace(traceId string, rpcId string, traceType _const.TraceTypeEnum, 
 	} else if endpoint == _const.CLIENT {
 		//newChildTrace(tracer)
 		childTracer := newTracer(traceId, rpcId, traceType, traceName, endpoint)
-		childTracer.Sampled = tracer.Sampled
+		//取到parentTrace
+		if tracer.TraceId != "" {
+			// 0 -> 0.1 -> 0.1.1
+			rpcId += fmt.Sprintf(".%d", tracer.ChildRpcSeq.Inc())
+
+			childTracer.RpcId = rpcId
+			childTracer.Sampled = tracer.Sampled
+		}
 		return childTracer
 	} else if tracer.TraceId != "" {
 		return tracer
@@ -179,18 +200,12 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 		tracerId = util.GenerateTraceId()
 		frontIP = GetFrontIP(header, remoteAddr)
 	}
-
 	rpcId := header.Get(_const.TRACE_HEAD_RPC_ID)
-	if rpcId == "" {
-		rpcId = ROOT_RPC_ID
-	} else {
-		// 获取最后一位 +1
-		splits := strings.Split(rpcId, ".")
-		lastOne, _ := strconv.Atoi(splits[len(splits)-1])
-		lastOne += 1
-		splits[len(splits)-1] = strconv.Itoa(lastOne)
-		rpcId = strings.Join(splits, ".")
+	tracer := doStartTrace(tracerId, rpcId, traceType, traceName, endPoint)
+	if tracer == nil {
+		return nil
 	}
+	rpcId = tracer.RpcId
 
 	if *header != nil {
 		header.Set(_const.TRACE_HEAD_ID, tracerId)
@@ -203,10 +218,6 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 	logger.PutMdc(_const.TRACE_HEAD_ID, tracerId)
 	logger.PutMdc(_const.TRACE_HEAD_RPC_ID, rpcId)
 
-	tracer := doStartTrace(tracerId, rpcId, traceType, traceName, endPoint)
-	if tracer == nil {
-		return nil
-	}
 	if frontIP != "" {
 		tracer.RemoteIp = frontIP
 	}
