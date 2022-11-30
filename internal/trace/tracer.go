@@ -28,10 +28,10 @@ var (
 )
 
 var (
-	SwitchTrace         = false
-	SwitchTraceDatabase = false
-	SwitchTraceRedis    = false
-	SwitchTraceEtcd     = false
+	SwitchTrace         = true
+	SwitchTraceDatabase = true
+	SwitchTraceRedis    = true
+	SwitchTraceEtcd     = true
 )
 
 type Tracer struct {
