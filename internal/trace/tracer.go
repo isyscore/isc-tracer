@@ -170,13 +170,19 @@ func StartTrace(traceType _const.TraceTypeEnum, endPoint _const.EndpointEnum, tr
 		h := store.GetHeader()
 		header = h
 	}
-	tracerId := header.Get(_const.TRACE_HEAD_ID)
+	var tracerId string
+	var rpcId string
+	if header != nil {
+		tracerId = header.Get(_const.TRACE_HEAD_ID)
+		rpcId = header.Get(_const.TRACE_HEAD_RPC_ID)
+	}
+
 	frontIP := ""
 	if tracerId == "" {
 		tracerId = util.GenerateTraceId()
 		frontIP = GetFrontIP(header, remoteAddr)
 	}
-	rpcId := header.Get(_const.TRACE_HEAD_RPC_ID)
+
 	tracer := doStartTrace(tracerId, rpcId, traceType, traceName, endPoint)
 	if tracer == nil {
 		return nil
@@ -207,6 +213,9 @@ func EndTrace(tracer *Tracer, status _const.TraceStatusEnum, message string, res
 }
 
 func putAttr(tracer *Tracer, head *http.Header) {
+	if head == nil {
+		return
+	}
 	if tracer.AttrMap == nil {
 		tracer.AttrMap = make(map[string]string)
 	}
@@ -218,6 +227,9 @@ func putAttr(tracer *Tracer, head *http.Header) {
 }
 
 func GetFrontIP(head *http.Header, remoteAddr string) string {
+	if head == nil {
+		return ""
+	}
 	ip := head.Get("X-Forwarded-For")
 	if ip != "" && strings.EqualFold(ip, "unKnown") {
 		//多次反向代理后会有多个ip值，第一个ip才是真实ip
