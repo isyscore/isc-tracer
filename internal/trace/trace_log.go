@@ -3,6 +3,7 @@ package trace
 import (
 	"github.com/isyscore/isc-gobase/config"
 	baseFile "github.com/isyscore/isc-gobase/file"
+	"github.com/isyscore/isc-gobase/goid"
 	"github.com/isyscore/isc-gobase/logger"
 	_const "github.com/isyscore/isc-tracer/internal/const"
 	"github.com/isyscore/isc-tracer/util"
@@ -42,7 +43,7 @@ func init() {
 	logFile = getTraceLogFile(path)
 	//logFileWriter = bufio.NewWriter(logFile)
 
-	go func() {
+	goid.Go(func() {
 		for range time.NewTicker(time.Hour * 24).C {
 			if logFile != nil {
 				//_ = logFile.Truncate(0)
@@ -56,8 +57,8 @@ func init() {
 				//logFileWriter = bufio.NewWriter(logFile)
 			}
 		}
-	}()
-	go func() {
+	})
+	goid.Go(func() {
 		for range time.NewTicker(time.Second).C {
 			if logFile != nil {
 				lock.Lock()
@@ -65,8 +66,8 @@ func init() {
 				lock.Unlock()
 			}
 		}
-	}()
-	go func() {
+	})
+	goid.Go(func() {
 		for tracer := range traceChannel {
 			if logFile != nil {
 				l := newTraceLog(tracer)
@@ -79,7 +80,7 @@ func init() {
 				lock.Unlock()
 			}
 		}
-	}()
+	})
 }
 
 func flush() {
