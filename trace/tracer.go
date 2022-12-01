@@ -136,6 +136,11 @@ func (tracer *Tracer) EndTrace(status _const2.TraceStatusEnum, message string, r
 		return
 	}
 
+	if req := store.GetRequest(); req != nil {
+		header := req.Header
+		putAttr(tracer, &header)
+	}
+
 	tracer.endTime = time.Now().UnixMilli()
 	tracer.status = status
 	tracer.Size = responseSize
