@@ -3,6 +3,7 @@ package test
 import (
 	"github.com/gin-gonic/gin"
 	baseHttp "github.com/isyscore/isc-gobase/http"
+	"github.com/isyscore/isc-gobase/listener"
 	"github.com/isyscore/isc-gobase/server"
 	"github.com/isyscore/isc-gobase/server/rsp"
 	_ "github.com/isyscore/isc-tracer"
@@ -16,6 +17,9 @@ func TestTraceFilter(t *testing.T) {
 	server.Get("/test/send", send)
 	server.Get("/test/receive", receive)
 
+	listener.AddListener(listener.EventOfServerRunFinish, func(event listener.BaseEvent) {
+		baseHttp.GetSimple("http://localhost:8082/api/test/send")
+	})
 	server.Run()
 
 	//访问 http://localhost:8082/api/test/send
