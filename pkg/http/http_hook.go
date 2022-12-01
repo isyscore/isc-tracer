@@ -22,7 +22,7 @@ func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Co
 	if request != nil {
 		for headKey, srcHs := range request.Header {
 			for _, srcH := range srcHs {
-				req.Header.Add(headKey, srcH)
+				req.Header.Set(headKey, srcH)
 			}
 		}
 	}
