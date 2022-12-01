@@ -244,12 +244,6 @@ github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANyt
 github.com/influxdata/influxdb1-client v0.0.0-20191209144304-8bf82d3c094d/go.mod h1:qj24IKcXYK6Iy9ceXlo3Tc+vtHo9lIhSX5JddghvEPo=
 github.com/iris-contrib/go.uuid v2.0.0+incompatible h1:XZubAYg61/JwnJNbZilGjf3b3pB80+OQg2qf6c8BfWE=
 github.com/iris-contrib/go.uuid v2.0.0+incompatible/go.mod h1:iz2lgM/1UnEf1kP0L/+fafWORmlnuysV2EMP8MW+qe0=
-github.com/isyscore/isc-gobase v1.4.4-0.20221130120243-1f36677b60b0 h1:ScrH1T5pWaoWa/WspKqyzKDdx1baQTaTX33Jrjm2030=
-github.com/isyscore/isc-gobase v1.4.4-0.20221130120243-1f36677b60b0/go.mod h1:lcCh4NvrreosAOnz7vUrYj8xY8CPf6qRwPbbndzooz0=
-github.com/isyscore/isc-gobase v1.4.4-0.20221201040455-4bf1bee751eb h1:RsWc/dA9BFOfAPVaVipdCQPp1ymdvDGtu7nhPZWH+NI=
-github.com/isyscore/isc-gobase v1.4.4-0.20221201040455-4bf1bee751eb/go.mod h1:lcCh4NvrreosAOnz7vUrYj8xY8CPf6qRwPbbndzooz0=
-github.com/isyscore/isc-gobase v1.4.4-0.20221201053904-a2269f647fcb h1:KsuTjIftVEoi6BL9GcKm2kRqmlbE9BJqIhljVUuj9z0=
-github.com/isyscore/isc-gobase v1.4.4-0.20221201053904-a2269f647fcb/go.mod h1:lcCh4NvrreosAOnz7vUrYj8xY8CPf6qRwPbbndzooz0=
 github.com/isyscore/isc-gobase v1.4.4-0.20221201054913-7bc579b87485 h1:Swb/oZgrJtn6bZ12OY6VoXBLaC74K6uk/HR/JkdoHj0=
 github.com/isyscore/isc-gobase v1.4.4-0.20221201054913-7bc579b87485/go.mod h1:lcCh4NvrreosAOnz7vUrYj8xY8CPf6qRwPbbndzooz0=
 github.com/jackc/chunkreader v1.0.0/go.mod h1:RT6O25fNZIuasFJRyZ4R/Y2BbhasbmZXF9QQ7T3kePo=
