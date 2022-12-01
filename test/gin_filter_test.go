@@ -17,33 +17,36 @@ func TestTraceFilter(t *testing.T) {
 	server.Get("/test/receive", receive)
 
 	server.Run()
-	//
-	//baseHttp.GetSimple("http://localhost:8082/api/test")
-	//_, _, data, _ := baseHttp.GetSimple("http://localhost:8082/api/test/err")
-	//if data == nil {
-	//	fmt.Println("返回值：nil")
-	//	return
-	//}
-	//fmt.Println("返回值：" + string(data.([]byte)))
-	//
-	//time.Sleep(10000000)
+
+	//访问 http://localhost:8082/api/test/send
 }
 
 func test(c *gin.Context) {
-	dict := make(map[string]any)
-	dict["code"] = 0
-	dict["message"] = "成功"
-	rsp.Success(c, dict)
+	t := &testing.T{}
+	TestEtcd(t)
+
+	baseHttp.GetSimple("http://localhost:8082/api/test/err")
+	rsp.SuccessOfStandard(c, nil)
 }
 
 func testErr(c *gin.Context) {
+	t := &testing.T{}
+	TestXorm(t)
 	rsp.FailedOfStandard(c, 103222, "xxx业务的配置异常")
 }
 
 func send(c *gin.Context) {
+	t := &testing.T{}
+	TestRedis(t)
+
 	baseHttp.GetSimple("http://localhost:8082/api/test/receive")
+	rsp.SuccessOfStandard(c, nil)
 }
 
 func receive(c *gin.Context) {
+	t := &testing.T{}
+	TestGorm(t)
+
+	baseHttp.GetSimple("http://localhost:8082/api/test")
 	rsp.SuccessOfStandard(c, "ok")
 }

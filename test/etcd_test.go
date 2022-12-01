@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/isyscore/isc-gobase/extend/etcd"
-	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/time"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"testing"
@@ -21,7 +20,7 @@ func TestEtcd(t *testing.T) {
 	fmt.Println(rsp)
 
 	etcdClient.Get(ctx, "test", func(pOp *clientv3.Op) {
-		fmt.Println("信息")
-		fmt.Println(isc.ToJsonString(&pOp))
+		//fmt.Println("信息")
+		//fmt.Println(isc.ToJsonString(&pOp))
 	})
 }

@@ -161,12 +161,12 @@ func TracerIsEnable() bool {
 	return config.GetValueBoolDefault("tracer.enable", true) && SwitchTrace
 }
 
-// ClientStartTraceWithHeader
+// StartTrace
 // traceName 名称
-// 可以是一个 http url
-// 可以是一个rpc的 service.name
-// 可以是一个MQ的 send.{topic}.{partition}
-// 可以是访问redis的 get.{namespace}.{key}
+//    可以是一个 http url
+//    可以是一个rpc的 service.name
+//    可以是一个MQ的 send.{topic}.{partition}
+//    可以是访问redis的 get.{namespace}.{key}
 func StartTrace(traceType _const2.TraceTypeEnum, endPoint _const2.EndpointEnum, traceName string, request *http.Request) *Tracer {
 	if !TracerIsEnable() {
 		return nil
