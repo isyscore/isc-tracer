@@ -217,6 +217,53 @@ func StartTrace(traceType _const2.TraceTypeEnum, endPoint _const2.EndpointEnum, 
 	return tracer
 }
 
+func StartTraceWithHeader(traceType _const2.TraceTypeEnum, endPoint _const2.EndpointEnum, traceName string, header *http.Header) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
+	remoteAddr := store.GetRemoteAddr()
+	var tracerId string
+	var rpcId string
+	if header != nil {
+		tracerId = header.Get(_const2.TRACE_HEAD_ID)
+		rpcId = header.Get(_const2.TRACE_HEAD_RPC_ID)
+	}
+
+	frontIP := ""
+	if tracerId == "" {
+		tracerId = util.GenerateTraceId()
+		if header != nil {
+			frontIP = GetFrontIP(header, remoteAddr)
+		}
+	}
+
+	tracer := doStartTrace(tracerId, rpcId, traceType, traceName, endPoint)
+	if tracer == nil {
+		return nil
+	}
+
+	rpcId = tracer.RpcId
+	if header != nil {
+		header.Set(_const2.TRACE_HEAD_ID, tracerId)
+		header.Set(_const2.TRACE_HEAD_RPC_ID, rpcId)
+	}
+
+	store.RequestHeadSet(_const2.TRACE_HEAD_ID, tracerId)
+	store.RequestHeadSet(_const2.TRACE_HEAD_RPC_ID, rpcId)
+
+	logger.PutMdc(_const2.TRACE_HEAD_ID, tracerId)
+	logger.PutMdc(_const2.TRACE_HEAD_RPC_ID, rpcId)
+
+	if frontIP != "" {
+		tracer.RemoteIp = frontIP
+	}
+	// 往当前上下文添加远程端属性
+	if header != nil {
+		putAttr(tracer, header)
+	}
+	return tracer
+}
+
 func EndTrace(tracer *Tracer, status _const2.TraceStatusEnum, message string, responseSize int) {
 	tracer.EndTrace(status, message, responseSize)
 }

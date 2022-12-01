@@ -15,6 +15,16 @@ func ClientStartTrace(traceType _const2.TraceTypeEnum, traceName string) *Tracer
 	return StartTrace(traceType, _const2.CLIENT, traceName, nil)
 }
 
+func ClientStartTraceWithHeader(header *http.Header, traceName string) *Tracer {
+	if !TracerIsEnable() {
+		return nil
+	}
+	if traceName == "" {
+		traceName = "<default>_server"
+	}
+	return StartTraceWithHeader(_const2.HTTP, _const2.CLIENT, traceName, header)
+}
+
 func ClientStartTraceWithRequest(req *http.Request) *Tracer {
 	if !TracerIsEnable() {
 		return nil
