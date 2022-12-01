@@ -16,6 +16,17 @@ func createCurrentTracerIfAbsent() *Tracer {
 	return &Tracer{}
 }
 
+func GetCurrentTracer() *Tracer {
+	l := localStore.Get()
+	if l == nil {
+		return nil
+	}
+	for _, tracer := range l.(map[string]*Tracer) {
+		return tracer
+	}
+	return nil
+}
+
 func setTrace(rpcId string, tracer *Tracer) {
 	l := localStore.Get()
 	if l == nil {
