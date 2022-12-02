@@ -125,8 +125,7 @@ func (tracer *Tracer) startTrace() {
 
 func (tracer *Tracer) EndTrace(status _const2.TraceStatusEnum, message string, responseSize int) {
 	defer func() {
-		deleteTrace()
-		store.CleanStore()
+		deleteTrace(tracer.RpcId)
 	}()
 	if !TracerIsEnable() || tracer.Ended {
 		return

@@ -3,27 +3,51 @@ package trace
 import "github.com/isyscore/isc-gobase/goid"
 
 // 协程上存储tracer
-var localStore = goid.NewLocalStorage()
+var tracerStorage = goid.NewLocalStorage()
 
 func createCurrentTracerIfAbsent() *Tracer {
-	l := localStore.Get()
+	l := tracerStorage.Get()
 	if l == nil {
 		return &Tracer{}
 	}
-	return l.(*Tracer)
+	for _, tracer := range l.(map[string]*Tracer) {
+		return tracer
+	}
+	return &Tracer{}
 }
 
 func GetCurrentTracer() *Tracer {
-	l := localStore.Get()
+	l := tracerStorage.Get()
 	if l == nil {
 		return nil
 	}
-	return l.(*Tracer)
+	for _, tracer := range l.(map[string]*Tracer) {
+		return tracer
+	}
+	return nil
 }
 
 func setTrace(tracer *Tracer) {
-	localStore.Set(tracer)
+	if tracer == nil {
+		return
+	}
+	l := tracerStorage.Get()
+	if l == nil {
+		tracerStorage.Set(make(map[string]*Tracer))
+		l = tracerStorage.Get()
+	}
+	dict := l.(map[string]*Tracer)
+	dict[tracer.TraceId] = tracer
 }
-func deleteTrace() {
-	localStore.Del()
+
+func deleteTrace(rpcId string) {
+	l := tracerStorage.Get()
+	if l == nil {
+		return
+	}
+	dict := l.(map[string]*Tracer)
+	delete(dict, rpcId)
+	if len(dict) == 0 {
+		tracerStorage.Del()
+	}
 }
