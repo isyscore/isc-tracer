@@ -124,13 +124,13 @@ func (tracer *Tracer) startTrace() {
 }
 
 func (tracer *Tracer) EndTrace(status _const2.TraceStatusEnum, message string, responseSize int) {
-	if !TracerIsEnable() || tracer.Ended {
-		return
-	}
 	defer func() {
 		deleteTrace()
 		store.CleanStore()
 	}()
+	if !TracerIsEnable() || tracer.Ended {
+		return
+	}
 
 	if tracer.TraceId == "" || tracer.RpcId == "" || tracer.StartTime == 0 {
 		//log.Println("tracer's traceId is nil,will be not append tracer info")

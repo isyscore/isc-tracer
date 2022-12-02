@@ -10,10 +10,7 @@ func createCurrentTracerIfAbsent() *Tracer {
 	if l == nil {
 		return &Tracer{}
 	}
-	for _, tracer := range l.(map[string]*Tracer) {
-		return tracer
-	}
-	return &Tracer{}
+	return l.(*Tracer)
 }
 
 func GetCurrentTracer() *Tracer {
@@ -21,10 +18,7 @@ func GetCurrentTracer() *Tracer {
 	if l == nil {
 		return nil
 	}
-	for _, tracer := range l.(map[string]*Tracer) {
-		return tracer
-	}
-	return nil
+	return l.(*Tracer)
 }
 
 func setTrace(tracer *Tracer) {
