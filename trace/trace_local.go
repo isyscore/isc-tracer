@@ -2,7 +2,7 @@ package trace
 
 import "github.com/isyscore/isc-gobase/goid"
 
-// 携程上存储tracer
+// 协程上存储tracer
 var localStore = goid.NewLocalStorage()
 
 func createCurrentTracerIfAbsent() *Tracer {
@@ -27,24 +27,9 @@ func GetCurrentTracer() *Tracer {
 	return nil
 }
 
-func setTrace(rpcId string, tracer *Tracer) {
-	l := localStore.Get()
-	if l == nil {
-		n := make(map[string]*Tracer)
-		localStore.Set(n)
-		l = localStore.Get()
-	}
-	dict := l.(map[string]*Tracer)
-	dict[rpcId] = tracer
+func setTrace(tracer *Tracer) {
+	localStore.Set(tracer)
 }
-func deleteTrace(rpcId string) {
-	l := localStore.Get()
-	if l == nil {
-		return
-	}
-	dict := l.(map[string]*Tracer)
-	delete(dict, rpcId)
-	if len(dict) == 0 {
-		localStore.Del()
-	}
+func deleteTrace() {
+	localStore.Del()
 }

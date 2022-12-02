@@ -96,13 +96,13 @@ func doStartTrace(traceId string, rpcId string, traceType _const2.TraceTypeEnum,
 			childTracer.RpcId = tracer.RpcId + "." + isc.ToString(tracer.ChildRpcSeq.Inc())
 			childTracer.Sampled = tracer.Sampled
 		}
-		setTrace(childTracer.RpcId, childTracer)
+		setTrace(childTracer)
 		return childTracer
 	} else if tracer.TraceId != "" {
 		return tracer
 	}
 	tracer = newTracer(traceId, rpcId, traceType, traceName, endpoint)
-	setTrace(rpcId, tracer)
+	setTrace(tracer)
 	return tracer
 }
 
@@ -149,7 +149,7 @@ func (tracer *Tracer) EndTrace(status _const2.TraceStatusEnum, message string, r
 	}
 	SendTraceLog(tracer)
 
-	deleteTrace(tracer.RpcId)
+	deleteTrace()
 
 	store.CleanStore()
 }
