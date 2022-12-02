@@ -150,6 +150,8 @@ func (tracer *Tracer) EndTrace(status _const2.TraceStatusEnum, message string, r
 	SendTraceLog(tracer)
 
 	deleteTrace(tracer.RpcId)
+
+	store.CleanStore()
 }
 
 func (tracer *Tracer) getStatus() _const2.TraceStatusEnum {
