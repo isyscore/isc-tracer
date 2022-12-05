@@ -49,5 +49,7 @@ func deleteTrace(rpcId string) {
 	delete(dict, rpcId)
 	if len(dict) == 0 {
 		tracerStorage.Del()
+	} else {
+		tracerStorage.Set(dict)
 	}
 }
