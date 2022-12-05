@@ -42,7 +42,7 @@ func (*TracerGormHook) After(ctx context.Context, driverName string, parameters 
 	}
 
 	query, _ := parameters["query"]
-	args, _ := parameters["args"]
+	//args, _ := parameters["args"]
 
 	resultMap := map[string]any{}
 	resultMap["database"] = driverName

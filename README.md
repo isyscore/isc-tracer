@@ -52,6 +52,9 @@ tracer:
     excludes-url:
       - /api/xxx/xxx/xxxx
       - /api/xxx/xxx/xxxx
+  # 用户名注册位置
+  url:
+    pivot: http://isc-pivot-platform:31107
 ```
 
 ## 代码使用

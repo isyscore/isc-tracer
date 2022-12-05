@@ -39,7 +39,9 @@ func init() {
 
 	// 应用启动完成
 	listener.AddListener(listener.EventOfServerRunFinish, func(event listener.BaseEvent) {
-		register()
+		registerAppName()
+
+		registerWatch()
 	})
 
 	// 应用退出
@@ -48,7 +50,20 @@ func init() {
 	})
 }
 
-func register() {
+func registerAppName() {
+	pivotUrl := config.GetValueStringDefault("tracer.url.pivot", "http://isc-pivot-platform:31107")
+	header := http.Header{}
+	parameter := map[string]string{}
+	body := map[string]any{
+		"appCode": config.GetValueStringDefault("base.application.name", _const2.DEFAULT_APP_NAME),
+	}
+	_, _, _, err := baseHttp.Put(pivotUrl+"/api/app/operation-center/tracer/register", header, parameter, body)
+	if err != nil {
+		logger.Warn("注册pivot异常，%v", err.Error())
+	}
+}
+
+func registerWatch() {
 	if !config.GetValueBoolDefault("tracer.debug.enable", true) {
 		return
 	}
