@@ -37,7 +37,7 @@ func setTrace(tracer *Tracer) {
 		l = tracerStorage.Get()
 	}
 	dict := l.(map[string]*Tracer)
-	dict[tracer.TraceId] = tracer
+	dict[tracer.RpcId] = tracer
 }
 
 func deleteTrace(rpcId string) {
