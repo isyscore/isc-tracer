@@ -85,7 +85,7 @@ func doStartTrace(traceId string, rpcId string, traceType _const2.TraceTypeEnum,
 	}
 
 	tracer := createCurrentTracerIfAbsent()
-	if !tracer.Ended {
+	if tracer.Ended {
 		if tracer.TraceId == traceId {
 			return tracer
 		}
