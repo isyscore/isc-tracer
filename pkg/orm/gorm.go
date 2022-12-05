@@ -47,7 +47,7 @@ func (*TracerGormHook) After(ctx context.Context, driverName string, parameters 
 	resultMap := map[string]any{}
 	resultMap["database"] = driverName
 	resultMap["sql"] = query
-	resultMap["parameters"] = args
+	//resultMap["parameters"] = args
 
 	trace2.EndTrace(tracer, _const2.OK, isc.ToJsonString(resultMap), 0)
 	return ctx, nil
