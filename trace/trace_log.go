@@ -20,7 +20,7 @@ const (
 	NULL_TAG   = "-"
 )
 
-var traceChannel = make(chan *Tracer, 2048)
+var traceChannel = make(chan *Tracer, 8182)
 
 //var logFileWriter *bufio.Writer
 var logFile *os.File

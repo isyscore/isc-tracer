@@ -2,17 +2,17 @@ package trace
 
 import (
 	"fmt"
-	_const2 "github.com/isyscore/isc-tracer/const"
+	_const "github.com/isyscore/isc-tracer/const"
 	"net/http"
 )
 
 // ClientStartTrace
 // 开启客户端跟踪(如前端访问某个后端接口a, 接口a内访问其他接口b, 此时a访问b称为客户端, b接口内为服务端)
-func ClientStartTrace(traceType _const2.TraceTypeEnum, traceName string) *Tracer {
+func ClientStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {
 	if !TracerIsEnable() {
 		return nil
 	}
-	return StartTrace(traceType, _const2.CLIENT, traceName, nil)
+	return StartTrace(traceType, _const.CLIENT, traceName, nil)
 }
 
 func ClientStartTraceWithHeader(header *http.Header, traceName string) *Tracer {
@@ -22,7 +22,7 @@ func ClientStartTraceWithHeader(header *http.Header, traceName string) *Tracer {
 	if traceName == "" {
 		traceName = "<default>_server"
 	}
-	return StartTraceWithHeader(_const2.HTTP, _const2.CLIENT, traceName, header)
+	return StartTraceWithHeader(_const.HTTP, _const.CLIENT, traceName, header)
 }
 
 func ClientStartTraceWithRequest(req *http.Request) *Tracer {
@@ -40,35 +40,47 @@ func ClientStartTraceWithRequest(req *http.Request) *Tracer {
 			uri = url.String()
 		}
 	}
-	return StartTrace(_const2.HTTP, _const2.CLIENT, fmt.Sprintf("<%s>%s", method, uri), req)
+	return StartTrace(_const.HTTP, _const.CLIENT, fmt.Sprintf("<%s>%s", method, uri), req)
 }
 
-func ServerStartTrace(traceType _const2.TraceTypeEnum, traceName string) *Tracer {
+func ServerStartTrace(traceType _const.TraceTypeEnum, traceName string) *Tracer {
 	if !TracerIsEnable() {
 		return nil
 	}
-	return StartTrace(traceType, _const2.SERVER, traceName, nil)
+	return StartTrace(traceType, _const.SERVER, traceName, nil)
 }
 
-func ServerStartTraceWithRequest(traceType _const2.TraceTypeEnum, traceName string, request *http.Request) *Tracer {
+func ServerStartTraceWithRequest(traceType _const.TraceTypeEnum, traceName string, request *http.Request) *Tracer {
 	if !TracerIsEnable() {
 		return nil
 	}
-	return StartTrace(traceType, _const2.SERVER, traceName, request)
+	return StartTrace(traceType, _const.SERVER, traceName, request)
 }
 
 func EndTraceOk(tracer *Tracer, message string, responseSize int) {
-	tracer.EndTrace(_const2.OK, message, responseSize)
+	if tracer == nil {
+		return
+	}
+	tracer.EndTrace(_const.OK, message, responseSize)
 }
 
 func EndTraceTimeout(tracer *Tracer, message string, responseSize int) {
-	tracer.EndTrace(_const2.TIMEOUT, message, responseSize)
+	if tracer == nil {
+		return
+	}
+	tracer.EndTrace(_const.TIMEOUT, message, responseSize)
 }
 
 func EndTraceWarn(tracer *Tracer, message string, responseSize int) {
-	tracer.EndTrace(_const2.WARNING, message, responseSize)
+	if tracer == nil {
+		return
+	}
+	tracer.EndTrace(_const.WARNING, message, responseSize)
 }
 
 func EndTraceError(tracer *Tracer, message string, responseSize int) {
-	tracer.EndTrace(_const2.ERROR, message, responseSize)
+	if tracer == nil {
+		return
+	}
+	tracer.EndTrace(_const.ERROR, message, responseSize)
 }
