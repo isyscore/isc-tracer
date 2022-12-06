@@ -192,6 +192,10 @@ func StartTrace(traceType _const2.TraceTypeEnum, endPoint _const2.EndpointEnum, 
 	frontIP := ""
 	if tracerId == "" {
 		tracerId = util.GenerateTraceId()
+		// 创建traceId时往local里面存一份
+		logger.PutMdc(_const2.TRACE_HEAD_ID, tracerId)
+		//logger.PutMdc(_const2.TRACE_HEAD_RPC_ID, rpcId)
+
 		if request != nil {
 			frontIP = GetFrontIP(&request.Header, remoteAddr)
 		}
@@ -210,9 +214,6 @@ func StartTrace(traceType _const2.TraceTypeEnum, endPoint _const2.EndpointEnum, 
 
 	store.RequestHeadSet(_const2.TRACE_HEAD_ID, tracerId)
 	store.RequestHeadSet(_const2.TRACE_HEAD_RPC_ID, rpcId)
-
-	logger.PutMdc(_const2.TRACE_HEAD_ID, tracerId)
-	logger.PutMdc(_const2.TRACE_HEAD_RPC_ID, rpcId)
 
 	if frontIP != "" {
 		tracer.RemoteIp = frontIP
@@ -239,6 +240,9 @@ func StartTraceWithHeader(traceType _const2.TraceTypeEnum, endPoint _const2.Endp
 	frontIP := ""
 	if tracerId == "" {
 		tracerId = util.GenerateTraceId()
+		// 创建traceId时往local里面存一份
+		logger.PutMdc(_const2.TRACE_HEAD_ID, tracerId)
+		//logger.PutMdc(_const2.TRACE_HEAD_RPC_ID, rpcId)
 		if header != nil {
 			frontIP = GetFrontIP(header, remoteAddr)
 		}

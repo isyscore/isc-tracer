@@ -60,8 +60,8 @@ func (*TracerHttpHook) After(ctx context.Context, rsp *http.Response, rspCode in
 				code, existCode := bodys["code"]
 				msg, _ := bodys["message"]
 				if existCode && isc.ToInt(code) != 0 && isc.ToInt(code) != 200 {
-					resultMap["errCode"] = code
-					resultMap["errMsg"] = msg
+					resultMap["code"] = code
+					resultMap["message"] = msg
 
 					trace2.EndTrace(tracer, _const2.ERROR, isc.ToJsonString(resultMap), isc.ToInt(unsafe.Sizeof(rspData)))
 					return

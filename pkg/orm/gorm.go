@@ -2,10 +2,11 @@ package orm
 
 import (
 	"context"
+	"database/sql/driver"
 	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/isc"
-	_const2 "github.com/isyscore/isc-tracer/const"
-	trace2 "github.com/isyscore/isc-tracer/trace"
+	_const "github.com/isyscore/isc-tracer/const"
+	trace "github.com/isyscore/isc-tracer/trace"
 	"strings"
 )
 
@@ -27,7 +28,7 @@ func (*TracerGormHook) Before(ctx context.Context, driverName string, parameters
 	}
 
 	cmds := strings.SplitN(query.(string), " ", 2)
-	tracer := trace2.ClientStartTrace(getSqlType(driverName), "【gorm】:"+cmds[0])
+	tracer := trace.ClientStartTrace(getSqlType(driverName), "【gorm】:"+cmds[0])
 	return context.WithValue(ctx, traceContextGormKey, tracer), nil
 }
 
@@ -36,7 +37,7 @@ func (*TracerGormHook) After(ctx context.Context, driverName string, parameters 
 		return ctx, nil
 	}
 
-	tracer, ok := ctx.Value(traceContextGormKey).(*trace2.Tracer)
+	tracer, ok := ctx.Value(traceContextGormKey).(*trace.Tracer)
 	if !ok || tracer == nil {
 		return ctx, nil
 	}
@@ -49,7 +50,7 @@ func (*TracerGormHook) After(ctx context.Context, driverName string, parameters 
 	resultMap["sql"] = query
 	//resultMap["parameters"] = args
 
-	trace2.EndTrace(tracer, _const2.OK, isc.ToJsonString(resultMap), 0)
+	trace.EndTrace(tracer, _const.OK, isc.ToJsonString(resultMap), 0)
 	return ctx, nil
 }
 
@@ -58,13 +59,20 @@ func (*TracerGormHook) Err(ctx context.Context, driverName string, err error, pa
 		return nil
 	}
 
-	tracer, ok := ctx.Value(traceContextGormKey).(*trace2.Tracer)
-	if !ok || tracer == nil {
+	tr, ok := ctx.Value(traceContextGormKey).(*trace.Tracer)
+	if !ok || tr == nil {
 		return nil
 	}
 
 	query, _ := parameters["query"]
-	//args, _ := parameters["args"]
+	args, _ := parameters["args"]
+	// github.com/go-sql-driver/mysql@v1.6.0/connection.go:358
+	// 判断 len(args) != 0 && !mc.cfg.InterpolateParams
+	// 则返回 driver: skip fast-path; continue as if unimplemented
+	if err == driver.ErrSkip && len(args.([]any)) > 0 {
+		trace.DiscardTrace(tr)
+		return nil
+	}
 
 	resultMap := map[string]any{}
 	resultMap["database"] = driverName
@@ -72,23 +80,23 @@ func (*TracerGormHook) Err(ctx context.Context, driverName string, err error, pa
 	//resultMap["parameters"] = args
 	resultMap["err"] = err.Error()
 
-	trace2.EndTrace(tracer, _const2.ERROR, isc.ToJsonString(resultMap), 0)
+	trace.EndTrace(tr, _const.ERROR, isc.ToJsonString(resultMap), 0)
 	return nil
 }
 
-func getSqlType(driverName string) _const2.TraceTypeEnum {
+func getSqlType(driverName string) _const.TraceTypeEnum {
 	driverName = strings.ToLower(driverName)
 	switch driverName {
 	case "mysql":
-		return _const2.MYSQL
+		return _const.MYSQL
 	case "postgresql":
-		return _const2.POSTGRESQL
+		return _const.POSTGRESQL
 	case "sqlite":
-		return _const2.SQLITE
+		return _const.SQLITE
 	}
-	return _const2.UNKNOWN
+	return _const.UNKNOWN
 }
 
 func TracerDatabaseIsEnable() bool {
-	return config.GetValueBoolDefault("tracer.database.enable", true) && trace2.SwitchTraceDatabase
+	return config.GetValueBoolDefault("tracer.database.enable", true) && trace.SwitchTraceDatabase
 }

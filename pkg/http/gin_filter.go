@@ -63,12 +63,13 @@ func TraceFilter() gin.HandlerFunc {
 				msg = fmt.Sprintf("httpStatus: %d", httpStatus)
 			} else if err := json.Unmarshal([]byte(blw.body.String()), &response); err != nil {
 				code = _const2.WARNING
-				msg = err.Error()
+				msg = blw.body.String()
 			} else {
+				// 取code
 				if response.Code != 0 {
 					code = _const2.ERROR
 				}
-				msg = response.Message
+				msg = blw.body.String()
 			}
 			// 结束追踪
 			trace2.EndTrace(tracer, code, msg, blw.body.Len())

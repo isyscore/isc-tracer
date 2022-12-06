@@ -84,3 +84,10 @@ func EndTraceError(tracer *Tracer, message string, responseSize int) {
 	}
 	tracer.EndTrace(_const.ERROR, message, responseSize)
 }
+
+func DiscardTrace(tracer *Tracer) {
+	if tracer == nil {
+		return
+	}
+	deleteTrace(tracer.RpcId)
+}

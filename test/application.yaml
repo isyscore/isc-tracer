@@ -36,14 +36,14 @@ base:
   datasource:
     # 是否启用，默认关闭
     enable: true
-    username: isyscore
-    password: Isysc0re
+    username: root
+    password: ZljIsysc0re123
     host: 10.30.30.78
     port: 23306
     # 目前支持: mysql、postgresql、sqlite、sqlserver
     driver-name: mysql
     # 数据库名
-    db-name: isc_dmc
+    db-name: isc_demo
 
 
 address:
