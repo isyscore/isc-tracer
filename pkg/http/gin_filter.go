@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/isyscore/isc-gobase/config"
+	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/server/rsp"
 	_const2 "github.com/isyscore/isc-tracer/const"
 	trace2 "github.com/isyscore/isc-tracer/trace"
@@ -63,13 +64,13 @@ func TraceFilter() gin.HandlerFunc {
 				msg = fmt.Sprintf("httpStatus: %d", httpStatus)
 			} else if err := json.Unmarshal([]byte(blw.body.String()), &response); err != nil {
 				code = _const2.WARNING
-				msg = blw.body.String()
+				msg = err.Error()
 			} else {
 				// 取code
-				if response.Code != 0 {
+				if response.Code != 0 && response.Code != 200 {
 					code = _const2.ERROR
 				}
-				msg = blw.body.String()
+				msg = isc.ToJsonString(response)
 			}
 			// 结束追踪
 			trace2.EndTrace(tracer, code, msg, blw.body.Len())
