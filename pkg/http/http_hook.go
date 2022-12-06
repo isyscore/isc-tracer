@@ -27,6 +27,10 @@ func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Co
 		}
 	}
 
+	if url := req.URL; url != nil && IsExclude(url.Path) {
+		return ctx
+	}
+
 	tracer := trace2.ClientStartTraceWithRequest(req)
 	ctx = context.WithValue(ctx, httpContextKey, tracer)
 	return ctx

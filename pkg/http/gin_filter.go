@@ -33,7 +33,7 @@ func (w bodyLogWriter) Write(b []byte) (int, error) {
 
 func TraceFilter() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if isExclude(c) {
+		if IsExclude(c.Request.RequestURI) {
 			c.Next()
 			return
 		}
@@ -79,9 +79,7 @@ func TraceFilter() gin.HandlerFunc {
 	}
 }
 
-func isExclude(context *gin.Context) bool {
-	uri := context.Request.RequestURI
-
+func IsExclude(uri string) bool {
 	for _, exclude := range excludes {
 		if strings.Contains(uri, exclude) {
 			return true
