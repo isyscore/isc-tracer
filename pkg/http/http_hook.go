@@ -14,26 +14,28 @@ import (
 type TracerHttpHook struct {
 }
 
-func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) context.Context {
+func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) (context.Context, http.Header) {
 	if !trace2.TracerIsEnable() {
-		return ctx
-	}
-	request := store.GetRequest()
-	if request != nil {
-		for headKey, srcHs := range request.Header {
-			for _, srcH := range srcHs {
-				req.Header.Set(headKey, srcH)
-			}
-		}
+		return ctx, req.Header
 	}
 
-	if url := req.URL; url != nil && IsExclude(url.Path) {
-		return ctx
+	newHeader := req.Header.Clone()
+	newHeader.Set(_const2.TRACE_HEAD_ID, isc.ToString(store.Get(_const2.TRACE_HEAD_ID)))
+	if req != nil {
+		for headKey, srcHs := range req.Header {
+			for _, srcH := range srcHs {
+				newHeader.Set(headKey, srcH)
+			}
+		}
+
+		if url := req.URL; url != nil && IsExclude(url.Path) {
+			return ctx, newHeader
+		}
 	}
 
 	tracer := trace2.ClientStartTraceWithRequest(req)
 	ctx = context.WithValue(ctx, httpContextKey, tracer)
-	return ctx
+	return ctx, newHeader
 }
 
 func (*TracerHttpHook) After(ctx context.Context, rsp *http.Response, rspCode int, rspData any, err error) {

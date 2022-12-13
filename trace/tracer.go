@@ -3,7 +3,6 @@ package trace
 import (
 	"github.com/isyscore/isc-gobase/config"
 	"github.com/isyscore/isc-gobase/isc"
-	"github.com/isyscore/isc-gobase/logger"
 	"github.com/isyscore/isc-gobase/store"
 	_const2 "github.com/isyscore/isc-tracer/const"
 	"github.com/isyscore/isc-tracer/util"
@@ -140,10 +139,7 @@ func (tracer *Tracer) EndTrace(status _const2.TraceStatusEnum, message string, r
 		return
 	}
 
-	if req := store.GetRequest(); req != nil {
-		header := req.Header
-		putAttr(tracer, &header)
-	}
+	putAttrWithStorage(tracer)
 
 	tracer.endTime = time.Now().UnixMilli()
 	tracer.status = status
@@ -178,43 +174,32 @@ func StartTrace(traceType _const2.TraceTypeEnum, endPoint _const2.EndpointEnum, 
 	if !TracerIsEnable() {
 		return nil
 	}
-	remoteAddr := store.GetRemoteAddr()
-	if request == nil {
-		request = store.GetRequest()
-	}
-	var tracerId string
-	var rpcId string
+	var remoteAddr string
 	if request != nil {
-		tracerId = request.Header.Get(_const2.TRACE_HEAD_ID)
-		rpcId = request.Header.Get(_const2.TRACE_HEAD_RPC_ID)
+		remoteAddr = request.RemoteAddr
 	}
+	tracerId := isc.ToString(store.Get(_const2.TRACE_HEAD_ID))
 
 	frontIP := ""
 	if tracerId == "" {
 		tracerId = util.GenerateTraceId()
-		// 创建traceId时往local里面存一份
-		logger.PutMdc(_const2.TRACE_HEAD_ID, tracerId)
-		//logger.PutMdc(_const2.TRACE_HEAD_RPC_ID, rpcId)
+		store.Put(_const2.TRACE_HEAD_ID, tracerId)
 
 		if request != nil {
 			frontIP = GetFrontIP(&request.Header, remoteAddr)
 		}
 	}
 
+	rpcId := isc.ToString(store.Get(_const2.TRACE_HEAD_RPC_ID))
 	tracer := doStartTrace(tracerId, rpcId, traceType, traceName, endPoint)
 	if tracer == nil {
 		return nil
 	}
 
+	store.Put(_const2.TRACE_HEAD_ID, tracerId)
+	store.Put(_const2.TRACE_HEAD_RPC_ID, rpcId)
+
 	rpcId = tracer.RpcId
-	if request != nil {
-		request.Header.Set(_const2.TRACE_HEAD_ID, tracerId)
-		request.Header.Set(_const2.TRACE_HEAD_RPC_ID, rpcId)
-	}
-
-	store.RequestHeadSet(_const2.TRACE_HEAD_ID, tracerId)
-	store.RequestHeadSet(_const2.TRACE_HEAD_RPC_ID, rpcId)
-
 	if frontIP != "" {
 		tracer.RemoteIp = frontIP
 	}
@@ -229,7 +214,6 @@ func StartTraceWithHeader(traceType _const2.TraceTypeEnum, endPoint _const2.Endp
 	if !TracerIsEnable() {
 		return nil
 	}
-	remoteAddr := store.GetRemoteAddr()
 	var tracerId string
 	var rpcId string
 	if header != nil {
@@ -240,11 +224,9 @@ func StartTraceWithHeader(traceType _const2.TraceTypeEnum, endPoint _const2.Endp
 	frontIP := ""
 	if tracerId == "" {
 		tracerId = util.GenerateTraceId()
-		// 创建traceId时往local里面存一份
-		logger.PutMdc(_const2.TRACE_HEAD_ID, tracerId)
-		//logger.PutMdc(_const2.TRACE_HEAD_RPC_ID, rpcId)
+		store.Put(_const2.TRACE_HEAD_ID, tracerId)
 		if header != nil {
-			frontIP = GetFrontIP(header, remoteAddr)
+			frontIP = GetFrontIP(header, "-")
 		}
 	}
 
@@ -254,16 +236,9 @@ func StartTraceWithHeader(traceType _const2.TraceTypeEnum, endPoint _const2.Endp
 	}
 
 	rpcId = tracer.RpcId
-	if header != nil {
-		header.Set(_const2.TRACE_HEAD_ID, tracerId)
-		header.Set(_const2.TRACE_HEAD_RPC_ID, rpcId)
-	}
 
-	store.RequestHeadSet(_const2.TRACE_HEAD_ID, tracerId)
-	store.RequestHeadSet(_const2.TRACE_HEAD_RPC_ID, rpcId)
-
-	logger.PutMdc(_const2.TRACE_HEAD_ID, tracerId)
-	logger.PutMdc(_const2.TRACE_HEAD_RPC_ID, rpcId)
+	store.Put(_const2.TRACE_HEAD_ID, tracerId)
+	store.Put(_const2.TRACE_HEAD_RPC_ID, rpcId)
 
 	if frontIP != "" {
 		tracer.RemoteIp = frontIP
@@ -280,15 +255,23 @@ func EndTrace(tracer *Tracer, status _const2.TraceStatusEnum, message string, re
 }
 
 func putAttr(tracer *Tracer, head *http.Header) {
-	if head == nil {
-		return
-	}
 	if tracer.AttrMap == nil {
 		tracer.AttrMap = make(map[string]string)
 	}
 	for key, copyKey := range copyAttrMap {
 		if v := head.Get(key); v != "" {
 			tracer.AttrMap[copyKey] = v
+		}
+	}
+}
+
+func putAttrWithStorage(tracer *Tracer) {
+	if tracer.AttrMap == nil {
+		tracer.AttrMap = make(map[string]string)
+	}
+	for key, copyKey := range copyAttrMap {
+		if v := store.Get(key); v != "" {
+			tracer.AttrMap[copyKey] = isc.ToString(v)
 		}
 	}
 }
