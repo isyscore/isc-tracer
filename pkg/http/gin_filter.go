@@ -45,7 +45,7 @@ func TraceFilter() gin.HandlerFunc {
 
 		// 开始追踪
 		tracer := trace2.ServerStartTrace(_const2.HTTP, fmt.Sprintf("<%s>%s", c.Request.Method, c.Request.RequestURI))
-		c.Writer.Header().Set(_const2.TRACE_HEAD_ID, c.GetHeader(_const2.TRACE_HEAD_ID))
+		c.Writer.Header().Set(_const2.TRACE_HEAD_ID, tracer.TraceId)
 		// 重写writer,用于获取response
 		blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
 		c.Writer = blw
