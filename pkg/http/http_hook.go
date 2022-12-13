@@ -20,7 +20,6 @@ func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) (context.C
 	}
 
 	newHeader := req.Header.Clone()
-	newHeader.Set(_const2.TRACE_HEAD_ID, isc.ToString(store.Get(_const2.TRACE_HEAD_ID)))
 	if req != nil {
 		for headKey, srcHs := range req.Header {
 			for _, srcH := range srcHs {
@@ -34,6 +33,9 @@ func (*TracerHttpHook) Before(ctx context.Context, req *http.Request) (context.C
 	}
 
 	tracer := trace2.ClientStartTraceWithRequest(req)
+	newHeader.Set(_const2.TRACE_HEAD_ID, isc.ToString(store.Get(_const2.TRACE_HEAD_ID)))
+	newHeader.Set(_const2.TRACE_HEAD_RPC_ID, isc.ToString(store.Get(_const2.TRACE_HEAD_RPC_ID)))
+
 	ctx = context.WithValue(ctx, httpContextKey, tracer)
 	return ctx, newHeader
 }

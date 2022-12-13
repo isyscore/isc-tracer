@@ -196,10 +196,11 @@ func StartTrace(traceType _const2.TraceTypeEnum, endPoint _const2.EndpointEnum, 
 		return nil
 	}
 
+	rpcId = tracer.RpcId
+
 	store.Put(_const2.TRACE_HEAD_ID, tracerId)
 	store.Put(_const2.TRACE_HEAD_RPC_ID, rpcId)
 
-	rpcId = tracer.RpcId
 	if frontIP != "" {
 		tracer.RemoteIp = frontIP
 	}
