@@ -141,7 +141,6 @@ func newTraceLog(tracer *Tracer) string {
 	s += strconv.FormatInt(int64(tracer.Size), 10) + SPLIT
 	s += strconv.FormatInt(tracer.endTime-tracer.StartTime, 10) + SPLIT
 	s += replaceSplit(trimNull(tracer.message)) + SPLIT
-	//用户id
 	userId := tracer.AttrMap[_const2.TRACE_HEAD_USER_ID]
 	if userId == "" {
 		userId = tracer.AttrMap[_const2.A_USER_ID]
