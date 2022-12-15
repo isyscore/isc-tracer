@@ -1,6 +1,9 @@
 package trace
 
-import "github.com/isyscore/isc-gobase/goid"
+import (
+	"github.com/isyscore/isc-gobase/goid"
+	"github.com/isyscore/isc-gobase/isc"
+)
 
 // 协程上存储tracer
 var tracerStorage = goid.NewLocalStorage()
@@ -10,8 +13,9 @@ func createCurrentTracerIfAbsent() *Tracer {
 	if l == nil {
 		return &Tracer{}
 	}
-	for _, tracer := range l.(map[string]*Tracer) {
-		return tracer
+	tracerMap := l.(isc.OrderMap[string, *Tracer])
+	if tracerMap.Size() != 0 {
+		return tracerMap.GetValue(tracerMap.Size() - 1)
 	}
 	return &Tracer{}
 }
@@ -21,8 +25,9 @@ func GetCurrentTracer() *Tracer {
 	if l == nil {
 		return nil
 	}
-	for _, tracer := range l.(map[string]*Tracer) {
-		return tracer
+	tracerMap := l.(isc.OrderMap[string, *Tracer])
+	if tracerMap.Size() != 0 {
+		return tracerMap.GetValue(tracerMap.Size() - 1)
 	}
 	return nil
 }
@@ -33,11 +38,11 @@ func setTrace(tracer *Tracer) {
 	}
 	l := tracerStorage.Get()
 	if l == nil {
-		tracerStorage.Set(make(map[string]*Tracer))
+		tracerStorage.Set(isc.NewOrderMap[string, *Tracer]())
 		l = tracerStorage.Get()
 	}
-	dict := l.(map[string]*Tracer)
-	dict[tracer.RpcId] = tracer
+	dict := l.(isc.OrderMap[string, *Tracer])
+	dict.Put(tracer.RpcId, tracer)
 }
 
 func deleteTrace(rpcId string) {
@@ -45,9 +50,9 @@ func deleteTrace(rpcId string) {
 	if l == nil {
 		return
 	}
-	dict := l.(map[string]*Tracer)
-	delete(dict, rpcId)
-	if len(dict) == 0 {
+	dict := l.(isc.OrderMap[string, *Tracer])
+	dict.Delete(rpcId)
+	if dict.Size() == 0 {
 		tracerStorage.Del()
 	} else {
 		tracerStorage.Set(dict)

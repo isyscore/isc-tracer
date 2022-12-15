@@ -84,11 +84,7 @@ func doStartTrace(traceId string, rpcId string, traceType _const2.TraceTypeEnum,
 	}
 
 	tracer := createCurrentTracerIfAbsent()
-	if tracer.Ended {
-		if tracer.TraceId == traceId {
-			return tracer
-		}
-	} else if endpoint == _const2.CLIENT {
+	if endpoint == _const2.CLIENT {
 		childTracer := newTracer(traceId, rpcId, traceType, traceName, endpoint)
 		if tracer.TraceId != "" {
 			// 0 -> 0.1 -> 0.1.1
@@ -97,6 +93,10 @@ func doStartTrace(traceId string, rpcId string, traceType _const2.TraceTypeEnum,
 		}
 		setTrace(childTracer)
 		return childTracer
+	} else if tracer.Ended {
+		if tracer.TraceId == traceId {
+			return tracer
+		}
 	} else if tracer.TraceId != "" {
 		return tracer
 	}
