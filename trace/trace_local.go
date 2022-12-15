@@ -13,7 +13,7 @@ func createCurrentTracerIfAbsent() *Tracer {
 	if l == nil {
 		return &Tracer{}
 	}
-	tracerMap := l.(isc.OrderMap[string, *Tracer])
+	tracerMap := l.(*isc.OrderMap[string, *Tracer])
 	if tracerMap.Size() != 0 {
 		return tracerMap.GetValue(tracerMap.Size() - 1)
 	}
@@ -25,7 +25,7 @@ func GetCurrentTracer() *Tracer {
 	if l == nil {
 		return nil
 	}
-	tracerMap := l.(isc.OrderMap[string, *Tracer])
+	tracerMap := l.(*isc.OrderMap[string, *Tracer])
 	if tracerMap.Size() != 0 {
 		return tracerMap.GetValue(tracerMap.Size() - 1)
 	}
@@ -42,7 +42,8 @@ func setTrace(tracer *Tracer) {
 		l = tracerStorage.Get()
 	}
 	dict := l.(isc.OrderMap[string, *Tracer])
-	dict.Put(tracer.RpcId, tracer)
+	data := &dict
+	data.Put(tracer.RpcId, tracer)
 }
 
 func deleteTrace(rpcId string) {
