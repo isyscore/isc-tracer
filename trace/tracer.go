@@ -215,12 +215,7 @@ func StartTraceWithHeader(traceType _const2.TraceTypeEnum, endPoint _const2.Endp
 	if !TracerIsEnable() {
 		return nil
 	}
-	var tracerId string
-	var rpcId string
-	if header != nil {
-		tracerId = header.Get(_const2.TRACE_HEAD_ID)
-		rpcId = header.Get(_const2.TRACE_HEAD_RPC_ID)
-	}
+	tracerId := isc.ToString(store.Get(_const2.TRACE_HEAD_ID))
 
 	frontIP := ""
 	if tracerId == "" {
@@ -231,6 +226,7 @@ func StartTraceWithHeader(traceType _const2.TraceTypeEnum, endPoint _const2.Endp
 		}
 	}
 
+	rpcId := isc.ToString(store.Get(_const2.TRACE_HEAD_RPC_ID))
 	tracer := doStartTrace(tracerId, rpcId, traceType, traceName, endPoint)
 	if tracer == nil {
 		return nil
