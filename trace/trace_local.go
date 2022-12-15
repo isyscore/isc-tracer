@@ -38,12 +38,14 @@ func setTrace(tracer *Tracer) {
 	}
 	l := tracerStorage.Get()
 	if l == nil {
-		tracerStorage.Set(isc.NewOrderMap[string, *Tracer]())
+		tracerStorage.Set(&isc.OrderMap[string, *Tracer]{
+			Data:    make(map[string]*Tracer),
+			KeyList: []string{},
+		})
 		l = tracerStorage.Get()
 	}
-	dict := l.(isc.OrderMap[string, *Tracer])
-	data := &dict
-	data.Put(tracer.RpcId, tracer)
+	dict := l.(*isc.OrderMap[string, *Tracer])
+	dict.Put(tracer.RpcId, tracer)
 }
 
 func deleteTrace(rpcId string) {
@@ -51,7 +53,7 @@ func deleteTrace(rpcId string) {
 	if l == nil {
 		return
 	}
-	dict := l.(isc.OrderMap[string, *Tracer])
+	dict := l.(*isc.OrderMap[string, *Tracer])
 	dict.Delete(rpcId)
 	if dict.Size() == 0 {
 		tracerStorage.Del()
