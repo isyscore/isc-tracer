@@ -46,12 +46,15 @@ func TraceFilter() gin.HandlerFunc {
 		// 开始追踪
 		tracer := trace2.ServerStartTrace(_const2.HTTP, fmt.Sprintf("<%s>%s", c.Request.Method, c.Request.RequestURI))
 
-		defer func() {
+		header := c.Writer.Header().Clone()
+		if header.Get(_const2.TRACE_HEAD_ID) == "" {
 			c.Writer.Header().Set(_const2.TRACE_HEAD_ID, tracer.TraceId)
-			// 重写writer,用于获取response
-			blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
-			c.Writer = blw
+		}
+		// 重写writer,用于获取response
+		blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
+		c.Writer = blw
 
+		defer func() {
 			code := _const2.OK
 			var msg string
 
