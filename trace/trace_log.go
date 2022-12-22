@@ -22,7 +22,7 @@ const (
 
 var traceChannel = make(chan *Tracer, 8182)
 
-//var logFileWriter *bufio.Writer
+// var logFileWriter *bufio.Writer
 var logFile *os.File
 var lock sync.Mutex
 var arr []string
@@ -34,8 +34,9 @@ func SendTraceLog(tracer *Tracer) {
 func init() {
 	arr = make([]string, 0)
 	lock = sync.Mutex{}
-	//path := "logs/middleware/trace/trace.log"
-	path := "logs" + string(os.PathSeparator) + "middleware" + string(os.PathSeparator) + "trace" + string(os.PathSeparator) + "trace.log"
+	//path := "logs/middleware/trace/{ip}/trace.log"
+	path := "logs" + string(os.PathSeparator) + "middleware" + string(os.PathSeparator) +
+		"trace" + string(os.PathSeparator) + util.GetLocalIp() + string(os.PathSeparator) + "trace.log"
 
 	if !baseFile.FileExists(path) {
 		baseFile.CreateFile(path)
