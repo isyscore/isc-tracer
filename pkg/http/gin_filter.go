@@ -73,10 +73,6 @@ func TraceFilter() gin.HandlerFunc {
 				}
 				msg = isc.ToJsonString(response)
 			}
-			header := c.Writer.Header()
-			if len(header.Values(_const2.TRACE_HEAD_ID)) > 1 {
-				c.Writer.Header().Del(_const2.TRACE_HEAD_ID)
-			}
 
 			// 结束追踪
 			trace2.EndTrace(tracer, code, msg, blw.body.Len())
