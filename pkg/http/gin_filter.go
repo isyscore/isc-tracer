@@ -46,10 +46,7 @@ func TraceFilter() gin.HandlerFunc {
 		// 开始追踪
 		tracer := trace2.ServerStartTrace(_const2.HTTP, fmt.Sprintf("<%s>%s", c.Request.Method, c.Request.RequestURI))
 
-		header := c.Writer.Header().Clone()
-		if header.Get(_const2.TRACE_HEAD_ID) == "" {
-			c.Writer.Header().Set(_const2.TRACE_HEAD_ID, tracer.TraceId)
-		}
+		c.Writer.Header().Set(_const2.TRACE_HEAD_ID, tracer.TraceId)
 		// 重写writer,用于获取response
 		blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
 		c.Writer = blw
@@ -76,6 +73,11 @@ func TraceFilter() gin.HandlerFunc {
 				}
 				msg = isc.ToJsonString(response)
 			}
+			header := c.Writer.Header()
+			if len(header.Values(_const2.TRACE_HEAD_ID)) > 1 {
+				c.Writer.Header().Del(_const2.TRACE_HEAD_ID)
+			}
+
 			// 结束追踪
 			trace2.EndTrace(tracer, code, msg, blw.body.Len())
 		}()
