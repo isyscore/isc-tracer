@@ -6,6 +6,7 @@ import (
 	"github.com/isyscore/isc-gobase/extend/etcd"
 	"github.com/isyscore/isc-gobase/extend/orm"
 	baseRedis "github.com/isyscore/isc-gobase/extend/redis"
+	"github.com/isyscore/isc-gobase/goid"
 	baseHttp "github.com/isyscore/isc-gobase/http"
 	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/listener"
@@ -18,6 +19,7 @@ import (
 	pkgRedis "github.com/isyscore/isc-tracer/pkg/redis"
 	trace2 "github.com/isyscore/isc-tracer/trace"
 	"net/http"
+	"time"
 )
 
 const (
@@ -39,9 +41,13 @@ func init() {
 
 	// 应用启动完成
 	listener.AddListener(listener.EventOfServerRunFinish, func(event listener.BaseEvent) {
-		registerAppName()
+		goid.Go(func() {
+			registerAppName()
+		})
 
-		registerWatch()
+		goid.Go(func() {
+			registerWatch()
+		})
 	})
 
 	// 应用退出
@@ -57,9 +63,16 @@ func registerAppName() {
 	body := map[string]any{
 		"appCode": config.GetValueStringDefault("base.application.name", _const2.DEFAULT_APP_NAME),
 	}
-	_, _, _, err := baseHttp.Put(pivotUrl+"/api/app/operation-center/tracer/register", header, parameter, body)
-	if err != nil {
-		logger.Warn("注册pivot异常，%v", err.Error())
+
+	for i := 0; i < 100; i++ {
+		_, _, _, err := baseHttp.Put(pivotUrl+"/api/app/operation-center/tracer/register", header, parameter, body)
+		if err != nil {
+			logger.Warn("注册pivot异常，重试，%v", err.Error())
+			time.Sleep(5 * time.Second)
+		} else {
+			logger.Info("注册pivot成功")
+			break
+		}
 	}
 }
 
