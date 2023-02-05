@@ -1,0 +1,200 @@
+syntax = "proto3";
+
+package grpc;
+
+
+//option java_package = "com.isyscore.os.pivot.common.grpc";
+option go_package = "/pivot";
+
+service PivotService {
+    rpc collectStatisticsInfo(StatisticInfoRequest) returns (Response){};
+    rpc collectException(ExceptionEventRequest) returns (Response){}
+    rpc collectWarn(WarnEventRequest) returns (Response){}
+    rpc collectEvent(DefaultEventRequest) returns (Response){}
+    rpc collectTracer(TracerRequest) returns (Response){}
+    rpc collectLog(AuditLogInfoRequest) returns (Response){}
+}
+
+message Response{
+    int32 code = 1;
+    string message = 2;
+}
+
+message StatisticInfoRequest{
+    string passport = 1;
+    string profilesActive = 2;
+    string namespace = 3;
+    string appName = 4;
+    string ip = 5;
+    repeated MetricTxnRequest metricTxns = 6;
+    int64 timestamp = 7;
+}
+
+message MetricTxnRequest{
+    //AbstractBaseInfo
+    string passport = 1;
+    string profilesActive = 2;
+    string namespace = 3;
+    string appName = 4;
+    string ip = 5;
+    string resourceName = 6;
+    string remoteAppName = 7;
+    string remoteIp = 8;
+    string resourceType = 9;
+    string dataType = 10;
+    bool isServer = 11;
+    bool perf = 12;
+    int64 timestamp = 13;
+    int64 currentMin = 14;
+    //MetricTxn
+    int64 success = 15;
+    int64 exception = 16;
+    int64 warn = 17;
+    int64 totalRt = 18;
+    int64 governanceEvent = 19;
+    int64 avgRt = 20;
+    int64 maxRt = 21;
+    int64 minRt = 22;
+    int32 intervalIndex = 23;
+    repeated RtIntervalRequest rtIntervals = 24;
+    RtWaveRequest rtWave = 25;
+}
+message RtWaveRequest{
+    int64 maxRt = 1;
+    int64 maxRtTime = 2;
+    string traceId = 3;
+}
+message RtIntervalRequest{
+    int64 minValue = 1;
+    int64 maxValue = 2;
+    string intervalName = 3;
+    int64 rtCounter = 4;
+}
+
+message ExceptionEventRequest{
+    //AbstractBaseInfo
+    string passport = 1;
+    string profilesActive = 2;
+    string namespace = 3;
+    string appName = 4;
+    string ip = 5;
+    string resourceName = 6;
+    string remoteAppName = 7;
+    string remoteIp = 8;
+    string resourceType = 9;
+    string dataType = 10;
+    bool isServer = 11;
+    bool perf = 12;
+    int64 timestamp = 13;
+    int64 currentMin = 14;
+    // AbstractEvent
+    string code = 15;
+    string traceId = 16;
+    string eventType = 17;
+    string eventLevel = 18;
+    map<string,string> attrMap = 19;
+    int32 merge = 20;
+    //ExceptionEvent
+    string exceptionMsg = 21;
+    int64 rt = 22;
+    string context = 23;
+}
+
+message WarnEventRequest{
+    //AbstractBaseInfo
+    string passport = 1;
+    string profilesActive = 2;
+    string namespace = 3;
+    string appName = 4;
+    string ip = 5;
+    string resourceName = 6;
+    string remoteAppName = 7;
+    string remoteIp = 8;
+    string resourceType = 9;
+    string dataType = 10;
+    bool isServer = 11;
+    bool perf = 12;
+    int64 timestamp = 13;
+    int64 currentMin = 14;
+    // AbstractEvent
+    string code = 15;
+    string traceId = 16;
+    string eventType = 17;
+    string eventLevel = 18;
+    map<string,string> attrMap = 19;
+    int32 merge = 20;
+    //WarnEvent
+    string warnMsg = 21;
+    int64 rt = 22;
+    string context = 23;
+}
+
+message DefaultEventRequest{
+    //AbstractBaseInfo
+    string passport = 1;
+    string profilesActive = 2;
+    string namespace = 3;
+    string appName = 4;
+    string ip = 5;
+    string resourceName = 6;
+    string remoteAppName = 7;
+    string remoteIp = 8;
+    string resourceType = 9;
+    string dataType = 10;
+    bool isServer = 11;
+    bool perf = 12;
+    int64 timestamp = 13;
+    int64 currentMin = 14;
+    // AbstractEvent
+    string code = 15;
+    string traceId = 16;
+    string eventType = 17;
+    string eventLevel = 18;
+    map<string,string> attrMap = 19;
+    int32 merge = 20;
+    //DefaultEvent
+    string message = 21;
+}
+
+message TracerRequest{
+    //AbstractBaseInfo
+    string traceId = 1;
+    string rpcId = 2;
+    // 跟踪类型,参考枚举类含义
+    string traceType = 3;
+    //名称
+    string traceName = 4;
+    // 端信息
+    string endpoint = 5;
+    // 跟踪结果
+    string status = 6;
+    // remote返回结果
+    string remoteStatus = 7;
+    // 下游(Client)或上游(Server)ip
+    string remoteIp = 8;
+    // 结果附属信息
+    string message = 9;
+    // 响应大小
+    int32 size = 10;
+    // 开始时间
+    int64 startTime = 11;
+    // 结束时间
+    int64 endTime = 12;
+    bool sampled = 13;
+    // 业务通过 PivotTrace.record的自定义数据
+    map<string,bytes> bizData = 14;
+    // 是否已经结束
+    bool ended = 15;
+    // 贯穿整个trace链路的信息集合, 内部使用
+    map<string,string> attrMap = 16;
+    // 用于临时储存，不可存放大数据(带货)
+    map<string,bytes> contextMap = 17;
+    // 线程的切换方式
+    string threadMode = 18;
+}
+
+message AuditLogInfoRequest{
+    string appName = 1;
+    string logName = 2;
+    repeated string logMsgList = 3;
+}

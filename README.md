@@ -114,3 +114,17 @@ tracerServer := trace.ServerStartTrace(_const.HTTP, "xxx")
 // 业务执行完后埋点
 trace.EndTrace(tracerServer, size, status, "xxx")
 ```
+
+### 项目开发者阅读
+### 安装
+记住以下两个必须都安装
+```properties
+go install google.golang.org/protobuf/cmd/protoc-gen-go
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
+```
+
+### grpc代码生成
+项目主目录
+```properties
+protoc --go_out=. --go-grpc_out=. ./protobuf/pivot.proto
+```
