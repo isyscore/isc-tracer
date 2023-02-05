@@ -56,6 +56,9 @@ tracer:
   # 用户名注册位置
   url:
     pivot: http://isc-pivot-platform:31107
+  server:
+    # 链路的服务端接收地址，这里采用grpc，这里默认如下
+    url: isc-pivot-platform:31107
 ```
 
 ## 代码使用

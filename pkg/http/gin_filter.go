@@ -76,7 +76,7 @@ func TraceFilter() gin.HandlerFunc {
 			}
 
 			// 结束追踪
-			trace2.EndTrace(tracer, code, msg, blw.body.Len())
+			trace2.EndTrace(tracer, code, msg, isc.ToInt32(blw.body.Len()))
 		}()
 		c.Next()
 	}

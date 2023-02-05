@@ -26,11 +26,11 @@ func TestGrpcCollectTracer(t *testing.T) {
 	tracer := &pivot.TracerRequest{
 		TraceId: "tracer_id",
 		RpcId: "rpc_id",
-		TraceType: "tracer_type",
+		TraceType: 1,
 		TraceName: "tracer_name",
-		Endpoint: "endpoint",
-		Status: "status",
-		RemoteStatus: "remote_status",
+		Endpoint: 1,
+		Status: 1,
+		RemoteStatus: 1,
 		RemoteIp: "remote_ip",
 		Message: "message",
 		Size: 12,
@@ -47,7 +47,7 @@ func TestGrpcCollectTracer(t *testing.T) {
 		ContextMap: map[string][]byte{
 			"k1": []byte{32, 54 , 32,1, 32},
 		},
-		ThreadMode: "thread_mode",
+		ThreadMode: 1,
 	}
 	pivotService.CollectTracer(ctx, tracer)
 }

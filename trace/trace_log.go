@@ -138,10 +138,10 @@ func newTraceLog(tracer *Tracer) string {
 	s += replaceSplit(getAppName()) + SPLIT
 	s += replaceSplit(util.GetLocalIp()) + SPLIT
 	s += replaceSplit(trimNull(tracer.RemoteIp)) + SPLIT
-	s += strconv.FormatInt(int64(tracer.status), 10) + SPLIT
+	s += strconv.FormatInt(int64(tracer.Status), 10) + SPLIT
 	s += strconv.FormatInt(int64(tracer.Size), 10) + SPLIT
-	s += strconv.FormatInt(tracer.endTime-tracer.StartTime, 10) + SPLIT
-	s += replaceSplit(trimNull(tracer.message)) + SPLIT
+	s += strconv.FormatInt(tracer.EndTime-tracer.StartTime, 10) + SPLIT
+	s += replaceSplit(trimNull(tracer.Message)) + SPLIT
 	userId := tracer.AttrMap[_const2.TRACE_HEAD_USER_ID]
 	if userId == "" {
 		userId = tracer.AttrMap[_const2.A_USER_ID]

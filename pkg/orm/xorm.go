@@ -55,7 +55,7 @@ func (*TracerXormHook) AfterProcess(c *contexts.ContextHook, driverName string) 
 	resultMap["database"] = driverName
 	resultMap["sql"] = c.SQL
 	//resultMap["parameters"] = string(b)
-
+	tracer.PutAttr("a-cmd", c.SQL)
 	trace2.EndTrace(tracer, result, isc.ToJsonString(resultMap), 0)
 	return nil
 }

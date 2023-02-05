@@ -71,7 +71,7 @@ func (*TracerHttpHook) After(ctx context.Context, rsp *http.Response, rspCode in
 					resultMap["code"] = code
 					resultMap["message"] = msg
 
-					trace2.EndTrace(tracer, _const2.ERROR, isc.ToJsonString(resultMap), isc.ToInt(unsafe.Sizeof(rspData)))
+					trace2.EndTrace(tracer, _const2.ERROR, isc.ToJsonString(resultMap), isc.ToInt32(unsafe.Sizeof(rspData)))
 					return
 				}
 			}

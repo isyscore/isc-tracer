@@ -57,28 +57,28 @@ func ServerStartTraceWithRequest(traceType _const.TraceTypeEnum, traceName strin
 	return StartTrace(traceType, _const.SERVER, traceName, request)
 }
 
-func EndTraceOk(tracer *Tracer, message string, responseSize int) {
+func EndTraceOk(tracer *Tracer, message string, responseSize int32) {
 	if tracer == nil {
 		return
 	}
 	tracer.EndTrace(_const.OK, message, responseSize)
 }
 
-func EndTraceTimeout(tracer *Tracer, message string, responseSize int) {
+func EndTraceTimeout(tracer *Tracer, message string, responseSize int32) {
 	if tracer == nil {
 		return
 	}
 	tracer.EndTrace(_const.TIMEOUT, message, responseSize)
 }
 
-func EndTraceWarn(tracer *Tracer, message string, responseSize int) {
+func EndTraceWarn(tracer *Tracer, message string, responseSize int32) {
 	if tracer == nil {
 		return
 	}
 	tracer.EndTrace(_const.WARNING, message, responseSize)
 }
 
-func EndTraceError(tracer *Tracer, message string, responseSize int) {
+func EndTraceError(tracer *Tracer, message string, responseSize int32) {
 	if tracer == nil {
 		return
 	}

@@ -47,22 +47,22 @@ type Tracer struct {
 	TraceName string
 	// Endpoint 跟踪类型
 	Endpoint _const2.EndpointEnum
-	// status 跟踪结果
-	status _const2.TraceStatusEnum
+	// Status 跟踪结果
+	Status _const2.TraceStatusEnum
 
 	// RemoteStatus 远程调用结果
 	RemoteStatus _const2.TraceStatusEnum
 	// RemoteIp 远程调用IP,即下游(Client)或上游(Server)ip
 	RemoteIp string
-	// message 调用返回或异常信息
-	message string
+	// Message 调用返回或异常信息
+	Message string
 	// Size 响应体大小
-	Size int
+	Size int32
 
 	// StartTime 当前span开始时间
 	StartTime int64
-	// endTime 当前span结束时间
-	endTime int64
+	// EndTime 当前span结束时间
+	EndTime int64
 	// 是否采样
 	Sampled bool
 	// bizData 响应数据
@@ -122,7 +122,14 @@ func (tracer *Tracer) startTrace() {
 	tracer.AttrMap = make(map[string]string)
 }
 
-func (tracer *Tracer) EndTrace(status _const2.TraceStatusEnum, message string, responseSize int) {
+func (tracer *Tracer) PutAttr(key, value string) {
+	if key == "" || value == "" {
+		return
+	}
+	tracer.AttrMap[key] = value
+}
+
+func (tracer *Tracer) EndTrace(status _const2.TraceStatusEnum, message string, responseSize int32) {
 	defer func() {
 		deleteTrace(tracer.RpcId)
 	}()
@@ -141,18 +148,24 @@ func (tracer *Tracer) EndTrace(status _const2.TraceStatusEnum, message string, r
 
 	putAttrWithStorage(tracer)
 
-	tracer.endTime = time.Now().UnixMilli()
-	tracer.status = status
+	tracer.EndTime = time.Now().UnixMilli()
+	tracer.Status = status
 	tracer.Size = responseSize
 	if message != "" {
-		tracer.message = message
+		tracer.Message = message
 	}
-	SendTraceLog(tracer)
+
+	// 如果pivot网络通常，则使用grpc发送，否则走文件
+	if IsHealth() {
+		SendTracerToServer(tracer)
+	} else {
+		SendTraceLog(tracer)
+	}
 }
 
 func (tracer *Tracer) getStatus() _const2.TraceStatusEnum {
-	if tracer.status != _const2.OK {
-		return tracer.status
+	if tracer.Status != _const2.OK {
+		return tracer.Status
 	}
 	if tracer.RemoteStatus != _const2.OK {
 		return tracer.RemoteStatus
@@ -247,7 +260,7 @@ func StartTraceWithHeader(traceType _const2.TraceTypeEnum, endPoint _const2.Endp
 	return tracer
 }
 
-func EndTrace(tracer *Tracer, status _const2.TraceStatusEnum, message string, responseSize int) {
+func EndTrace(tracer *Tracer, status _const2.TraceStatusEnum, message string, responseSize int32) {
 	tracer.EndTrace(status, message, responseSize)
 }
 

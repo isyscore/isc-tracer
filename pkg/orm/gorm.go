@@ -50,6 +50,7 @@ func (*TracerGormHook) After(ctx context.Context, driverName string, parameters 
 	resultMap["sql"] = query
 	//resultMap["parameters"] = args
 
+	tracer.PutAttr("a-cmd", isc.ToString(query))
 	trace.EndTrace(tracer, _const.OK, isc.ToJsonString(resultMap), 0)
 	return ctx, nil
 }
@@ -80,6 +81,7 @@ func (*TracerGormHook) Err(ctx context.Context, driverName string, err error, pa
 	//resultMap["parameters"] = args
 	resultMap["err"] = err.Error()
 
+	tr.PutAttr("a-cmd", isc.ToString(query))
 	trace.EndTrace(tr, _const.ERROR, isc.ToJsonString(resultMap), 0)
 	return nil
 }

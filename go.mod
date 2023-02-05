@@ -5,7 +5,8 @@ go 1.18
 require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/isyscore/isc-gobase v1.5.0
+	github.com/isyscore/isc-gobase v1.4.14-0.20230202041423-e00db3dce6f6
+	github.com/robfig/cron v1.2.0
 	go.etcd.io/etcd/api/v3 v3.5.6
 	go.etcd.io/etcd/client/v3 v3.5.6
 	go.uber.org/atomic v1.10.0
