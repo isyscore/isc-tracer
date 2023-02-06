@@ -58,7 +58,7 @@ tracer:
     pivot: http://isc-pivot-platform:31107
   server:
     # 链路的服务端接收地址，这里采用grpc，这里默认如下
-    url: isc-pivot-platform:31107
+    url: isc-pivot-platform:31108
 ```
 
 ## 代码使用
