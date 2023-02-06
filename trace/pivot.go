@@ -12,7 +12,6 @@ import (
 	"github.com/isyscore/isc-tracer/pivot"
 	"github.com/robfig/cron"
 	"google.golang.org/grpc"
-	t0 "time"
 )
 
 var reqQueue *isc.Queue
@@ -59,9 +58,9 @@ func UploadTracer() {
 		numLeft := reqQueue.Num()
 		for numLeft != 0 {
 			logger.Group("tracer").Debug("数据准备发送，index=%v", numLeft)
-			dataReq, _ := reqQueue.Take(10 * t0.Millisecond)
+			dataReq, numLeftTem := reqQueue.Poll()
+			numLeft = numLeftTem
 			if dataReq == nil {
-				numLeft = reqQueue.Num()
 				continue
 			}
 			// 发送到远端
@@ -70,7 +69,6 @@ func UploadTracer() {
 			if nil != err {
 				logger.Error("链路上报服务端失败, traceId:%s, rpcId:%s, %v", tracer.TraceId, tracer.RpcId, err.Error())
 			}
-			numLeft = reqQueue.Num()
 		}
 	})
 }
