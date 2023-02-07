@@ -57,7 +57,7 @@ func init() {
 }
 
 func registerAppName() {
-	pivotUrl := config.GetValueStringDefault("tracer.url.pivot", "http://isc-pivot-platform:31107")
+	pivotUrl := config.GetValueStringDefault("tracer.server.admin-url", "http://isc-pivot-platform:31107")
 	header := http.Header{}
 	parameter := map[string]string{}
 	body := map[string]any{
@@ -65,6 +65,10 @@ func registerAppName() {
 	}
 
 	for i := 0; i < 100; i++ {
+		if !trace2.IsHealthOfAdmin() {
+			time.Sleep(5 * time.Second)
+			continue
+		}
 		_, _, _, err := baseHttp.Put(pivotUrl+"/api/app/operation-center/tracer/register", header, parameter, body)
 		if err != nil {
 			logger.Warn("注册pivot异常，重试，%v", err.Error())

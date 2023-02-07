@@ -11,7 +11,7 @@ import (
 func TestGrpcCollectTracer(t *testing.T) {
 	//建立链接
 	// 连接服务器
-	url := "localhost:9091"
+	url := "10.30.30.78:31108"
 	conn, err := grpc.Dial(url, grpc.WithInsecure())
 	if err != nil {
 		fmt.Printf("连接服务端失败: %s", err)

@@ -17,6 +17,7 @@ import (
 var reqQueue *isc.Queue
 var logCron *cron.Cron
 var serverIsHealth = false
+var serverAdminIsHealth = false
 var serverService pivot.PivotServiceClient
 
 func init() {
@@ -40,6 +41,7 @@ func init() {
 
 	// 每5秒检查pivot健康情况
 	err = logCron.AddFunc("0/5 * * * * ?", CheckServerHealth)
+	err = logCron.AddFunc("0/5 * * * * ?", CheckAdminServerHealth)
 	// 每3秒上报tracer信息
 	err = logCron.AddFunc("0/3 * * * * ?", UploadTracer)
 	if err != nil {
@@ -51,6 +53,10 @@ func init() {
 
 func IsHealth() bool {
 	return serverIsHealth
+}
+
+func IsHealthOfAdmin() bool {
+	return serverAdminIsHealth
 }
 
 func UploadTracer() {
@@ -79,6 +85,15 @@ func CheckServerHealth() {
 		serverIsHealth = true
 	} else {
 		serverIsHealth = false
+	}
+}
+
+func CheckAdminServerHealth() {
+	serverUrl := config.GetValueStringDefault("tracer.server.admin-url", "http://isc-pivot-platform:31107")
+	if baseNet.IpPortAvailable(serverUrl) {
+		serverAdminIsHealth = true
+	} else {
+		serverAdminIsHealth = false
 	}
 }
 

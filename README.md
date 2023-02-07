@@ -53,10 +53,10 @@ tracer:
     excludes-url:
       - /api/xxx/xxx/xxxx
       - /api/xxx/xxx/xxxx
-  # 用户名注册位置
-  url:
-    pivot: http://isc-pivot-platform:31107
+  # 链路的服务端地址
   server:
+    # 服务端的通用地址
+    admin-url: http://isc-pivot-platform:31107
     # 链路的服务端接收地址，这里采用grpc，这里默认如下
     url: isc-pivot-platform:31108
 ```
