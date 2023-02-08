@@ -137,6 +137,11 @@ func SendTracerToServer(tracer *Tracer) {
 }
 
 func changeToGrpcTracerRequest(pTracer *Tracer) *pivot.TracerRequest {
+	userId := pTracer.AttrMap[_const.TRACE_HEAD_USER_ID]
+	if userId == "" {
+		userId = pTracer.AttrMap[_const.A_USER_ID]
+	}
+
 	return &pivot.TracerRequest{
 		TraceId:      pTracer.TraceId,
 		RpcId:        pTracer.RpcId,
@@ -155,9 +160,12 @@ func changeToGrpcTracerRequest(pTracer *Tracer) *pivot.TracerRequest {
 		Ended:        pTracer.Ended,
 		AttrMap:      pTracer.AttrMap,
 
+		ProfilesActive: _const.DEFAULT_PROFILES_ACTIVE,
 		AppName:        getAppName(),
 		Ip:             util.GetLocalIp(),
-		ProfilesActive: _const.DEFAULT_PROFILES_ACTIVE,
+		Rt:             int32(pTracer.EndTime - pTracer.StartTime),
+		UserId:         userId,
+		Sql:            pTracer.AttrMap[_const.A_CMD],
 	}
 }
 
