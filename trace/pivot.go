@@ -137,6 +137,10 @@ func SendTracerToServer(tracer *Tracer) {
 }
 
 func changeToGrpcTracerRequest(pTracer *Tracer) *pivot.TraceLogRequest {
+	userId := pTracer.AttrMap[_const.TRACE_HEAD_USER_ID]
+	if userId == "" {
+		userId = pTracer.AttrMap[_const.A_USER_ID]
+	}
 	return &pivot.TraceLogRequest{
 		TraceId: pTracer.TraceId,
 		RpcId: pTracer.RpcId,

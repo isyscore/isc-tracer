@@ -11,7 +11,7 @@ import (
 func TestGrpcCollectTracer(t *testing.T) {
 	//建立链接
 	// 连接服务器
-	url := "10.30.30.78:31108"
+	url := "localhost:31108"
 	conn, err := grpc.Dial(url, grpc.WithInsecure())
 	if err != nil {
 		fmt.Printf("连接服务端失败: %s", err)
@@ -48,6 +48,8 @@ func TestGrpcCollectTracer(t *testing.T) {
 			"k1": []byte{32, 54 , 32,1, 32},
 		},
 		ThreadMode: 1,
+		Sql: "select",
+		AppName: "tracer_demo",
 	}
 	pivotService.CollectTracer(ctx, tracer)
 }
