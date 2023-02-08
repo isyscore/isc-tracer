@@ -9,7 +9,9 @@ import (
 	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/logger"
 	baseNet "github.com/isyscore/isc-gobase/system/net"
+	_const "github.com/isyscore/isc-tracer/const"
 	"github.com/isyscore/isc-tracer/pivot"
+	"github.com/isyscore/isc-tracer/util"
 	"github.com/robfig/cron"
 	"google.golang.org/grpc"
 )
@@ -136,22 +138,26 @@ func SendTracerToServer(tracer *Tracer) {
 
 func changeToGrpcTracerRequest(pTracer *Tracer) *pivot.TracerRequest {
 	return &pivot.TracerRequest{
-		TraceId: pTracer.TraceId,
-		RpcId: pTracer.RpcId,
-		TraceType: isc.ToInt32(pTracer.TraceType),
-		TraceName: pTracer.TraceName,
-		Endpoint: isc.ToInt32(pTracer.Endpoint),
-		Status: isc.ToInt32(pTracer.Status),
+		TraceId:      pTracer.TraceId,
+		RpcId:        pTracer.RpcId,
+		TraceType:    isc.ToInt32(pTracer.TraceType),
+		TraceName:    pTracer.TraceName,
+		Endpoint:     isc.ToInt32(pTracer.Endpoint),
+		Status:       isc.ToInt32(pTracer.Status),
 		RemoteStatus: isc.ToInt32(pTracer.RemoteStatus),
-		RemoteIp: pTracer.RemoteIp,
-		Message: pTracer.Message,
-		Size: pTracer.Size,
-		StartTime: pTracer.StartTime,
-		EndTime: pTracer.EndTime,
-		Sampled: pTracer.Sampled,
-		BizData: generateBytesMap(pTracer.bizData),
-		Ended: pTracer.Ended,
-		AttrMap: pTracer.AttrMap,
+		RemoteIp:     pTracer.RemoteIp,
+		Message:      pTracer.Message,
+		Size:         pTracer.Size,
+		StartTime:    pTracer.StartTime,
+		EndTime:      pTracer.EndTime,
+		Sampled:      pTracer.Sampled,
+		BizData:      generateBytesMap(pTracer.bizData),
+		Ended:        pTracer.Ended,
+		AttrMap:      pTracer.AttrMap,
+
+		AppName:        getAppName(),
+		Ip:             util.GetLocalIp(),
+		ProfilesActive: _const.DEFAULT_PROFILES_ACTIVE,
 	}
 }
 
