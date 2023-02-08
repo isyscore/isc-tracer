@@ -9,7 +9,9 @@ import (
 	"github.com/isyscore/isc-gobase/isc"
 	"github.com/isyscore/isc-gobase/logger"
 	baseNet "github.com/isyscore/isc-gobase/system/net"
+	_const "github.com/isyscore/isc-tracer/const"
 	"github.com/isyscore/isc-tracer/pivot"
+	"github.com/isyscore/isc-tracer/util"
 	"github.com/robfig/cron"
 	"google.golang.org/grpc"
 )
@@ -71,7 +73,7 @@ func UploadTracer() {
 			}
 			// 发送到远端
 			tracer := dataReq.(*Tracer)
-			_, err := serverService.CollectTracer(context.Background(), changeToGrpcTraceLogRequest(tracer))
+			_, err := serverService.CollectTracer(context.Background(), changeToGrpcTracerRequest(tracer))
 			if nil != err {
 				logger.Error("链路上报服务端失败, traceId:%s, rpcId:%s, %v", tracer.TraceId, tracer.RpcId, err.Error())
 			}
@@ -134,7 +136,7 @@ func SendTracerToServer(tracer *Tracer) {
 	}
 }
 
-func changeToGrpcTraceLogRequest(pTracer *Tracer) *pivot.TraceLogRequest {
+func changeToGrpcTracerRequest(pTracer *Tracer) *pivot.TraceLogRequest {
 	return &pivot.TraceLogRequest{
 		TraceId: pTracer.TraceId,
 		RpcId: pTracer.RpcId,
@@ -143,15 +145,22 @@ func changeToGrpcTraceLogRequest(pTracer *Tracer) *pivot.TraceLogRequest {
 		Endpoint: isc.ToInt32(pTracer.Endpoint),
 		Status: isc.ToInt32(pTracer.Status),
 		RemoteStatus: isc.ToInt32(pTracer.RemoteStatus),
-		RemoteIp: pTracer.RemoteIp,
-		Message: pTracer.Message,
-		Size: pTracer.Size,
-		StartTime: pTracer.StartTime,
-		EndTime: pTracer.EndTime,
-		Sampled: pTracer.Sampled,
-		BizData: generateBytesMap(pTracer.bizData),
-		Ended: pTracer.Ended,
-		AttrMap: pTracer.AttrMap,
+		RemoteIp:     pTracer.RemoteIp,
+		Message:      pTracer.Message,
+		Size:         pTracer.Size,
+		StartTime:    pTracer.StartTime,
+		EndTime:      pTracer.EndTime,
+		Sampled:      pTracer.Sampled,
+		BizData:      generateBytesMap(pTracer.bizData),
+		Ended:        pTracer.Ended,
+		AttrMap:      pTracer.AttrMap,
+
+		ProfilesActive: _const.DEFAULT_PROFILES_ACTIVE,
+		AppName:        getAppName(),
+		Ip:             util.GetLocalIp(),
+		Rt:             int32(pTracer.EndTime - pTracer.StartTime),
+		UserId:         userId,
+		Sql:            pTracer.AttrMap[_const.A_CMD],
 	}
 }
 

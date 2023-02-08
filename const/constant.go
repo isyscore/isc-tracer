@@ -20,6 +20,7 @@ const (
 	A_REAL_IP   = "a-real-ip"
 	A_PERF      = "a-rerf"
 	A_USER_ID   = "a-user-id"
+	A_CMD       = "a-cmd"
 	A_USER_NAME = "a-user-name"
 	A_ERROR_MSG = "a-error-msg"
 	A_WARN_MSG  = "a-warn-msg"
