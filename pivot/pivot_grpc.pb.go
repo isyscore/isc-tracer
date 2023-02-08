@@ -26,7 +26,7 @@ type PivotServiceClient interface {
 	CollectException(ctx context.Context, in *ExceptionEventRequest, opts ...grpc.CallOption) (*Response, error)
 	CollectWarn(ctx context.Context, in *WarnEventRequest, opts ...grpc.CallOption) (*Response, error)
 	CollectEvent(ctx context.Context, in *DefaultEventRequest, opts ...grpc.CallOption) (*Response, error)
-	CollectTracer(ctx context.Context, in *TracerRequest, opts ...grpc.CallOption) (*Response, error)
+	CollectTracer(ctx context.Context, in *TraceLogRequest, opts ...grpc.CallOption) (*Response, error)
 	CollectLog(ctx context.Context, in *AuditLogInfoRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
@@ -74,7 +74,7 @@ func (c *pivotServiceClient) CollectEvent(ctx context.Context, in *DefaultEventR
 	return out, nil
 }
 
-func (c *pivotServiceClient) CollectTracer(ctx context.Context, in *TracerRequest, opts ...grpc.CallOption) (*Response, error) {
+func (c *pivotServiceClient) CollectTracer(ctx context.Context, in *TraceLogRequest, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
 	err := c.cc.Invoke(ctx, "/grpc.PivotService/collectTracer", in, out, opts...)
 	if err != nil {
@@ -100,7 +100,7 @@ type PivotServiceServer interface {
 	CollectException(context.Context, *ExceptionEventRequest) (*Response, error)
 	CollectWarn(context.Context, *WarnEventRequest) (*Response, error)
 	CollectEvent(context.Context, *DefaultEventRequest) (*Response, error)
-	CollectTracer(context.Context, *TracerRequest) (*Response, error)
+	CollectTracer(context.Context, *TraceLogRequest) (*Response, error)
 	CollectLog(context.Context, *AuditLogInfoRequest) (*Response, error)
 	mustEmbedUnimplementedPivotServiceServer()
 }
@@ -121,7 +121,7 @@ func (UnimplementedPivotServiceServer) CollectWarn(context.Context, *WarnEventRe
 func (UnimplementedPivotServiceServer) CollectEvent(context.Context, *DefaultEventRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CollectEvent not implemented")
 }
-func (UnimplementedPivotServiceServer) CollectTracer(context.Context, *TracerRequest) (*Response, error) {
+func (UnimplementedPivotServiceServer) CollectTracer(context.Context, *TraceLogRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CollectTracer not implemented")
 }
 func (UnimplementedPivotServiceServer) CollectLog(context.Context, *AuditLogInfoRequest) (*Response, error) {
@@ -213,7 +213,7 @@ func _PivotService_CollectEvent_Handler(srv interface{}, ctx context.Context, de
 }
 
 func _PivotService_CollectTracer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TracerRequest)
+	in := new(TraceLogRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -225,7 +225,7 @@ func _PivotService_CollectTracer_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/grpc.PivotService/collectTracer",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PivotServiceServer).CollectTracer(ctx, req.(*TracerRequest))
+		return srv.(PivotServiceServer).CollectTracer(ctx, req.(*TraceLogRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -23,7 +23,7 @@ func TestGrpcCollectTracer(t *testing.T) {
 
 	ctx := context.Background()
 
-	tracer := &pivot.TracerRequest{
+	tracer := &pivot.TraceLogRequest{
 		TraceId: "tracer_id",
 		RpcId: "rpc_id",
 		TraceType: 1,

@@ -71,7 +71,7 @@ func UploadTracer() {
 			}
 			// 发送到远端
 			tracer := dataReq.(*Tracer)
-			_, err := serverService.CollectTracer(context.Background(), changeToGrpcTracerRequest(tracer))
+			_, err := serverService.CollectTracer(context.Background(), changeToGrpcTraceLogRequest(tracer))
 			if nil != err {
 				logger.Error("链路上报服务端失败, traceId:%s, rpcId:%s, %v", tracer.TraceId, tracer.RpcId, err.Error())
 			}
@@ -134,8 +134,8 @@ func SendTracerToServer(tracer *Tracer) {
 	}
 }
 
-func changeToGrpcTracerRequest(pTracer *Tracer) *pivot.TracerRequest {
-	return &pivot.TracerRequest{
+func changeToGrpcTraceLogRequest(pTracer *Tracer) *pivot.TraceLogRequest {
+	return &pivot.TraceLogRequest{
 		TraceId: pTracer.TraceId,
 		RpcId: pTracer.RpcId,
 		TraceType: isc.ToInt32(pTracer.TraceType),

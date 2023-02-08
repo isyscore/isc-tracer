@@ -11,7 +11,7 @@ service PivotService {
     rpc collectException(ExceptionEventRequest) returns (Response){}
     rpc collectWarn(WarnEventRequest) returns (Response){}
     rpc collectEvent(DefaultEventRequest) returns (Response){}
-    rpc collectTracer(TracerRequest) returns (Response){}
+    rpc collectTracer(TraceLogRequest) returns (Response){}
     rpc collectLog(AuditLogInfoRequest) returns (Response){}
 }
 
@@ -156,7 +156,7 @@ message DefaultEventRequest{
     string message = 21;
 }
 
-message TracerRequest{
+message TraceLogRequest{
     //AbstractBaseInfo
     string traceId = 1;
     string rpcId = 2;
