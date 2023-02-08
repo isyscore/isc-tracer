@@ -191,6 +191,18 @@ message TracerRequest{
     map<string,bytes> contextMap = 17;
     // 线程的切换方式
     int32 threadMode = 18;
+    string profilesActive = 19;
+    string appName = 20;
+    string ip = 21;
+    string userId = 22;
+
+    /** tracer.endTime - tracer.startTime */
+    int32 rt = 23;
+    /**
+     * type为mysql时, 为sql
+     * type为redis时, 为执行的命令
+     * */
+    string sql = 24;
 }
 
 message AuditLogInfoRequest{
