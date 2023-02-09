@@ -30,19 +30,21 @@ func init() {
 		logCron = cron.New()
 	}
 
-	serverUrl := config.GetValueStringDefault("tracer.server.url", "isc-pivot-platform:31108")
-	conn, err := grpc.Dial(serverUrl, grpc.WithInsecure())
-	if err != nil {
-		logger.Error("连接服务端失败: server：%s；错误信息：%v", serverUrl, err.Error())
-		return
+	if TracerIsEnable() {
+		serverUrl := config.GetValueStringDefault("tracer.server.url", "isc-pivot-platform:31108")
+		conn, err := grpc.Dial(serverUrl, grpc.WithInsecure())
+		if err != nil {
+			logger.Error("连接服务端失败: server：%s；错误信息：%v", serverUrl, err.Error())
+			return
+		}
+		serverService = pivot.NewPivotServiceClient(conn)
 	}
-	serverService = pivot.NewPivotServiceClient(conn)
 
 	// 检查服务端健康状况
 	CheckServerHealth()
 
 	// 每5秒检查pivot健康情况
-	err = logCron.AddFunc("0/5 * * * * ?", CheckServerHealth)
+	err := logCron.AddFunc("0/5 * * * * ?", CheckServerHealth)
 	err = logCron.AddFunc("0/5 * * * * ?", CheckAdminServerHealth)
 	// 每3秒上报tracer信息
 	err = logCron.AddFunc("0/3 * * * * ?", UploadTracer)
