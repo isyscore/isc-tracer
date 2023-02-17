@@ -158,9 +158,8 @@ func (tracer *Tracer) EndTrace(status _const2.TraceStatusEnum, message string, r
 	// 如果pivot网络通常，则使用grpc发送，否则走文件
 	if IsHealth() {
 		SendTracerToServer(tracer)
-	} else {
-		SendTraceLog(tracer)
 	}
+	SendTraceLog(tracer)
 }
 
 func (tracer *Tracer) getStatus() _const2.TraceStatusEnum {
