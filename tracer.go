@@ -32,6 +32,9 @@ const (
 )
 
 func init() {
+	if !config.GetValueBoolDefault("tracer.enable", true) {
+		return
+	}
 	server.AddGinHandlers(pkgHttp.TraceFilter())
 	orm.AddGormHook(&pkgOrm.TracerGormHook{})
 	orm.AddXormHook(&pkgOrm.TracerXormHook{})
