@@ -5,7 +5,6 @@ import (
 	"github.com/isyscore/isc-gobase/debug"
 	"github.com/isyscore/isc-gobase/extend/etcd"
 	"github.com/isyscore/isc-gobase/extend/orm"
-	baseRedis "github.com/isyscore/isc-gobase/extend/redis"
 	"github.com/isyscore/isc-gobase/goid"
 	baseHttp "github.com/isyscore/isc-gobase/http"
 	"github.com/isyscore/isc-gobase/isc"
@@ -16,7 +15,6 @@ import (
 	pkgEtcd "github.com/isyscore/isc-tracer/pkg/etcd"
 	pkgHttp "github.com/isyscore/isc-tracer/pkg/http"
 	pkgOrm "github.com/isyscore/isc-tracer/pkg/orm"
-	pkgRedis "github.com/isyscore/isc-tracer/pkg/redis"
 	trace2 "github.com/isyscore/isc-tracer/trace"
 	"net/http"
 	"time"
@@ -38,7 +36,7 @@ func init() {
 	server.AddGinHandlers(pkgHttp.TraceFilter())
 	orm.AddGormHook(&pkgOrm.TracerGormHook{})
 	orm.AddXormHook(&pkgOrm.TracerXormHook{})
-	baseRedis.AddRedisHook(&pkgRedis.TracerRedisHook{})
+	// baseRedis.AddRedisHook(&pkgRedis.TracerRedisHook{})
 	etcd.AddEtcdHook(&pkgEtcd.TracerEtcdHook{})
 	baseHttp.AddHook(&pkgHttp.TracerHttpHook{})
 
@@ -128,10 +126,10 @@ func registerWatch() {
 		logger.Info("配置最新值：key:【%v】, value：【%v】", key, value)
 		trace2.SwitchTraceDatabase = isc.ToBool(value)
 	})
-	debug.AddWatcher(SWITCH_OS_TRACE_REDIS, func(key string, value string) {
-		logger.Info("配置最新值：key:【%v】, value：【%v】", key, value)
-		trace2.SwitchTraceRedis = isc.ToBool(value)
-	})
+	//debug.AddWatcher(SWITCH_OS_TRACE_REDIS, func(key string, value string) {
+	//	logger.Info("配置最新值：key:【%v】, value：【%v】", key, value)
+	//	trace2.SwitchTraceRedis = isc.ToBool(value)
+	//})
 	debug.AddWatcher(SWITCH_OS_TRACE_ETCD, func(key string, value string) {
 		logger.Info("配置最新值：key:【%v】, value：【%v】", key, value)
 		trace2.SwitchTraceEtcd = isc.ToBool(value)

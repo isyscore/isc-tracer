@@ -14,8 +14,8 @@ func TestSwitch(t *testing.T) {
 	server.Get("/switch/trace/close", traceClose)
 	server.Get("/switch/trace/database/open", traceDatabaseOpen)
 	server.Get("/switch/trace/database/close", traceDatabaseClose)
-	server.Get("/switch/trace/redis/open", traceRedisOpen)
-	server.Get("/switch/trace/redis/close", traceRedisClose)
+	//server.Get("/switch/trace/redis/open", traceRedisOpen)
+	//server.Get("/switch/trace/redis/close", traceRedisClose)
 	server.Get("/switch/trace/etcd/open", traceEtcdOpen)
 	server.Get("/switch/trace/etcd/close", traceEtcdClose)
 
@@ -38,13 +38,13 @@ func traceDatabaseClose(c *gin.Context) {
 	debug.Update(isc_tracer.SWITCH_OS_TRACE_DATABASE, "false")
 }
 
-func traceRedisOpen(c *gin.Context) {
-	debug.Update(isc_tracer.SWITCH_OS_TRACE_REDIS, "true")
-}
+//func traceRedisOpen(c *gin.Context) {
+//	debug.Update(isc_tracer.SWITCH_OS_TRACE_REDIS, "true")
+//}
 
-func traceRedisClose(c *gin.Context) {
-	debug.Update(isc_tracer.SWITCH_OS_TRACE_REDIS, "false")
-}
+//func traceRedisClose(c *gin.Context) {
+//	debug.Update(isc_tracer.SWITCH_OS_TRACE_REDIS, "false")
+//}
 
 func traceEtcdOpen(c *gin.Context) {
 	debug.Update(isc_tracer.SWITCH_OS_TRACE_ETCD, "true")
